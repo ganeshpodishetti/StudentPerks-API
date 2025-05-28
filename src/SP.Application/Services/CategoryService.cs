@@ -20,6 +20,7 @@ public class CategoryService(SpDbContext spDbContext) : ICategory
     public async Task<CategoryResponse?> GetCategoryByIdAsync(Guid categoryId, CancellationToken ct)
     {
         var category = await spDbContext.Categories
+                                        .AsNoTracking()
                                         .FirstOrDefaultAsync(c => c.CategoryId == categoryId, ct);
         return category?.ToDto();
     }
