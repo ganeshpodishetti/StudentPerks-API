@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4506079D-245
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SP.API", "src\SP.API\SP.API.csproj", "{5953F3EB-6055-4EEF-8D03-A1B29FA1AC77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SP.Domian", "src\SP.Domian\SP.Domian.csproj", "{FAEEA6ED-2E9F-44BA-A4A6-CF5B3C8293E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SP.Domain", "src\SP.Domain\SP.Domain.csproj", "{FAEEA6ED-2E9F-44BA-A4A6-CF5B3C8293E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SP.Services", "src\SP.Services\SP.Services.csproj", "{B88E0E37-93E9-4E87-8BA9-B180C2375645}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SP.Application", "src\SP.Application\SP.Application.csproj", "{B88E0E37-93E9-4E87-8BA9-B180C2375645}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SP.Infrastructure", "src\SP.Infrastructure\SP.Infrastructure.csproj", "{F9ACDBF3-1963-40DE-AE2C-1FED85A6F434}"
 EndProject
