@@ -24,7 +24,7 @@ namespace SP.Infrastructure.Migrations
 
             modelBuilder.Entity("SP.Domain.Entities.Category", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -36,13 +36,14 @@ namespace SP.Infrastructure.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -52,7 +53,7 @@ namespace SP.Infrastructure.Migrations
 
             modelBuilder.Entity("SP.Domain.Entities.Deal", b =>
                 {
-                    b.Property<Guid>("DealId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -67,8 +68,9 @@ namespace SP.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<int?>("DiscountType")
-                        .HasColumnType("integer");
+                    b.Property<string>("DiscountType")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("DiscountValue")
                         .HasColumnType("text");
@@ -79,11 +81,16 @@ namespace SP.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Location")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Promo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RedeemType")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateOnly?>("StartDate")
@@ -92,19 +99,15 @@ namespace SP.Infrastructure.Migrations
                     b.Property<Guid>("StoreId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.HasKey("DealId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
@@ -119,7 +122,7 @@ namespace SP.Infrastructure.Migrations
 
             modelBuilder.Entity("SP.Domain.Entities.Store", b =>
                 {
-                    b.Property<Guid>("StoreId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -131,8 +134,9 @@ namespace SP.Infrastructure.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -140,7 +144,7 @@ namespace SP.Infrastructure.Migrations
                     b.Property<string>("Website")
                         .HasColumnType("text");
 
-                    b.HasKey("StoreId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();

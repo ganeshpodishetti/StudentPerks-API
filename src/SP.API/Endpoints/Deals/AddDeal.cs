@@ -15,7 +15,7 @@ public class AddDeal : IEndpoint
                  async (IDeal dealService, [FromBody] CreateDealRequest request, CancellationToken cancellationToken) =>
                  {
                      var deal = await dealService.CreateDealAsync(request, cancellationToken);
-                     return Results.Created($"/api/deals/{deal.DealId}", deal);
+                     return Results.Created($"/api/deals/{deal.Id}", deal);
                  })
              .WithTags("Deals");
     }

@@ -8,7 +8,7 @@ public static class CategoryMappingExtension
     public static CategoryResponse ToDto(this Category category)
     {
         return new CategoryResponse(
-            category.CategoryId,
+            category.Id,
             category.Name,
             category.Description);
     }
