@@ -123,7 +123,7 @@ public class DealService(SpDbContext spDbContext) : IDeal
     public async Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealRequest, CancellationToken ct)
     {
         var deal = await spDbContext.Deals
-                                    .FindAsync([dealId], ct);
+                                    .FirstOrDefaultAsync(d => d.DealId == dealId, ct);
 
         if (deal == null) return false;
 
@@ -160,7 +160,7 @@ public class DealService(SpDbContext spDbContext) : IDeal
     public async Task<bool> DeleteDealAsync(Guid dealId, CancellationToken ct)
     {
         var deal = await spDbContext.Deals
-                                    .FindAsync([dealId], ct);
+                                    .FirstOrDefaultAsync(d => d.DealId == dealId, ct);
         if (deal == null) return false;
 
         spDbContext.Deals.Remove(deal);

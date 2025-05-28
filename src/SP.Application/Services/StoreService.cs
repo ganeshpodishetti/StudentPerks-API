@@ -19,13 +19,14 @@ public class StoreService(SpDbContext spDbContext) : IStore
     public async Task<StoreResponse?> GetStoreByIdAsync(Guid storeId, CancellationToken ct)
     {
         var store = await spDbContext.Stores
-                                     .FindAsync([storeId], ct);
+                                     .AsNoTracking()
+                                     .FirstOrDefaultAsync(s => s.StoreId == storeId, ct);
         return store?.ToDto();
     }
 
     public async Task<bool> UpdateStore(Guid storeId, UpdateStoreRequest updateStoreRequest, CancellationToken ct)
     {
-        var store = await spDbContext.Stores.FindAsync([storeId], ct);
+        var store = await spDbContext.Stores.FirstOrDefaultAsync(s => s.StoreId == storeId, ct);
         if (store == null) return false;
 
         store.Name = updateStoreRequest.Name;
@@ -41,7 +42,7 @@ public class StoreService(SpDbContext spDbContext) : IStore
 
     public async Task<bool> DeleteStore(Guid storeId, CancellationToken ct)
     {
-        var store = await spDbContext.Stores.FindAsync([storeId], ct);
+        var store = await spDbContext.Stores.FirstOrDefaultAsync(s => s.StoreId == storeId, ct);
         if (store == null) return false;
         spDbContext.Stores.Remove(store);
         await spDbContext.SaveChangesAsync(ct);
