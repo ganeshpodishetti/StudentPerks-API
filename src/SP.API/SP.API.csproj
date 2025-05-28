@@ -4,10 +4,24 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>9ab0c049-3760-4712-8355-07b2298a070e</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Asp.Versioning.WebApi" Version="7.1.0"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.4.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SP.Domain\SP.Domain.csproj"/>
+        <ProjectReference Include="..\SP.Infrastructure\SP.Infrastructure.csproj"/>
+        <ProjectReference Include="..\SP.Application\SP.Application.csproj"/>
     </ItemGroup>
 
 </Project>
