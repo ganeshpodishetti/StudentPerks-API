@@ -1,47 +1,44 @@
-using System;
-using SP.Domain.Enum;
-
 namespace SP.Application.Dtos.Deal;
 
 public record GetDealResponse(
-    Guid DealId,
+    Guid Id,
     string Title,
     string Description,
-    DiscountType? DiscountType,
+    string DiscountType,
     string? DiscountValue,
     string? Promo,
     bool IsActive,
     string Url,
-    string Location,
+    string RedeemType,
     DateOnly? StartDate,
     DateOnly? EndDate,
     string? CategoryName,
     string? StoreName);
 
 public record GetDealsByCategoryResponse(
-    Guid DealId,
+    Guid Id,
     string Title,
     string Description,
-    DiscountType? DiscountType,
+    string DiscountType,
     string? DiscountValue,
     string? Promo,
     bool IsActive,
     string Url,
-    string Location,
+    string RedeemType,
     DateOnly? StartDate,
     DateOnly? EndDate,
-    string? CategoryName);
-    
+    string CategoryName);
+
 public record GetDealsByStoreResponse(
-    Guid DealId,
+    Guid Id,
     string Title,
     string Description,
-    DiscountType? DiscountType,
+    string DiscountType,
     string? DiscountValue,
     string? Promo,
     bool IsActive,
     string Url,
-    string Location,
+    string RedeemType,
     DateOnly? StartDate,
     DateOnly? EndDate,
-    string? StoreName);
+    string StoreName);

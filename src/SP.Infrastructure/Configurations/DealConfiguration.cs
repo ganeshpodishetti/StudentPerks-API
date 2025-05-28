@@ -9,27 +9,39 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
     public void Configure(EntityTypeBuilder<Deal> builder)
     {
         builder.ToTable("Deals");
-        builder.HasKey(x => x.DealId);
-        
-        builder.Property(x => x.Title)
-            .IsRequired()
-            .HasMaxLength(100);
-        
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Name)
+               .IsRequired()
+               .HasMaxLength(100);
+
         builder.Property(x => x.Description)
-            .IsRequired()
-            .HasMaxLength(500);
-        
+               .IsRequired()
+               .HasMaxLength(500);
+
+        builder.Property(x => x.DiscountType)
+               .IsRequired()
+               .HasConversion<string>();
+
+        builder.Property(x => x.Url)
+               .IsRequired()
+               .HasMaxLength(100);
+
+        builder.Property(x => x.RedeemType)
+               .IsRequired()
+               .HasConversion<string>();
+
         // Relationships
         builder.HasOne(x => x.Category)
-            .WithMany(x => x.Deals)
-            .HasForeignKey(x => x.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
+               .WithMany(x => x.Deals)
+               .HasForeignKey(x => x.CategoryId)
+               .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasOne(x => x.Store)
-            .WithMany(x => x.Deals)
-            .HasForeignKey(x => x.StoreId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
+               .WithMany(x => x.Deals)
+               .HasForeignKey(x => x.StoreId)
+               .OnDelete(DeleteBehavior.Restrict);
+
         // Add indexes
         builder.HasIndex(x => x.CategoryId);
         builder.HasIndex(x => x.StoreId);

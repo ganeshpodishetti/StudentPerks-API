@@ -8,7 +8,7 @@ public static class StoreMappingExtension
     public static StoreResponse ToDto(this Store store)
     {
         return new StoreResponse(
-            store.StoreId,
+            store.Id,
             store.Name,
             store.Description,
             store.Website);

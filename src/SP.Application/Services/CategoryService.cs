@@ -21,7 +21,7 @@ public class CategoryService(SpDbContext spDbContext) : ICategory
     {
         var category = await spDbContext.Categories
                                         .AsNoTracking()
-                                        .FirstOrDefaultAsync(c => c.CategoryId == categoryId, ct);
+                                        .FirstOrDefaultAsync(c => c.Id == categoryId, ct);
         return category?.ToDto();
     }
 
@@ -29,7 +29,7 @@ public class CategoryService(SpDbContext spDbContext) : ICategory
         CancellationToken ct)
     {
         var category = await spDbContext.Categories
-                                        .FindAsync([categoryId], ct);
+                                        .FirstOrDefaultAsync(c => c.Id == categoryId, ct);
         if (category == null) return false;
 
         category.Name = updateCategoryRequest.Name;
@@ -45,7 +45,7 @@ public class CategoryService(SpDbContext spDbContext) : ICategory
     public async Task<bool> DeleteCategory(Guid categoryId, CancellationToken ct)
     {
         var category = await spDbContext.Categories
-                                        .FindAsync([categoryId], ct);
+                                        .FirstOrDefaultAsync(c => c.Id == categoryId, ct);
         if (category == null) return false;
 
         spDbContext.Categories.Remove(category);

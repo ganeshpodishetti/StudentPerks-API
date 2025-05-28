@@ -8,15 +8,15 @@ public static class DealMappingExtension
     public static GetDealResponse ToDto(this Deal deal)
     {
         return new GetDealResponse(
-            deal.DealId,
-            deal.Title,
+            deal.Id,
+            deal.Name,
             deal.Description,
-            deal.DiscountType,
+            deal.DiscountType.ToString(),
             deal.DiscountValue,
             deal.Promo,
             deal.IsActive,
             deal.Url,
-            deal.Location,
+            deal.RedeemType.ToString(),
             deal.StartDate,
             deal.EndDate,
             deal.Category.Name,
@@ -26,33 +26,33 @@ public static class DealMappingExtension
     public static GetDealsByCategoryResponse ToCategoryDto(this Deal deal)
     {
         return new GetDealsByCategoryResponse(
-            deal.DealId,
-            deal.Title,
+            deal.Id,
+            deal.Name,
             deal.Description,
-            deal.DiscountType,
+            deal.DiscountType.ToString(),
             deal.DiscountValue,
             deal.Promo,
             deal.IsActive,
             deal.Url,
-            deal.Location,
+            deal.RedeemType.ToString(),
             deal.StartDate,
             deal.EndDate,
             deal.Category.Name
         );
     }
-    
+
     public static GetDealsByStoreResponse ToStoreDto(this Deal deal)
     {
         return new GetDealsByStoreResponse(
-            deal.DealId,
-            deal.Title,
+            deal.Id,
+            deal.Name,
             deal.Description,
-            deal.DiscountType,
+            deal.DiscountType.ToString(),
             deal.DiscountValue,
             deal.Promo,
             deal.IsActive,
             deal.Url,
-            deal.Location,
+            deal.RedeemType.ToString(),
             deal.StartDate,
             deal.EndDate,
             deal.Store.Name
