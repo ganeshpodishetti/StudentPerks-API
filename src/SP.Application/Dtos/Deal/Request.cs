@@ -14,7 +14,7 @@ public record CreateDealRequest(
     DateOnly? StartDate,
     DateOnly? EndDate,
     string CategoryName,
-    string? StoreName);
+    string StoreName);
 
 public record UpdateDealRequest(
     string Title,
@@ -28,4 +28,4 @@ public record UpdateDealRequest(
     DateOnly? StartDate,
     DateOnly? EndDate,
     string CategoryName,
-    string? StoreName);
+    string StoreName);

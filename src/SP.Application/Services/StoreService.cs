@@ -8,7 +8,7 @@ namespace SP.Application.Services;
 
 public class StoreService(SpDbContext spDbContext) : IStore
 {
-    public async Task<IEnumerable<StoreResponse>?> GetAllStoresAsync(CancellationToken ct)
+    public async Task<IEnumerable<StoreResponse>> GetAllStoresAsync(CancellationToken ct)
     {
         var stores = await spDbContext.Stores
                                       .AsNoTracking()
@@ -20,32 +20,42 @@ public class StoreService(SpDbContext spDbContext) : IStore
     {
         var store = await spDbContext.Stores
                                      .AsNoTracking()
-                                     .FirstOrDefaultAsync(s => s.Id == storeId, ct);
+                                     .SingleOrDefaultAsync(s => s.Id == storeId, ct);
         return store?.ToDto();
     }
 
-    public async Task<bool> UpdateStore(Guid storeId, UpdateStoreRequest updateStoreRequest, CancellationToken ct)
+    public async Task<bool> UpdateStoreAsync(Guid storeId, UpdateStoreRequest updateStoreRequest, CancellationToken ct)
     {
-        var store = await spDbContext.Stores.FirstOrDefaultAsync(s => s.Id == storeId, ct);
+        var store = await spDbContext.Stores.SingleOrDefaultAsync(s => s.Id == storeId, ct);
         if (store == null) return false;
 
-        store.Name = updateStoreRequest.Name;
-        store.Description = updateStoreRequest.Description;
-        store.Website = updateStoreRequest.Website;
-        store.UpdatedAt = DateTime.UtcNow;
-
-        spDbContext.Update(store);
+        updateStoreRequest.ToEntity(store);
         await spDbContext.SaveChangesAsync(ct);
-
         return true;
     }
 
-    public async Task<bool> DeleteStore(Guid storeId, CancellationToken ct)
+    public async Task<bool> DeleteStoreAsync(Guid storeId, CancellationToken ct)
     {
-        var store = await spDbContext.Stores.FirstOrDefaultAsync(s => s.Id == storeId, ct);
+        var store = await spDbContext.Stores.SingleOrDefaultAsync(s => s.Id == storeId, ct);
         if (store == null) return false;
         spDbContext.Stores.Remove(store);
         await spDbContext.SaveChangesAsync(ct);
         return true;
+    }
+
+    public async Task<StoreResponse> CreateStoreAsync(CreateStoreRequest createStoreRequest,
+        CancellationToken cancellationToken)
+    {
+        var existingStore = await spDbContext.Stores.SingleOrDefaultAsync(
+            c => c.Name == createStoreRequest.Name.ToLower(),
+            cancellationToken);
+
+        if (existingStore != null) return existingStore.ToDto();
+
+        var store = createStoreRequest.ToEntity();
+
+        await spDbContext.Stores.AddAsync(store, cancellationToken);
+        await spDbContext.SaveChangesAsync(cancellationToken);
+        return store.ToDto();
     }
 }

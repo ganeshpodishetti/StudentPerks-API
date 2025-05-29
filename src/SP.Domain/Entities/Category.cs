@@ -5,5 +5,5 @@ public sealed class Category : Base
     public string? Description { get; set; }
 
     // One category has many deals
-    public ICollection<Deal> Deals { get; init; } = [];
+    public ICollection<Deal> Deals { get; set; } = [];
 }

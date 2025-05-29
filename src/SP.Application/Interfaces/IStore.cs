@@ -4,8 +4,12 @@ namespace SP.Application.Interfaces;
 
 public interface IStore
 {
-    Task<IEnumerable<StoreResponse>?> GetAllStoresAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<StoreResponse>> GetAllStoresAsync(CancellationToken cancellationToken);
     Task<StoreResponse?> GetStoreByIdAsync(Guid storeId, CancellationToken cancellationToken);
-    Task<bool> UpdateStore(Guid storeId, UpdateStoreRequest updateStoreRequest, CancellationToken cancellationToken);
-    Task<bool> DeleteStore(Guid storeId, CancellationToken cancellationToken);
+
+    Task<bool> UpdateStoreAsync(Guid storeId, UpdateStoreRequest updateStoreRequest,
+        CancellationToken cancellationToken);
+
+    Task<bool> DeleteStoreAsync(Guid storeId, CancellationToken cancellationToken);
+    Task<StoreResponse> CreateStoreAsync(CreateStoreRequest createStoreRequest, CancellationToken cancellationToken);
 }

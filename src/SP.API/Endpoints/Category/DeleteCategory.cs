@@ -12,7 +12,7 @@ public class DeleteCategory : IEndpoint
         route.MapDelete("/{id:guid}",
                  async (Guid id, ICategory categoryService, CancellationToken cancellationToken) =>
                  {
-                     var category = await categoryService.DeleteCategory(id, cancellationToken);
+                     var category = await categoryService.DeleteCategoryAsync(id, cancellationToken);
                      return category
                          ? Results.Ok(new { message = "Category deleted successfully" })
                          : Results.NotFound(new { message = "Category with ID not found" });

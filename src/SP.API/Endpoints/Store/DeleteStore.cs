@@ -12,7 +12,7 @@ public class DeleteStore : IEndpoint
         route.MapDelete("/{id:guid}",
                  async (IStore storeService, Guid id, CancellationToken cancellationToken) =>
                  {
-                     var store = await storeService.DeleteStore(id, cancellationToken);
+                     var store = await storeService.DeleteStoreAsync(id, cancellationToken);
                      return store
                          ? Results.Ok(new { message = "Store deleted successfully" })
                          : Results.NotFound(new { message = "Store with ID not found" });

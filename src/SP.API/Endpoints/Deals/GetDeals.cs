@@ -13,9 +13,7 @@ public class GetDeals : IEndpoint
                  async (IDeal dealService, CancellationToken cancellationToken) =>
                  {
                      var deals = await dealService.GetAllDealsAsync(cancellationToken);
-                     return deals is not null
-                         ? Results.Ok(deals)
-                         : Results.NotFound(new { message = "No deals found" });
+                     return Results.Ok(deals);
                  })
              .WithTags("Deals");
     }

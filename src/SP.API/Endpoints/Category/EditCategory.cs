@@ -15,7 +15,7 @@ public class UpdateCategory : IEndpoint
                  async (Guid id, [FromBody] UpdateCategoryRequest updateCategory, ICategory categoryService,
                      CancellationToken cancellationToken) =>
                  {
-                     var category = await categoryService.UpdateCategory(id, updateCategory, cancellationToken);
+                     var category = await categoryService.UpdateCategoryAsync(id, updateCategory, cancellationToken);
                      return category
                          ? Results.Ok(new { message = "Category updated successfully" })
                          : Results.NotFound(new { message = "Category with ID not found" });

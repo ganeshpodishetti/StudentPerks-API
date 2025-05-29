@@ -15,7 +15,7 @@ public class UpdateStore : IEndpoint
                  async (IStore storeService, Guid id, [FromBody] UpdateStoreRequest request,
                      CancellationToken cancellationToken) =>
                  {
-                     var store = await storeService.UpdateStore(id, request, cancellationToken);
+                     var store = await storeService.UpdateStoreAsync(id, request, cancellationToken);
                      return store
                          ? Results.Ok(new { message = "Store updated successfully" })
                          : Results.NotFound(new { message = "Store with ID not found" });

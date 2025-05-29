@@ -13,9 +13,7 @@ public class GetStores : IEndpoint
                  async (IStore storeService, CancellationToken cancellationToken) =>
                  {
                      var stores = await storeService.GetAllStoresAsync(cancellationToken);
-                     return stores is not null
-                         ? Results.Ok(stores)
-                         : Results.NotFound(new { message = "No stores found" });
+                     return Results.Ok(stores);
                  })
              .WithTags("Stores");
     }

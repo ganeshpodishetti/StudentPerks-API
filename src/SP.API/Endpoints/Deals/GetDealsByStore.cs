@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using SP.API.Abstractions;
 using SP.Application.Interfaces;
 
@@ -11,7 +10,7 @@ public class GetDealsByStore : IEndpoint
         var route = endpoints.MapGroup("/api/deals");
 
         route.MapGet("/store/{name}",
-                 async (IDeal dealService, [FromQuery] string name, CancellationToken cancellationToken) =>
+                 async (IDeal dealService, string name, CancellationToken cancellationToken) =>
                  {
                      var dealsByStore = await dealService.GetDealsByStoreAsync(name.ToLower(), cancellationToken);
                      return dealsByStore is not null
