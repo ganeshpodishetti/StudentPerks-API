@@ -15,7 +15,7 @@ public class DealService(SpDbContext spDbContext) : IDeal
                                     .Include(d => d.Category)
                                     .Include(d => d.Store)
                                     .AsNoTracking()
-                                    .FirstOrDefaultAsync(d => d.Id == dealId, ct);
+                                    .SingleOrDefaultAsync(d => d.Id == dealId, ct);
 
         return deal?.ToDto();
     }
@@ -43,7 +43,7 @@ public class DealService(SpDbContext spDbContext) : IDeal
         return Task.FromResult(deals?.Result.Select(d => d.ToStoreDto()));
     }
 
-    public async Task<IEnumerable<GetDealResponse>?> GetAllDealsAsync(CancellationToken ct)
+    public async Task<IEnumerable<GetDealResponse>> GetAllDealsAsync(CancellationToken ct)
     {
         var deals = await spDbContext.Deals
                                      .Include(d => d.Category)
@@ -58,11 +58,13 @@ public class DealService(SpDbContext spDbContext) : IDeal
     {
         // Check if category with same name already exists
         var existingStore = await spDbContext.Stores
-                                             .FirstOrDefaultAsync(c => c.Name == request.StoreName, ct);
+                                             .FirstOrDefaultAsync(c => c.Name == request.StoreName.ToLower(),
+                                                 ct);
 
         // Check if category with same name already exists
         var existingCategory = await spDbContext.Categories
-                                                .FirstOrDefaultAsync(c => c.Name == request.CategoryName, ct);
+                                                .FirstOrDefaultAsync(c => c.Name == request.CategoryName.ToLower(),
+                                                    ct);
 
         Category category;
 
@@ -97,22 +99,8 @@ public class DealService(SpDbContext spDbContext) : IDeal
             await spDbContext.Stores.AddAsync(store, ct);
         }
 
-        // Create the Deal
-        var deal = new Deal
-        {
-            Name = request!.Title,
-            Description = request.Description,
-            DiscountType = request.DiscountType,
-            DiscountValue = request.DiscountValue,
-            Promo = request.Promo,
-            IsActive = request.IsActive,
-            Url = request.Url,
-            RedeemType = request.RedeemType,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
-            Category = category,
-            Store = store
-        };
+        // Create a new deal
+        var deal = request.ToEntity(category, store);
 
         await spDbContext.Deals.AddAsync(deal, ct);
         await spDbContext.SaveChangesAsync(ct);
@@ -123,36 +111,25 @@ public class DealService(SpDbContext spDbContext) : IDeal
     public async Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealRequest, CancellationToken ct)
     {
         var deal = await spDbContext.Deals
-                                    .FirstOrDefaultAsync(d => d.Id == dealId, ct);
+                                    .SingleOrDefaultAsync(d => d.Id == dealId,
+                                        ct);
 
         if (deal == null) return false;
 
         // Check if category with same name already exists
         var existingStore = await spDbContext.Stores
-                                             .FirstOrDefaultAsync(c => c.Name == updateDealRequest.StoreName, ct);
+                                             .FirstOrDefaultAsync(c => c.Name == updateDealRequest.StoreName.ToLower(),
+                                                 ct);
 
         // Check if category with same name already exists
         var existingCategory = await spDbContext.Categories
-                                                .FirstOrDefaultAsync(c => c.Name == updateDealRequest.CategoryName, ct);
+                                                .FirstOrDefaultAsync(
+                                                    c => c.Name == updateDealRequest.CategoryName.ToLower(),
+                                                    ct);
 
         if (existingCategory == null || existingStore == null) return false;
 
-        // Update the deal
-        deal.Name = updateDealRequest.Title;
-        deal.Description = updateDealRequest.Description;
-        deal.DiscountType = updateDealRequest.DiscountType;
-        deal.DiscountValue = updateDealRequest.DiscountValue;
-        deal.Promo = updateDealRequest.Promo;
-        deal.IsActive = updateDealRequest.IsActive;
-        deal.Url = updateDealRequest.Url;
-        deal.RedeemType = updateDealRequest.RedeemType;
-        deal.StartDate = updateDealRequest.StartDate;
-        deal.EndDate = updateDealRequest.EndDate;
-        deal.Category = existingCategory;
-        deal.Store = existingStore;
-        deal.UpdatedAt = DateTime.UtcNow;
-
-        spDbContext.Update(deal);
+        updateDealRequest.ToEntity(deal, existingCategory, existingStore);
         await spDbContext.SaveChangesAsync(ct);
         return true;
     }
@@ -160,7 +137,7 @@ public class DealService(SpDbContext spDbContext) : IDeal
     public async Task<bool> DeleteDealAsync(Guid dealId, CancellationToken ct)
     {
         var deal = await spDbContext.Deals
-                                    .FirstOrDefaultAsync(d => d.Id == dealId, ct);
+                                    .SingleOrDefaultAsync(d => d.Id == dealId, ct);
         if (deal == null) return false;
 
         spDbContext.Deals.Remove(deal);

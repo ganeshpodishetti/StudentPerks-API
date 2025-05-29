@@ -13,10 +13,10 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(x => x.Name)
                .IsRequired()
-               .HasMaxLength(10);
+               .HasMaxLength(25);
 
         builder.Property(x => x.Description)
-               .HasMaxLength(500);
+               .HasMaxLength(250);
 
         builder.HasMany(x => x.Deals)
                .WithOne(x => x.Category)

@@ -12,8 +12,8 @@ public record GetDealResponse(
     string RedeemType,
     DateOnly? StartDate,
     DateOnly? EndDate,
-    string? CategoryName,
-    string? StoreName);
+    string CategoryName,
+    string StoreName);
 
 public record GetDealsByCategoryResponse(
     Guid Id,

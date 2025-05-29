@@ -13,9 +13,7 @@ public class GetCategories : IEndpoint
                  async (ICategory categoryService, CancellationToken cancellationToken) =>
                  {
                      var categories = await categoryService.GetAllCategoriesAsync(cancellationToken);
-                     return categories is not null
-                         ? Results.Ok(categories)
-                         : Results.NotFound(new { message = "No categories found" });
+                     return Results.Ok(categories);
                  })
              .WithTags("Categories");
     }

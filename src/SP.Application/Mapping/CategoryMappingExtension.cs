@@ -12,4 +12,20 @@ public static class CategoryMappingExtension
             category.Name,
             category.Description);
     }
+
+    public static Category ToEntity(this CreateCategoryRequest request)
+    {
+        return new Category
+        {
+            Name = request.Name.ToLower(),
+            Description = request.Description
+        };
+    }
+
+    public static void ToEntity(this UpdateCategoryRequest request, Category category)
+    {
+        category.Name = request.Name.ToLower();
+        category.Description = request.Description;
+        category.UpdatedAt = DateTime.UtcNow;
+    }
 }
