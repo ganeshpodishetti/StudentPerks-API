@@ -13,17 +13,17 @@ public static class DatabaseExtension
         services.AddDbContextPool<SpDbContext>((provider, options) =>
         {
             var connString = provider.GetRequiredService<IOptions<ConnStringOptions>>().Value.SpDbConnection;
-            
-            if(string.IsNullOrEmpty(connString))
+
+            if (string.IsNullOrEmpty(connString))
                 throw new Exception("Connection string is not set");
 
             options.UseNpgsql(connString, npgsqlOptions =>
             {
                 npgsqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
-                npgsqlOptions.CommandTimeout(30);
+                npgsqlOptions.CommandTimeout(60);
             });
-        }, (int)ServiceLifetime.Scoped);
-        
+        }, 128);
+
         return services;
     }
 }
