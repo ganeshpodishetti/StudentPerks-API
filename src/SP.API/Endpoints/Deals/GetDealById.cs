@@ -18,10 +18,9 @@ public class GetDealById : IEndpoint
                     logger.LogWarning("Attempted to retrieve a deal with an empty ID.");
                     return Results.BadRequest(new { message = "Deal ID cannot be empty" });
                 }
-
-                var deals = await dealService.GetDealByIdAsync(id, cancellationToken);
-                return deals is not null
-                    ? Results.Ok(deals)
+                var deal = await dealService.GetDealByIdAsync(id, cancellationToken);
+                return deal is not null
+                    ? Results.Ok(deal)
                     : Results.NotFound(new { message = "Deal with ID not found" });
             });
     }

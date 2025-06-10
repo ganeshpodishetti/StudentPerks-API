@@ -6,7 +6,7 @@ using SP.Application.Interfaces;
 
 namespace SP.API.Endpoints.Category;
 
-public class UpdateCategory : IEndpoint
+public class EditCategory : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
@@ -16,7 +16,7 @@ public class UpdateCategory : IEndpoint
             async (Guid id, [FromBody] UpdateCategoryRequest updateCategory,
                 ICategory categoryService,
                 IValidator<UpdateCategoryRequest> validator,
-                ILogger<UpdateCategory> logger,
+                ILogger<EditCategory> logger,
                 CancellationToken cancellationToken) =>
             {
                 var validationResult = await validator.ValidateAsync(updateCategory, cancellationToken);
