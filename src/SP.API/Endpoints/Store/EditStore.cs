@@ -6,7 +6,7 @@ using SP.Application.Interfaces;
 
 namespace SP.API.Endpoints.Store;
 
-public class UpdateStore : IEndpoint
+public class EditStore : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
@@ -16,7 +16,7 @@ public class UpdateStore : IEndpoint
             async (IStore storeService, Guid id,
                 [FromBody] UpdateStoreRequest request,
                 IValidator<UpdateStoreRequest> validator,
-                ILogger<UpdateStore> logger,
+                ILogger<EditStore> logger,
                 CancellationToken cancellationToken) =>
             {
                 var validationResult = await validator.ValidateAsync(request, cancellationToken);
