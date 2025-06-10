@@ -7,14 +7,15 @@ public class GetDeals : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api");
+        var route = endpoints.MapGroup("/api/deals").WithTags("Deals");
 
-        route.MapGet("/deals",
-                 async (IDeal dealService, CancellationToken cancellationToken) =>
-                 {
-                     var deals = await dealService.GetAllDealsAsync(cancellationToken);
-                     return Results.Ok(deals);
-                 })
-             .WithTags("Deals");
+        route.MapGet("",
+            async (IDeal dealService,
+                ILogger<GetDeals> logger,
+                CancellationToken cancellationToken) =>
+            {
+                var deals = await dealService.GetAllDealsAsync(cancellationToken);
+                return Results.Ok(deals);
+            });
     }
 }
