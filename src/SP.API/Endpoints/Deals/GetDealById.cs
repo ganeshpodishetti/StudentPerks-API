@@ -7,15 +7,22 @@ public class GetDealById : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/deals");
+        var route = endpoints.MapGroup("/api/deals").WithTags("Deals");
         route.MapGet("/{id:guid}",
-                 async (IDeal dealService, Guid id, CancellationToken cancellationToken) =>
-                 {
-                     var deals = await dealService.GetDealByIdAsync(id, cancellationToken);
-                     return deals is not null
-                         ? Results.Ok(deals)
-                         : Results.NotFound(new { message = "Deal with ID not found" });
-                 })
-             .WithTags("Deals");
+            async (IDeal dealService, Guid id,
+                ILogger<GetDealById> logger,
+                CancellationToken cancellationToken) =>
+            {
+                if (id == Guid.Empty)
+                {
+                    logger.LogWarning("Attempted to retrieve a deal with an empty ID.");
+                    return Results.BadRequest(new { message = "Deal ID cannot be empty" });
+                }
+
+                var deals = await dealService.GetDealByIdAsync(id, cancellationToken);
+                return deals is not null
+                    ? Results.Ok(deals)
+                    : Results.NotFound(new { message = "Deal with ID not found" });
+            });
     }
 }

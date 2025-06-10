@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SP.API.Abstractions;
 using SP.Application.Dtos.Deal;
@@ -9,14 +10,23 @@ public class AddDeal : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/deals");
+        var route = endpoints.MapGroup("/api/deals").WithTags("Deals");
 
         route.MapPost("",
-                 async (IDeal dealService, [FromBody] CreateDealRequest request, CancellationToken cancellationToken) =>
-                 {
-                     var deal = await dealService.CreateDealAsync(request, cancellationToken);
-                     return Results.Created($"/api/deals/{deal.Id}", deal);
-                 })
-             .WithTags("Deals");
+            async (IDeal dealService, [FromBody] CreateDealRequest request,
+                IValidator<CreateDealRequest> validator,
+                ILogger<AddDeal> logger,
+                CancellationToken cancellationToken) =>
+            {
+                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+                if (!validationResult.IsValid)
+                {
+                    logger.LogWarning("Validation failed for deal creation: {Errors}", validationResult.Errors);
+                    return Results.ValidationProblem(validationResult.ToDictionary());
+                }
+
+                var deal = await dealService.CreateDealAsync(request, cancellationToken);
+                return Results.Created($"/api/deals/{deal.Id}", deal);
+            });
     }
 }

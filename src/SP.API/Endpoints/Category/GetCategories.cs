@@ -7,14 +7,15 @@ public class GetCategories : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api");
+        var route = endpoints.MapGroup("/api/categories").WithTags("Categories");
 
-        route.MapGet("/categories",
-                 async (ICategory categoryService, CancellationToken cancellationToken) =>
-                 {
-                     var categories = await categoryService.GetAllCategoriesAsync(cancellationToken);
-                     return Results.Ok(categories);
-                 })
-             .WithTags("Categories");
+        route.MapGet("",
+            async (ICategory categoryService,
+                ILogger<GetCategories> logger,
+                CancellationToken cancellationToken) =>
+            {
+                var categories = await categoryService.GetAllCategoriesAsync(cancellationToken);
+                return Results.Ok(categories);
+            });
     }
 }

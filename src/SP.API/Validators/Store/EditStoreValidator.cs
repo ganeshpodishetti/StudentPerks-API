@@ -1,0 +1,21 @@
+using FluentValidation;
+using SP.Application.Dtos.Store;
+
+namespace SP.API.Validators.Store;
+
+public class EditStoreValidator : AbstractValidator<UpdateStoreRequest>
+{
+    public EditStoreValidator()
+    {
+        RuleFor(x => x.Name)
+            .Must(x => !string.IsNullOrEmpty(x))
+            .WithMessage("Store name can't be empty.");
+
+        RuleFor(x => x.Description)
+            .MaximumLength(150).WithMessage("Description cannot exceed 150 characters.");
+
+        RuleFor(x => x.Website)
+            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))
+            .WithMessage("Invalid website URL format.");
+    }
+}
