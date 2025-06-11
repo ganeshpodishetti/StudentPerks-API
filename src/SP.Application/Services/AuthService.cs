@@ -15,6 +15,11 @@ public class AuthService(
     public async Task<RegisterResponse> RegisterAsync(RegisterRequest request,
         CancellationToken cancellationToken)
     {
+        var existingUser = await userManager.FindByEmailAsync(request.Email);
+
+        if (existingUser is not null)
+            throw new InvalidOperationException("Email already exists.");
+
         var user = new User
         {
             UserName = request.Email,
@@ -24,11 +29,14 @@ public class AuthService(
         };
 
         var result = await userManager.CreateAsync(user, request.Password);
-
-        if (result.Succeeded) await userManager.AddToRoleAsync(user, request.Role);
-        else
+        if (!result.Succeeded)
             throw new InvalidOperationException(
-                $"User registration failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                $"User creation failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+
+        // result = await userManager.AddToRoleAsync(user, request.Role);
+        // if (!result.Succeeded)
+        //     throw new InvalidOperationException(
+        //         $"Failed to assign role '{request.Role}' to user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
         return new RegisterResponse(user.Email);
     }
@@ -42,7 +50,8 @@ public class AuthService(
 
         var isPasswordValid = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
-        if (!isPasswordValid.Succeeded) throw new InvalidOperationException("Invalid password.");
+        if (!isPasswordValid.Succeeded) throw new InvalidOperationException("Invalid email or password.");
+
         var token = await tokenHelper.GenerateJwtToken(user);
         return new LoginResponse(token);
     }

@@ -11,5 +11,8 @@ public static class OptionsExtension
 
         builder.Services.Configure<JwtOptions>(
             builder.Configuration.GetSection(JwtOptions.Jwt));
+
+        builder.Services.Configure<RolesOptions>(
+            builder.Configuration.GetSection(RolesOptions.Identity));
     }
 }

@@ -4,8 +4,7 @@ public record RegisterRequest(
     string FirstName,
     string LastName,
     string Email,
-    string Password,
-    string Role
+    string Password
 );
 
 public record LoginRequest(

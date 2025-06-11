@@ -18,7 +18,8 @@ public interface ITokenHelper
 public class GenerateTokenHelper(
     IOptions<JwtOptions> jwtOptions,
     ILogger<GenerateTokenHelper> logger,
-    UserManager<User> userManager) : ITokenHelper
+    UserManager<User> userManager)
+    : ITokenHelper
 {
     public async Task<string> GenerateJwtToken(User entity)
     {

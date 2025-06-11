@@ -69,11 +69,11 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
     public async Task<GetDealResponse> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
     {
         var existingStore = await spDbContext.Stores
-                                             .FirstOrDefaultAsync(c => c.Name == request.StoreName.ToLower(),
+                                             .FirstOrDefaultAsync(c => c.Name == request.StoreName,
                                                  ct);
 
         var existingCategory = await spDbContext.Categories
-                                                .FirstOrDefaultAsync(c => c.Name == request.CategoryName.ToLower(),
+                                                .FirstOrDefaultAsync(c => c.Name == request.CategoryName,
                                                     ct);
 
         Category category;
@@ -132,12 +132,12 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         }
 
         var existingStore = await spDbContext.Stores
-                                             .FirstOrDefaultAsync(c => c.Name == updateDealRequest.StoreName.ToLower(),
+                                             .FirstOrDefaultAsync(c => c.Name == updateDealRequest.StoreName,
                                                  ct);
 
         var existingCategory = await spDbContext.Categories
                                                 .FirstOrDefaultAsync(
-                                                    c => c.Name == updateDealRequest.CategoryName.ToLower(),
+                                                    c => c.Name == updateDealRequest.CategoryName,
                                                     ct);
 
         if (existingCategory is null || existingStore is null)

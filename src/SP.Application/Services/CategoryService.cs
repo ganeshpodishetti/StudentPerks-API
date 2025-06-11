@@ -75,7 +75,7 @@ public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> l
     {
         var existingCategory = await spDbContext.Categories
                                                 .FirstOrDefaultAsync(
-                                                    c => c.Name == createCategoryRequest.Name.ToLower(),
+                                                    c => c.Name == createCategoryRequest.Name,
                                                     cancellationToken);
 
         if (existingCategory is not null)
