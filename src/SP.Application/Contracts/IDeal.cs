@@ -1,6 +1,6 @@
 using SP.Application.Dtos.Deal;
 
-namespace SP.Application.Interfaces;
+namespace SP.Application.Contracts;
 
 public interface IDeal
 {

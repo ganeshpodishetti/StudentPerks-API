@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SP.Application.Contracts;
 using SP.Application.Dtos.Deal;
-using SP.Application.Interfaces;
 using SP.Application.Mapping;
 using SP.Domain.Entities;
 using SP.Infrastructure.Context;

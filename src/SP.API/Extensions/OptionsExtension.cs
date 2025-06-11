@@ -6,8 +6,10 @@ public static class OptionsExtension
 {
     public static void AddOptions(this WebApplicationBuilder builder)
     {
-        // Registering the Options
         builder.Services.Configure<ConnStringOptions>(
             builder.Configuration.GetSection(ConnStringOptions.ConnectionStrings));
+
+        builder.Services.Configure<JwtOptions>(
+            builder.Configuration.GetSection(JwtOptions.Jwt));
     }
 }
