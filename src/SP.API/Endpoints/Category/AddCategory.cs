@@ -1,7 +1,7 @@
 using FluentValidation;
-using SP.API.Abstractions;
+using SP.API.Contracts;
+using SP.Application.Contracts;
 using SP.Application.Dtos.Category;
-using SP.Application.Interfaces;
 
 namespace SP.API.Endpoints.Category;
 

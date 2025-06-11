@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using FluentValidation;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 using Serilog;
 using SP.API.Extensions;
@@ -17,14 +19,14 @@ try
     Log.Information("Application Starting up");
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseSerilog((context, configuration) =>
-        configuration.ReadFrom.Configuration(context.Configuration));
-
-    builder.AddOpenTelemetry();
     builder.AddOptions();
-
+    builder.Services.AddAuthentication(builder.Configuration);
+    builder.Services.AddHostedService<DatabaseInitializer>();
+    builder.AddOpenTelemetry();
+    builder.AddHealthCheck();
     builder.Services.AddSingleton(activitySource);
 
+    // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<AddCategoryValidator>();
 
     // Add services to the container.
@@ -40,7 +42,11 @@ try
 
     app.UseExceptionHandler();
     app.UseStatusCodePages();
-
+    app.MapHealthChecks("/healthz", new HealthCheckOptions
+    {
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
+    app.MapHealthChecksUI(options => options.UIPath = "/health-checks-ui");
     app.UseSerilogRequestLogging(options =>
     {
         options.MessageTemplate =
@@ -53,6 +59,8 @@ try
         app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
     }
 
+    app.UseAuthentication();
+    app.UseAuthorization();
     app.UseRouting();
     app.UseEndpoints();
     app.Run();

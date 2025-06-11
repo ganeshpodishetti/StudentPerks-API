@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using SP.API.Abstractions;
-using SP.Application.Interfaces;
+using SP.API.Contracts;
+using SP.Application.Contracts;
 
 namespace SP.API.Endpoints.Deals;
 

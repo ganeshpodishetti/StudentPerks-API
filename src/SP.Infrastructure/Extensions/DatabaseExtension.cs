@@ -21,7 +21,11 @@ public static class DatabaseExtension
             {
                 npgsqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
                 npgsqlOptions.CommandTimeout(60);
+                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory");
             });
+
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTrackingWithIdentityResolution);
+            options.EnableSensitiveDataLogging(false);
         }, 128);
 
         return services;

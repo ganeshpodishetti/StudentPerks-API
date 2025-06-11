@@ -1,4 +1,5 @@
-using SP.Application.Interfaces;
+using SP.Application.Contracts;
+using SP.Application.Helper;
 using SP.Application.Services;
 
 namespace SP.API.Extensions;
@@ -10,5 +11,7 @@ public static class ServiceExtension
         services.AddScoped<IDeal, DealService>();
         services.AddScoped<ICategory, CategoryService>();
         services.AddScoped<IStore, StoreService>();
+        services.AddScoped<IAuth, AuthService>();
+        services.AddScoped<ITokenHelper, GenerateTokenHelper>();
     }
 }

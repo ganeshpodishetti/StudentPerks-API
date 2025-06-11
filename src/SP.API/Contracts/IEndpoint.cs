@@ -1,4 +1,4 @@
-namespace SP.API.Abstractions;
+namespace SP.API.Contracts;
 
 public interface IEndpoint
 {

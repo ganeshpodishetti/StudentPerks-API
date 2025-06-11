@@ -1,5 +1,5 @@
-using SP.API.Abstractions;
-using SP.Application.Interfaces;
+using SP.API.Contracts;
+using SP.Application.Contracts;
 
 namespace SP.API.Endpoints.Deals;
 
@@ -18,6 +18,7 @@ public class GetDealById : IEndpoint
                     logger.LogWarning("Attempted to retrieve a deal with an empty ID.");
                     return Results.BadRequest(new { message = "Deal ID cannot be empty" });
                 }
+
                 var deal = await dealService.GetDealByIdAsync(id, cancellationToken);
                 return deal is not null
                     ? Results.Ok(deal)
