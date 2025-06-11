@@ -4,7 +4,7 @@ using SP.API.Contracts;
 
 namespace SP.API.Extensions;
 
-public static class EndpointExtensions
+public static class EndpointExtension
 {
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {

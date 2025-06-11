@@ -71,7 +71,7 @@ public class StoreService(SpDbContext spDbContext, ILogger<StoreService> logger)
         CancellationToken cancellationToken)
     {
         var existingStore = await spDbContext.Stores.SingleOrDefaultAsync(
-            c => c.Name == createStoreRequest.Name.ToLower(),
+            c => c.Name == createStoreRequest.Name,
             cancellationToken);
 
         if (existingStore is not null)

@@ -59,6 +59,7 @@ try
         app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
     }
 
+
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseRouting();

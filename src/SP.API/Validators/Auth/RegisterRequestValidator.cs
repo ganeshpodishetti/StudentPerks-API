@@ -30,11 +30,5 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .WithMessage("Password is required.")
             .MinimumLength(8)
             .WithMessage("Password must be at least 8 characters long.");
-
-        RuleFor(x => x.Role)
-            .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage("Role is required.")
-            .MaximumLength(20)
-            .WithMessage("Role cannot exceed 20 characters.");
     }
 }
