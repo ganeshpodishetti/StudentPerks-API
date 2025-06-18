@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
-        <UserSecretsId>0234a1af-5d72-48f3-9773-2eebff2c65d1</UserSecretsId>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="Asp.Versioning.WebApi"/>
         <PackageReference Include="AspNetCore.HealthChecks.NpgSql"/>
