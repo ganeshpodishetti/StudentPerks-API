@@ -1,6 +1,6 @@
 using FluentValidation;
 using SP.Application.Dtos.Deal;
-using SP.Domain.Enum;
+using SP.Domain.Enums;
 
 namespace SP.API.Validators.Deals;
 

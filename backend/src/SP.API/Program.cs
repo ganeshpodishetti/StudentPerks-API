@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -11,7 +12,7 @@ using SP.Infrastructure.Extensions;
 var activitySource = new ActivitySource("StudentPerks.API");
 
 Log.Logger = new LoggerConfiguration()
-             .WriteTo.Console()
+             .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
              .CreateLogger();
 
 try
