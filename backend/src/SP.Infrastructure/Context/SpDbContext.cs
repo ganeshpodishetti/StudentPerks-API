@@ -13,14 +13,14 @@ public class SpDbContext(DbContextOptions<SpDbContext> options)
     public DbSet<Category> Categories { get; set; }
     public DbSet<Store> Stores { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<IdentityRole>(e => e.ToTable("Roles"));
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        base.OnModelCreating(builder);
+        builder.Entity<IdentityRole>(e => e.ToTable("Roles"));
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         // Remove AspNet prefix from table names
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        foreach (var entityType in builder.Model.GetEntityTypes())
         {
             var tableName = entityType.GetTableName();
             if (tableName!.StartsWith("AspNet")) entityType.SetTableName(tableName[6..]);

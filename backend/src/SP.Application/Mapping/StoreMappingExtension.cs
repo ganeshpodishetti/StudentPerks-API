@@ -18,7 +18,7 @@ public static class StoreMappingExtension
     {
         return new Store
         {
-            Name = request.Name.ToLower(),
+            Name = request.Name,
             Description = request.Description,
             Website = request.Website
         };
@@ -26,7 +26,7 @@ public static class StoreMappingExtension
 
     public static void ToEntity(this UpdateStoreRequest request, Store store)
     {
-        store.Name = request.Name.ToLower();
+        store.Name = request.Name;
         store.Description = request.Description;
         store.Website = request.Website;
         store.UpdatedAt = DateTime.UtcNow;
