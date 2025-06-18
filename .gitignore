@@ -2,3 +2,6 @@
 bin
 obj
 StudentPerks.sln.DotSettings.user
+.idea
+./bin
+./obj
