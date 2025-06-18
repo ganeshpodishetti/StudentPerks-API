@@ -1,8 +1,0 @@
-﻿<Solution>
-  <Folder Name="/src/">
-    <Project Path="src\SP.API\SP.API.csproj" Type="Classic C#" />
-    <Project Path="src\SP.Application\SP.Application.csproj" Type="Classic C#" />
-    <Project Path="src\SP.Domain\SP.Domain.csproj" Type="Classic C#" />
-    <Project Path="src\SP.Infrastructure\SP.Infrastructure.csproj" Type="Classic C#" />
-  </Folder>
-</Solution>
