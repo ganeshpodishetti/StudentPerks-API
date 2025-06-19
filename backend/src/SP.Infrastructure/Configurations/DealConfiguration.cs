@@ -49,10 +49,7 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
                .OnDelete(DeleteBehavior.Restrict);
 
         // Add indexes
-        builder.HasIndex(x => x.Category.Name)
-               .HasDatabaseName("IX_Deals_CategoryName");
-        builder.HasIndex(x => x.StoreId).
-               HasDatabaseName("IX_Deals_StoreId");;
-        builder.HasIndex(x => x.IsActive);
+        builder.HasIndex(x => new { x.CategoryId, x.IsActive })
+               .HasDatabaseName("IX_Deals_CategoryId_IsActive");
     }
 }
