@@ -17,5 +17,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.LastName)
                .IsRequired()
                .HasMaxLength(50);
+
+        builder.HasMany(x => x.RefreshTokens)
+               .WithOne(x => x.User)
+               .HasForeignKey(x => x.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }

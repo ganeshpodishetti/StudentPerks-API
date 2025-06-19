@@ -18,6 +18,9 @@ public class StoreConfiguration : IEntityTypeConfiguration<Store>
         builder.Property(x => x.Description)
                .HasMaxLength(250);
 
+        builder.Property(x => x.Website)
+               .HasMaxLength(500);
+
         builder.HasMany(x => x.Deals)
                .WithOne(x => x.Store)
                .HasForeignKey(x => x.StoreId)

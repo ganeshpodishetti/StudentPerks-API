@@ -1,15 +1,19 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Auth;
 using SP.Application.Helper;
 using SP.Domain.Entities;
+using SP.Domain.Options;
 
 namespace SP.Application.Services;
 
 public class AuthService(
     UserManager<User> userManager,
     SignInManager<User> signInManager,
-    ITokenHelper tokenHelper)
+    IJwtHelper jwtHelper,
+    IRefreshTokenHelper refreshTokenHelper,
+    IOptions<JwtOptions> jwtOptions)
     : IAuth
 {
     public async Task<RegisterResponse> RegisterAsync(RegisterRequest request,
@@ -43,16 +47,38 @@ public class AuthService(
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByEmailAsync(request.Email);
-
-        if (user is null)
-            throw new InvalidOperationException("Email not found.");
+        var user = await userManager.FindByEmailAsync(request.Email) ??
+                   throw new InvalidOperationException("Email not found.");
 
         var isPasswordValid = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
         if (!isPasswordValid.Succeeded) throw new InvalidOperationException("Invalid email or password.");
 
-        var token = await tokenHelper.GenerateJwtToken(user);
-        return new LoginResponse(token);
+        var accessToken = await jwtHelper.GenerateJwtToken(user);
+        var refreshToken = refreshTokenHelper.GenerateRefreshToken();
+
+        user.RefreshTokens ??= [];
+
+        var refreshTokenEntity = new RefreshToken
+        {
+            Token = refreshToken,
+            ExpirationDate = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays),
+            IsRevoked = false
+        };
+
+        user.RefreshTokens.Add(refreshTokenEntity);
+        var result = await userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException(
+                $"Failed to update user with refresh token: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+
+        var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
+        var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
+
+        return new LoginResponse(accessToken,
+            accessTokenExpiration,
+            refreshToken,
+            refreshTokenExpiration);
     }
 }

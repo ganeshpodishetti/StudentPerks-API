@@ -21,15 +21,21 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
 
         builder.Property(x => x.DiscountType)
                .IsRequired()
-               .HasConversion<string>();
+               .HasMaxLength(50);
+
+        builder.Property(x => x.DiscountValue)
+               .HasMaxLength(10);
 
         builder.Property(x => x.Url)
                .IsRequired()
                .HasMaxLength(100);
 
+        builder.Property(x => x.Promo)
+               .HasMaxLength(100);
+
         builder.Property(x => x.RedeemType)
-               .IsRequired()
-               .HasConversion<string>();
+               .HasMaxLength(50)
+               .IsRequired();
 
         // Relationships
         builder.HasOne(x => x.Category)
@@ -43,9 +49,10 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
                .OnDelete(DeleteBehavior.Restrict);
 
         // Add indexes
-        builder.HasIndex(x => x.CategoryId);
-        builder.HasIndex(x => x.StoreId);
-        builder.HasIndex(x => new { x.StartDate, x.EndDate });
+        builder.HasIndex(x => x.Category.Name)
+               .HasDatabaseName("IX_Deals_CategoryName");
+        builder.HasIndex(x => x.StoreId).
+               HasDatabaseName("IX_Deals_StoreId");;
         builder.HasIndex(x => x.IsActive);
     }
 }

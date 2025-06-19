@@ -10,16 +10,16 @@ using SP.Domain.Options;
 
 namespace SP.Application.Helper;
 
-public interface ITokenHelper
+public interface IJwtHelper
 {
     Task<string> GenerateJwtToken(User entity);
 }
 
-public class GenerateTokenHelper(
+public class JwtTokenHelper(
     IOptions<JwtOptions> jwtOptions,
-    ILogger<GenerateTokenHelper> logger,
+    ILogger<JwtTokenHelper> logger,
     UserManager<User> userManager)
-    : ITokenHelper
+    : IJwtHelper
 {
     public async Task<string> GenerateJwtToken(User entity)
     {
