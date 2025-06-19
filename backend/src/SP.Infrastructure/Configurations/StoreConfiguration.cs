@@ -26,6 +26,8 @@ public class StoreConfiguration : IEntityTypeConfiguration<Store>
                .HasForeignKey(x => x.StoreId)
                .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(x => x.Name).IsUnique();
+        builder.HasIndex(x => x.Name)
+               .HasDatabaseName("IX_Stores_Name")
+               .IsUnique();
     }
 }
