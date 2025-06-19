@@ -29,7 +29,6 @@ public class DatabaseInitializer(
                 {
                     logger.LogInformation("Database created successfully.");
                     await SeedRolesAsync();
-                    logger.LogInformation("Roles seeded successfully.");
                 }
                 else
                 {
@@ -64,6 +63,13 @@ public class DatabaseInitializer(
 
         if (roles.Length == 0)
             throw new InvalidOperationException("No roles defined in configuration.");
+        await EnsureRolesCreated(roleManager);
+        logger.LogInformation("Roles seeded successfully.");
+    }
+
+    private async Task EnsureRolesCreated(RoleManager<IdentityRole> roleManager)
+    {
+        var roles = rolesOptions.Value.Roles;
 
         foreach (var role in roles)
             if (!await roleManager.RoleExistsAsync(role))

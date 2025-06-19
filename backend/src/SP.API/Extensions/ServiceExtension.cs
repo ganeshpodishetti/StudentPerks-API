@@ -12,6 +12,7 @@ public static class ServiceExtension
         services.AddScoped<ICategory, CategoryService>();
         services.AddScoped<IStore, StoreService>();
         services.AddScoped<IAuth, AuthService>();
-        services.AddScoped<ITokenHelper, GenerateTokenHelper>();
+        services.AddScoped<IJwtHelper, JwtTokenHelper>();
+        services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
     }
 }

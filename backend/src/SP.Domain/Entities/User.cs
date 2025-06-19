@@ -8,5 +8,5 @@ public class User : IdentityUser
     public string LastName { get; init; } = null!;
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public DateTime? LastModifiedAt { get; init; }
-    public ICollection<RefreshToken> RefreshTokens { get; init; } = [];
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 }
