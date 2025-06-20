@@ -14,13 +14,13 @@ public class StoreConfiguration : IEntityTypeConfiguration<Store>
 
         builder.Property(x => x.Name)
                .IsRequired()
-               .HasMaxLength(25);
-
-        builder.Property(x => x.Description)
                .HasMaxLength(250);
 
-        builder.Property(x => x.Website)
+        builder.Property(x => x.Description)
                .HasMaxLength(500);
+
+        builder.Property(x => x.Website)
+               .HasMaxLength(1024);
 
         builder.HasMany(x => x.Deals)
                .WithOne(x => x.Store)

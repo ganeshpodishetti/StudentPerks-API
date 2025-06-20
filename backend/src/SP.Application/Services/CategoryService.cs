@@ -29,7 +29,7 @@ public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> l
         if (category is not null)
         {
             logger.LogInformation("Category with ID {CategoryId} found", categoryId);
-            return category?.ToDto();
+            return category.ToDto();
         }
 
         logger.LogWarning("Category with ID {CategoryId} not found", categoryId);

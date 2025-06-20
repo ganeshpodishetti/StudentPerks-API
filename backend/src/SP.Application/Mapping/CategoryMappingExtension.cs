@@ -17,14 +17,14 @@ public static class CategoryMappingExtension
     {
         return new Category
         {
-            Name = request.Name.ToLower(),
+            Name = request.Name,
             Description = request.Description
         };
     }
 
     public static void ToEntity(this UpdateCategoryRequest request, Category category)
     {
-        category.Name = request.Name.ToLower();
+        category.Name = request.Name;
         category.Description = request.Description;
         category.UpdatedAt = DateTime.UtcNow;
     }

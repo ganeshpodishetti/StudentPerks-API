@@ -14,25 +14,26 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
 
         builder.Property(x => x.Name)
                .IsRequired()
-               .HasMaxLength(100);
+               .HasMaxLength(250);
 
         builder.Property(x => x.Description)
                .IsRequired()
-               .HasMaxLength(500);
+               .HasMaxLength(1024);
 
-        builder.Property(x => x.DiscountType)
+        builder.Property(x => x.Discount)
                .IsRequired()
-               .HasMaxLength(50);
+               .HasMaxLength(250);
 
-        builder.Property(x => x.DiscountValue)
-               .HasMaxLength(50);
+        builder.Property(x => x.ImageUrl)
+               .IsRequired()
+               .HasMaxLength(250);
 
         builder.Property(x => x.Url)
                .IsRequired()
-               .HasMaxLength(100);
+               .HasMaxLength(250);
 
         builder.Property(x => x.Promo)
-               .HasMaxLength(100);
+               .HasMaxLength(150);
 
         builder.Property(x => x.RedeemType)
                .HasMaxLength(50)

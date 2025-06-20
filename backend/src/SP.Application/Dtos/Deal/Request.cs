@@ -3,8 +3,8 @@ namespace SP.Application.Dtos.Deal;
 public record CreateDealRequest(
     string Title,
     string Description,
-    string DiscountType,
-    string? DiscountValue,
+    string Discount,
+    string ImageUrl,
     string? Promo,
     bool IsActive,
     string Url,
@@ -17,8 +17,8 @@ public record CreateDealRequest(
 public record UpdateDealRequest(
     string Title,
     string Description,
-    string DiscountType,
-    string? DiscountValue,
+    string Discount,
+    string ImageUrl,
     string? Promo,
     bool IsActive,
     string Url,
