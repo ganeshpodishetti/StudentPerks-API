@@ -7,7 +7,9 @@ public class DeleteStore : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/stores").WithTags("Stores");
+        var route = endpoints.MapGroup("/api/stores")
+                             .WithTags("Stores")
+                             .RequireAuthorization();
 
         route.MapDelete("/{id:guid}",
             async (IStore storeService, Guid id,

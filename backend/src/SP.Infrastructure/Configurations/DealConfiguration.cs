@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SP.Domain.Entities;
+using SP.Infrastructure.Constants;
 
 namespace SP.Infrastructure.Configurations;
 
@@ -8,7 +9,7 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
 {
     public void Configure(EntityTypeBuilder<Deal> builder)
     {
-        builder.ToTable("Deals");
+        builder.ToTable(DatabaseConstants.DealsTableName, DatabaseConstants.DefaultSchema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
@@ -24,7 +25,7 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
                .HasMaxLength(50);
 
         builder.Property(x => x.DiscountValue)
-               .HasMaxLength(10);
+               .HasMaxLength(50);
 
         builder.Property(x => x.Url)
                .IsRequired()
@@ -49,7 +50,7 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
                .OnDelete(DeleteBehavior.Restrict);
 
         // Add indexes
-        builder.HasIndex(x => new { x.CategoryId, x.IsActive })
-               .HasDatabaseName("IX_Deals_CategoryId_IsActive");
+        builder.HasIndex(x => x.CategoryId)
+               .HasDatabaseName(DatabaseConstants.DealsCategoryIndexName);
     }
 }

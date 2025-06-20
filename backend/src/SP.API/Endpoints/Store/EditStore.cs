@@ -10,7 +10,9 @@ public class EditStore : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/stores").WithTags("Stores");
+        var route = endpoints.MapGroup("/api/stores")
+                             .WithTags("Stores")
+                             .RequireAuthorization();
 
         route.MapPut("/{id:guid}",
             async (IStore storeService, Guid id,

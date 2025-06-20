@@ -16,8 +16,8 @@ public sealed class Deal : Base
     public DateOnly? EndDate { get; set; }
 
     // Navigation properties
-    public Guid CategoryId { get; init; }
-    public Guid StoreId { get; init; }
+    public Guid CategoryId { get; set; }
+    public Guid StoreId { get; set; }
 
     public required Category Category { get; set; }
     public required Store Store { get; set; }

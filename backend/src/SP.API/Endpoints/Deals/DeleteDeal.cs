@@ -7,7 +7,9 @@ public class DeleteDeal : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/deals").WithTags("Deals");
+        var route = endpoints.MapGroup("/api/deals")
+                             .WithTags("Deals")
+                             .RequireAuthorization();
 
         route.MapDelete("/{id:guid}",
             async (IDeal dealService, Guid id,

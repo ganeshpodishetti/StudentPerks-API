@@ -7,13 +7,33 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SP.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class add_authentication : Migration
+    public partial class InitialDbCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "sp");
+
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                schema: "sp",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
+                    Name = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Roles",
+                schema: "sp",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -27,7 +47,25 @@ namespace SP.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Stores",
+                schema: "sp",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
+                    Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Name = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stores", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
+                schema: "sp",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -57,6 +95,7 @@ namespace SP.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoleClaims",
+                schema: "sp",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -71,30 +110,72 @@ namespace SP.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_RoleClaims_Roles_RoleId",
                         column: x => x.RoleId,
+                        principalSchema: "sp",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshToken",
+                name: "Deals",
+                schema: "sp",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Token = table.Column<string>(type: "text", nullable: false),
-                    ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsRevoked = table.Column<bool>(type: "boolean", nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    DiscountType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    DiscountValue = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    Promo = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Url = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    RedeemType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    StartDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    EndDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
+                    StoreId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId1 = table.Column<string>(type: "text", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
+                    table.PrimaryKey("PK_Deals", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RefreshToken_Users_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_Deals_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalSchema: "sp",
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Deals_Stores_StoreId",
+                        column: x => x.StoreId,
+                        principalSchema: "sp",
+                        principalTable: "Stores",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                schema: "sp",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Token = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UserId = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "sp",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -102,6 +183,7 @@ namespace SP.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserClaims",
+                schema: "sp",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -116,6 +198,7 @@ namespace SP.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_UserClaims_Users_UserId",
                         column: x => x.UserId,
+                        principalSchema: "sp",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -123,6 +206,7 @@ namespace SP.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserLogins",
+                schema: "sp",
                 columns: table => new
                 {
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
@@ -136,6 +220,7 @@ namespace SP.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_UserLogins_Users_UserId",
                         column: x => x.UserId,
+                        principalSchema: "sp",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -143,6 +228,7 @@ namespace SP.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserRoles",
+                schema: "sp",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
@@ -154,12 +240,14 @@ namespace SP.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_UserRoles_Roles_RoleId",
                         column: x => x.RoleId,
+                        principalSchema: "sp",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserRoles_Users_UserId",
                         column: x => x.UserId,
+                        principalSchema: "sp",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -167,6 +255,7 @@ namespace SP.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserTokens",
+                schema: "sp",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
@@ -180,49 +269,84 @@ namespace SP.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_UserTokens_Users_UserId",
                         column: x => x.UserId,
+                        principalSchema: "sp",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshToken_UserId1",
-                table: "RefreshToken",
-                column: "UserId1");
+                name: "IX_sp_Categories_Name",
+                schema: "sp",
+                table: "Categories",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Deals_StoreId",
+                schema: "sp",
+                table: "Deals",
+                column: "StoreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sp_Deals_CategoryId",
+                schema: "sp",
+                table: "Deals",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_UserId",
+                schema: "sp",
+                table: "RefreshTokens",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",
+                schema: "sp",
                 table: "RoleClaims",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
+                schema: "sp",
                 table: "Roles",
                 column: "NormalizedName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_sp_Stores_Name",
+                schema: "sp",
+                table: "Stores",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
+                schema: "sp",
                 table: "UserClaims",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserLogins_UserId",
+                schema: "sp",
                 table: "UserLogins",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoles_RoleId",
+                schema: "sp",
                 table: "UserRoles",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
+                schema: "sp",
                 table: "Users",
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
+                schema: "sp",
                 table: "Users",
                 column: "NormalizedUserName",
                 unique: true);
@@ -232,28 +356,48 @@ namespace SP.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RefreshToken");
+                name: "Deals",
+                schema: "sp");
 
             migrationBuilder.DropTable(
-                name: "RoleClaims");
+                name: "RefreshTokens",
+                schema: "sp");
 
             migrationBuilder.DropTable(
-                name: "UserClaims");
+                name: "RoleClaims",
+                schema: "sp");
 
             migrationBuilder.DropTable(
-                name: "UserLogins");
+                name: "UserClaims",
+                schema: "sp");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
+                name: "UserLogins",
+                schema: "sp");
 
             migrationBuilder.DropTable(
-                name: "UserTokens");
+                name: "UserRoles",
+                schema: "sp");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "UserTokens",
+                schema: "sp");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Categories",
+                schema: "sp");
+
+            migrationBuilder.DropTable(
+                name: "Stores",
+                schema: "sp");
+
+            migrationBuilder.DropTable(
+                name: "Roles",
+                schema: "sp");
+
+            migrationBuilder.DropTable(
+                name: "Users",
+                schema: "sp");
         }
     }
 }

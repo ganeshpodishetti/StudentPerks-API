@@ -10,7 +10,9 @@ public class AddDeal : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/deals").WithTags("Deals");
+        var route = endpoints.MapGroup("/api/deals")
+                             .WithTags("Deals")
+                             .RequireAuthorization();
 
         route.MapPost("",
             async (IDeal dealService, [FromBody] CreateDealRequest request,

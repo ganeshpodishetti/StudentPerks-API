@@ -9,7 +9,15 @@ public class AddCategory : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/categories").WithTags("Categories");
+        var route = endpoints.MapGroup("/api/categories")
+                             .WithTags("Categories")
+                             .WithSummary("Add a new category")
+                             .WithDescription(
+                                 "Creates a new category in the system. The request body must contain the category details.")
+                             .ProducesProblem(StatusCodes.Status201Created)
+                             .ProducesValidationProblem()
+                             .WithName("AddCategory")
+                             .RequireAuthorization();
 
         route.MapPost("",
             async (ICategory categoryService, CreateCategoryRequest request,

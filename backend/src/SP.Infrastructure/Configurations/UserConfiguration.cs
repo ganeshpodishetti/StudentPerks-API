@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SP.Domain.Entities;
+using SP.Infrastructure.Constants;
 
 namespace SP.Infrastructure.Configurations;
 
@@ -8,7 +9,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("Users");
+        builder.ToTable(DatabaseConstants.UsersTableName, DatabaseConstants.DefaultSchema);
 
         builder.Property(x => x.FirstName)
                .IsRequired()
@@ -17,10 +18,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.LastName)
                .IsRequired()
                .HasMaxLength(50);
-
-        builder.HasMany(x => x.RefreshTokens)
-               .WithOne(x => x.User)
-               .HasForeignKey(x => x.UserId)
-               .OnDelete(DeleteBehavior.Cascade);
     }
 }

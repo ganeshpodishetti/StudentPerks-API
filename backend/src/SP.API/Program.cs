@@ -22,6 +22,7 @@ try
 
     builder.AddOptions();
     builder.Services.AddAuthentication(builder.Configuration);
+    builder.Services.AddAuthorization();
     builder.Services.AddHostedService<DatabaseInitializer>();
     builder.AddOpenTelemetry();
     builder.AddHealthCheck();
@@ -40,7 +41,9 @@ try
     builder.Services.AddEndpoints(typeof(Program).Assembly);
 
     var app = builder.Build();
+    Log.Information("Application Started up");
 
+    app.UseDeveloperExceptionPage();
     app.UseExceptionHandler();
     app.UseStatusCodePages();
     app.MapHealthChecks("/healthz", new HealthCheckOptions
@@ -60,10 +63,9 @@ try
         app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
     }
 
-
+    app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseRouting();
     app.UseEndpoints();
     app.Run();
 }

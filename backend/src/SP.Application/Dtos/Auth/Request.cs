@@ -11,3 +11,14 @@ public record LoginRequest(
     string Email,
     string Password
 );
+
+public record RefreshTokenRequest(
+    string RefreshToken
+);
+
+public record RefreshTokenResponse(
+    string AccessToken,
+    string AccessTokenExpirationInMinutes,
+    string RefreshToken,
+    string RefreshTokenExpirationInDays
+);

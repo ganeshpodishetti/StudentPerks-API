@@ -7,7 +7,7 @@ namespace SP.Application.Helper;
 public interface IRefreshTokenHelper
 {
     string GenerateRefreshToken();
-    bool ValidateRefreshToken(User user, string refreshToken);
+    bool ValidateRefreshToken(User user, RefreshToken refreshToken);
 }
 
 public class RefreshTokenHelper(ILogger<RefreshTokenHelper> logger)
@@ -22,18 +22,16 @@ public class RefreshTokenHelper(ILogger<RefreshTokenHelper> logger)
         return Convert.ToBase64String(randomNumber);
     }
 
-    public bool ValidateRefreshToken(User user, string refreshToken)
+    public bool ValidateRefreshToken(User user, RefreshToken refreshToken)
     {
         logger.LogInformation("Validating refresh token for user {UserName}", user.UserName);
-
-        var refreshTokenExists = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken);
-        if (refreshTokenExists is null || refreshTokenExists.IsRevoked)
+        if (refreshToken.IsRevoked)
         {
-            logger.LogWarning("Invalid refresh token for user {UserName}", user.UserName);
+            logger.LogWarning(" Revoked refresh token for user {UserName}", user.UserName);
             return false;
         }
 
-        if (refreshTokenExists.ExpirationDate <= DateTime.UtcNow)
+        if (refreshToken.ExpirationDate <= DateTime.UtcNow)
         {
             logger.LogWarning("Expired refresh token for user {UserName}", user.UserName);
             return false;
