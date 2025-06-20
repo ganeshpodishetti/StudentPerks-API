@@ -16,6 +16,6 @@ public sealed class Deal : Base
     public Guid CategoryId { get; set; }
     public Guid StoreId { get; set; }
 
-    public required Category Category { get; set; }
-    public required Store Store { get; set; }
+    public Category Category { get; set; }
+    public Store Store { get; set; }
 }

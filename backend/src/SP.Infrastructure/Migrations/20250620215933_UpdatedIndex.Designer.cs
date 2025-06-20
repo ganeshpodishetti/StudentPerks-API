@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SP.Infrastructure.Context;
@@ -11,9 +12,11 @@ using SP.Infrastructure.Context;
 namespace SP.Infrastructure.Migrations
 {
     [DbContext(typeof(SpDbContext))]
-    partial class SpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250620215933_UpdatedIndex")]
+    partial class UpdatedIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
