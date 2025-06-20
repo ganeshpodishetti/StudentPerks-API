@@ -14,7 +14,7 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 
         builder.Property(rt => rt.Token)
                .IsRequired()
-               .HasMaxLength(500);
+               .HasMaxLength(512);
 
         builder.Property(rt => rt.ExpirationDate)
                .IsRequired();
@@ -27,7 +27,6 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
                .IsRequired();
 
         builder.Property(rt => rt.UserId)
-               .HasMaxLength(500)
                .IsRequired();
 
         builder.HasOne(rt => rt.User)

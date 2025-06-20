@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Auth;
 using SP.Application.Helper;
+using SP.Application.Mapping;
 using SP.Domain.Entities;
 using SP.Domain.Options;
 using SP.Infrastructure.Context;
@@ -30,31 +31,23 @@ public class AuthService(
         if (existingUser is not null)
             throw new InvalidOperationException("Email already exists.");
 
-        var user = new User
-        {
-            UserName = request.Email,
-            Email = request.Email,
-            FirstName = request.FirstName,
-            LastName = request.LastName
-        };
+        var user = request.ToEntity();
 
-        var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
+        var userCreated = await userManager.CreateAsync(user, request.Password);
+        if (!userCreated.Succeeded)
             throw new InvalidOperationException(
-                $"User creation failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                $"User creation failed: {string.Join(", ", userCreated.Errors.Select(e => e.Description))}");
 
         // result = await userManager.AddToRoleAsync(user, request.Role);
         // if (!result.Succeeded)
         //     throw new InvalidOperationException(
         //         $"Failed to assign role '{request.Role}' to user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-
-        return new RegisterResponse(user.Email);
+        return user.ToDto();
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
-                                  .Include(u => u.RefreshTokens)
                                   .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken)
                    ?? throw new InvalidOperationException("Email not found.");
 
@@ -95,7 +88,7 @@ public class AuthService(
                                               u => u.RefreshTokens.Any(rt => rt.Token == request.RefreshToken),
                                               cancellationToken);
 
-        if (existingUser is null || existingUser.RefreshTokens is null)
+        if (existingUser?.RefreshTokens is null)
             throw new InvalidOperationException("User not found or no refresh tokens associated with the user.");
 
         var oldRefreshToken = existingUser.RefreshTokens
@@ -120,6 +113,9 @@ public class AuthService(
         };
 
         await dbContext.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
+
+        logger.LogInformation("Cleaning up old revoked refresh tokens for user {UserName}", existingUser.UserName);
+        await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("New refresh token generated and saved for user {UserName}", existingUser.UserName);
 

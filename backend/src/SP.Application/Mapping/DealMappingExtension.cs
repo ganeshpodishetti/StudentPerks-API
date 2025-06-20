@@ -11,8 +11,8 @@ public static class DealMappingExtension
             deal.Id,
             deal.Name,
             deal.Description,
-            deal.DiscountType,
-            deal.DiscountValue,
+            deal.Discount,
+            deal.ImageUrl,
             deal.Promo,
             deal.IsActive,
             deal.Url,
@@ -29,8 +29,8 @@ public static class DealMappingExtension
             deal.Id,
             deal.Name,
             deal.Description,
-            deal.DiscountType,
-            deal.DiscountValue,
+            deal.Discount,
+            deal.ImageUrl,
             deal.Promo,
             deal.IsActive,
             deal.Url,
@@ -47,8 +47,8 @@ public static class DealMappingExtension
             deal.Id,
             deal.Name,
             deal.Description,
-            deal.DiscountType,
-            deal.DiscountValue,
+            deal.Discount,
+            deal.ImageUrl,
             deal.Promo,
             deal.IsActive,
             deal.Url,
@@ -59,23 +59,22 @@ public static class DealMappingExtension
         );
     }
 
-    public static Deal ToEntity(this CreateDealRequest request,
-        Category category, Store store)
+    public static Deal ToEntity(this CreateDealRequest request)
     {
         return new Deal
         {
             Name = request.Title,
             Description = request.Description,
-            DiscountType = request.DiscountType.ToString(),
-            DiscountValue = request.DiscountValue,
+            Discount = request.Discount,
+            ImageUrl = request.ImageUrl,
             Promo = request.Promo,
             IsActive = request.IsActive,
             Url = request.Url,
-            RedeemType = request.RedeemType.ToString(),
+            RedeemType = request.RedeemType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Category = category,
-            Store = store
+            Category = new Category { Name = request.CategoryName },
+            Store = new Store { Name = request.StoreName }
         };
     }
 
@@ -84,16 +83,16 @@ public static class DealMappingExtension
     {
         deal.Name = request.Title;
         deal.Description = request.Description;
-        deal.DiscountType = request.DiscountType.ToString();
-        deal.DiscountValue = request.DiscountValue;
+        deal.Discount = request.Discount;
+        deal.ImageUrl = request.ImageUrl;
         deal.Promo = request.Promo;
         deal.IsActive = request.IsActive;
         deal.Url = request.Url;
-        deal.RedeemType = request.RedeemType.ToString();
+        deal.RedeemType = request.RedeemType;
         deal.StartDate = request.StartDate;
         deal.EndDate = request.EndDate;
-        deal.Category = category;
-        deal.Store = store;
+        deal.CategoryId = category.Id;
+        deal.StoreId = store.Id;
         deal.UpdatedAt = DateTime.UtcNow;
     }
 }

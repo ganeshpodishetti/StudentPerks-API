@@ -16,16 +16,13 @@ public class AddDealValidator : AbstractValidator<CreateDealRequest>
             .MaximumLength(1024)
             .WithMessage("Description cannot exceed 1024 characters.");
 
-        RuleFor(x => x.DiscountType)
+        RuleFor(x => x.Discount)
             .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage("Discount type is required.")
-            .IsEnumName(typeof(DiscountType), false)
-            .WithMessage(
-                "Discount type must be in Percentage, FixedAmount, FreeShipping, BuyOneGetOneFree, Others, None.");
+            .WithMessage("Discount is required.");
 
-        RuleFor(x => x.DiscountValue)
+        RuleFor(x => x.ImageUrl)
             .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage("Discount value is required.");
+            .WithMessage("ImageUrl is required.");
 
         RuleFor(x => x.Url)
             .Must(x => !string.IsNullOrEmpty(x)).WithMessage("URL is required.")

@@ -69,48 +69,31 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
     public async Task<GetDealResponse> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
     {
         var existingStore = await spDbContext.Stores
-                                             .FirstOrDefaultAsync(c => c.Name == request.StoreName,
+                                             .AnyAsync(c => c.Name == request.StoreName,
                                                  ct);
 
         var existingCategory = await spDbContext.Categories
-                                                .FirstOrDefaultAsync(c => c.Name == request.CategoryName,
+                                                .AnyAsync(c => c.Name == request.CategoryName,
                                                     ct);
 
-        Category category;
-
-        if (existingCategory is not null)
+        if (!existingCategory)
         {
-            logger.LogInformation("Existing category with {Name} found", existingCategory.Name);
-            category = existingCategory;
-        }
-        else
-        {
-            category = new Category
-            {
-                Name = request.CategoryName
-            };
-            logger.LogInformation("Creating a new category with name {Name}", category.Name);
+            var category = new Category { Name = request.CategoryName };
             await spDbContext.Categories.AddAsync(category, ct);
+            await spDbContext.SaveChangesAsync(ct);
+            logger.LogInformation("Created a new category with name {Name}", category.Name);
         }
 
-        Store store;
-        if (existingStore is not null)
+        if (!existingStore)
         {
-            logger.LogInformation("Existing store with {Name} found", existingStore.Name);
-            store = existingStore;
-        }
-        else
-        {
-            store = new Store
-            {
-                Name = request.StoreName
-            };
-            logger.LogInformation("Creating a new store with name {Name}", store.Name);
+            var store = new Store { Name = request.StoreName };
             await spDbContext.Stores.AddAsync(store, ct);
+            await spDbContext.SaveChangesAsync(ct);
+            logger.LogInformation("Created a new store with name {Name}", store.Name);
         }
 
         logger.LogInformation("Creating a new deal with title {Title}", request.Title);
-        var deal = request.ToEntity(category, store);
+        var deal = request.ToEntity();
 
         await spDbContext.Deals.AddAsync(deal, ct);
         await spDbContext.SaveChangesAsync(ct);
