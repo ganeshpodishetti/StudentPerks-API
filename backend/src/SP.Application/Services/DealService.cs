@@ -87,7 +87,7 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         {
             category = new Category
             {
-                Name = request.CategoryName.ToLower()
+                Name = request.CategoryName
             };
             logger.LogInformation("Creating a new category with name {Name}", category.Name);
             await spDbContext.Categories.AddAsync(category, ct);
@@ -103,7 +103,7 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         {
             store = new Store
             {
-                Name = request.StoreName!.ToLower()
+                Name = request.StoreName
             };
             logger.LogInformation("Creating a new store with name {Name}", store.Name);
             await spDbContext.Stores.AddAsync(store, ct);

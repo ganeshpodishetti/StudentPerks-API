@@ -5,7 +5,7 @@
 namespace SP.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class addhealthchecks : Migration
+    public partial class VerifyRefreshTokenSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

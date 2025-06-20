@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SP.Domain.Entities;
+using SP.Infrastructure.Constants;
 
 namespace SP.Infrastructure.Configurations;
 
@@ -8,7 +9,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
-        builder.ToTable("Categories");
+        builder.ToTable(DatabaseConstants.CategoriesTableName, DatabaseConstants.DefaultSchema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
@@ -24,7 +25,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
                .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(x => x.Name)
-               .HasDatabaseName("IX_Categories_Name")
+               .HasDatabaseName(DatabaseConstants.CategoriesIndexName)
                .IsUnique();
     }
 }

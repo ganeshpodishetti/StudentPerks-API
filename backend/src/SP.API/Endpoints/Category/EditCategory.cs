@@ -10,7 +10,9 @@ public class EditCategory : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/categories").WithTags("Categories");
+        var route = endpoints.MapGroup("/api/categories")
+                             .WithTags("Categories")
+                             .RequireAuthorization();
 
         route.MapPut("/{id:guid}",
             async (Guid id, [FromBody] UpdateCategoryRequest updateCategory,

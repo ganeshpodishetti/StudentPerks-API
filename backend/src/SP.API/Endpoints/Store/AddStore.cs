@@ -9,7 +9,9 @@ public class CreateStore : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/stores").WithTags("Stores");
+        var route = endpoints.MapGroup("/api/stores")
+                             .WithTags("Stores")
+                             .RequireAuthorization();
 
         route.MapPost("",
             async (IStore storeService, CreateStoreRequest request,

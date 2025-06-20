@@ -7,7 +7,8 @@ using SP.Infrastructure.Context;
 
 namespace SP.Application.Services;
 
-public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> logger) : ICategory
+public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> logger)
+    : ICategory
 {
     public async Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync(CancellationToken ct)
     {

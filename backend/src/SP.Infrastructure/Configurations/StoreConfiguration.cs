@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SP.Domain.Entities;
+using SP.Infrastructure.Constants;
 
 namespace SP.Infrastructure.Configurations;
 
@@ -8,7 +9,7 @@ public class StoreConfiguration : IEntityTypeConfiguration<Store>
 {
     public void Configure(EntityTypeBuilder<Store> builder)
     {
-        builder.ToTable("Stores");
+        builder.ToTable(DatabaseConstants.StoresTableName, DatabaseConstants.DefaultSchema);
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
@@ -27,7 +28,7 @@ public class StoreConfiguration : IEntityTypeConfiguration<Store>
                .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(x => x.Name)
-               .HasDatabaseName("IX_Stores_Name")
+               .HasDatabaseName(DatabaseConstants.StoresIndexName)
                .IsUnique();
     }
 }

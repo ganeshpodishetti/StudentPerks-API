@@ -2,8 +2,8 @@ namespace SP.Domain.Entities;
 
 public class RefreshToken
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public string Token { get; set; } = null!;
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public required string Token { get; set; }
     public DateTime ExpirationDate { get; set; }
     public bool IsRevoked { get; set; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;

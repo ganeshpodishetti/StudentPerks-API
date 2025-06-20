@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SP.Domain.Options;
 using SP.Infrastructure.Context;
@@ -25,7 +26,7 @@ public static class DatabaseExtension
             });
 
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTrackingWithIdentityResolution);
-            options.EnableSensitiveDataLogging(false);
+            options.EnableSensitiveDataLogging().LogTo(Console.WriteLine, LogLevel.Error);
         }, 128);
 
         return services;
