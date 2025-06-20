@@ -52,6 +52,8 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
 
         // Add indexes
         builder.HasIndex(x => x.CategoryId)
-               .HasDatabaseName(DatabaseConstants.DealsCategoryIndexName);
+               .HasDatabaseName(DatabaseConstants.CategoriesIndexName);
+        builder.HasIndex(x => x.StoreId)
+               .HasDatabaseName(DatabaseConstants.StoresIndexName);
     }
 }

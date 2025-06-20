@@ -59,7 +59,7 @@ public static class DealMappingExtension
         );
     }
 
-    public static Deal ToEntity(this CreateDealRequest request)
+    public static Deal ToEntity(this CreateDealRequest request, Guid categoryId, Guid storeId)
     {
         return new Deal
         {
@@ -73,8 +73,8 @@ public static class DealMappingExtension
             RedeemType = request.RedeemType,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
-            Category = new Category { Name = request.CategoryName },
-            Store = new Store { Name = request.StoreName }
+            CategoryId = categoryId,
+            StoreId = storeId
         };
     }
 

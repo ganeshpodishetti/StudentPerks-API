@@ -14,18 +14,18 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
     {
         logger.LogInformation("Retrieving a deal with ID {DealId}", dealId);
         var deal = await spDbContext.Deals
-                                    .Include(d => d.Category)
-                                    .Include(d => d.Store)
+                                    .Where(d => d.Id == dealId)
+                                    .Select(d => d.ToDto())
                                     .AsNoTracking()
-                                    .SingleOrDefaultAsync(d => d.Id == dealId, ct);
-        if (deal is not null)
+                                    .SingleOrDefaultAsync(ct);
+        if (deal is null)
         {
-            logger.LogInformation("Deal with ID {DealId} found", deal.Id);
-            return deal?.ToDto();
+            logger.LogWarning("Deal with ID {DealId} not found", dealId);
+            return null;
         }
 
-        logger.LogWarning("Deal with ID {DealId} not found", dealId);
-        return null;
+        logger.LogInformation("Retrieved deal with ID {DealId}", dealId);
+        return deal;
     }
 
     public Task<IEnumerable<GetDealsByCategoryResponse>?> GetDealsByCategoryAsync(string categoryName,
@@ -33,67 +33,77 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
     {
         logger.LogInformation("Retrieving all deals with category {CategoryName}", categoryName);
         var deals = spDbContext.Deals
-                               .Include(d => d.Category)
                                .Where(d => d.Category.Name == categoryName)
+                               .Select(d => d.ToCategoryDto())
                                .AsNoTracking()
                                .ToListAsync(ct);
+
         logger.LogInformation("Retrieved {Count} deals for category {CategoryName}", deals.Result.Count,
             categoryName);
-        return Task.FromResult(deals?.Result.Select(d => d.ToCategoryDto()));
+        return Task.FromResult<IEnumerable<GetDealsByCategoryResponse>?>(deals.Result);
     }
 
     public Task<IEnumerable<GetDealsByStoreResponse>?> GetDealsByStoreAsync(string storeName, CancellationToken ct)
     {
         logger.LogInformation("Retrieving all deals for store {StoreName}", storeName);
         var deals = spDbContext.Deals
-                               .Include(d => d.Store)
                                .Where(d => d.Store.Name == storeName)
+                               .Select(d => d.ToStoreDto())
                                .AsNoTracking()
                                .ToListAsync(ct);
         logger.LogInformation("Retrieved {Count} deals for store {StoreName}", deals.Result.Count, storeName);
-        return Task.FromResult(deals?.Result.Select(d => d.ToStoreDto()));
+        return Task.FromResult<IEnumerable<GetDealsByStoreResponse>?>(deals.Result);
     }
 
     public async Task<IEnumerable<GetDealResponse>> GetAllDealsAsync(CancellationToken ct)
     {
         logger.LogInformation("Retrieving all deals from the database");
         var deals = await spDbContext.Deals
-                                     .Include(d => d.Category)
-                                     .Include(d => d.Store)
+                                     .Select(d => d.ToDto())
                                      .AsNoTracking()
                                      .ToListAsync(ct);
         logger.LogInformation("Retrieved {Count} deals from the database", deals.Count);
-        return deals.Select(d => d.ToDto());
+        return deals;
     }
 
     public async Task<GetDealResponse> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
     {
         var existingStore = await spDbContext.Stores
-                                             .AnyAsync(c => c.Name == request.StoreName,
+                                             .FirstOrDefaultAsync(c => c.Name == request.StoreName,
                                                  ct);
 
         var existingCategory = await spDbContext.Categories
-                                                .AnyAsync(c => c.Name == request.CategoryName,
+                                                .FirstOrDefaultAsync(c => c.Name == request.CategoryName,
                                                     ct);
 
-        if (!existingCategory)
+        Category category;
+        if (existingCategory is null)
         {
-            var category = new Category { Name = request.CategoryName };
+            category = new Category { Name = request.CategoryName };
             await spDbContext.Categories.AddAsync(category, ct);
-            await spDbContext.SaveChangesAsync(ct);
             logger.LogInformation("Created a new category with name {Name}", category.Name);
         }
-
-        if (!existingStore)
+        else
         {
-            var store = new Store { Name = request.StoreName };
+            category = existingCategory;
+            logger.LogInformation("Using existing category with name {Name}", category.Name);
+        }
+
+        Store store;
+        if (existingStore is null)
+        {
+            store = new Store { Name = request.StoreName };
             await spDbContext.Stores.AddAsync(store, ct);
-            await spDbContext.SaveChangesAsync(ct);
             logger.LogInformation("Created a new store with name {Name}", store.Name);
+        }
+        else
+        {
+            store = existingStore;
+            logger.LogInformation("Using existing store with name {Name}", store.Name);
         }
 
         logger.LogInformation("Creating a new deal with title {Title}", request.Title);
-        var deal = request.ToEntity();
+        var deal = request.ToEntity(category.Id, store.Id);
 
         await spDbContext.Deals.AddAsync(deal, ct);
         await spDbContext.SaveChangesAsync(ct);
