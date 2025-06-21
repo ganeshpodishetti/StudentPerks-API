@@ -28,7 +28,14 @@ public class AddDeal : IEndpoint
                 }
 
                 var deal = await dealService.CreateDealAsync(request, cancellationToken);
-                return Results.Created($"/api/deals/{deal.Id}", deal);
+                if (!deal)
+                {
+                    logger.LogError("Failed to create deal with title {Title}", request.Title);
+                    return Results.Problem("Failed to create deal.");
+                }
+
+                return Results.Created($"/api/deals/{request.Title}",
+                    new { Message = "Deal created successfully." });
             });
     }
 }

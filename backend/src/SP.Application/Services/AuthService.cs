@@ -37,11 +37,6 @@ public class AuthService(
         if (!userCreated.Succeeded)
             throw new InvalidOperationException(
                 $"User creation failed: {string.Join(", ", userCreated.Errors.Select(e => e.Description))}");
-
-        // result = await userManager.AddToRoleAsync(user, request.Role);
-        // if (!result.Succeeded)
-        //     throw new InvalidOperationException(
-        //         $"Failed to assign role '{request.Role}' to user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         return user.ToDto();
     }
 
@@ -99,7 +94,7 @@ public class AuthService(
 
         oldRefreshToken.IsRevoked = true;
         oldRefreshToken.LastModifiedAt = DateTime.UtcNow;
-        dbContext.Entry(oldRefreshToken).State = EntityState.Modified;
+        dbContext.RefreshTokens.Update(oldRefreshToken);
 
         var newAccessToken = await jwtHelper.GenerateJwtToken(existingUser);
         var newRefreshToken = refreshTokenHelper.GenerateRefreshToken();

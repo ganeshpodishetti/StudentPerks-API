@@ -59,7 +59,8 @@ public static class DealMappingExtension
         );
     }
 
-    public static Deal ToEntity(this CreateDealRequest request, Guid categoryId, Guid storeId)
+    public static Deal ToEntity(this CreateDealRequest request,
+        Guid categoryId, Guid storeId)
     {
         return new Deal
         {

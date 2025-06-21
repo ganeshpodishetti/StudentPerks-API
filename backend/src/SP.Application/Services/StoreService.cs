@@ -46,6 +46,7 @@ public class StoreService(SpDbContext spDbContext, ILogger<StoreService> logger)
 
         logger.LogInformation("Updating store with ID {StoreId}", storeId);
         updateStoreRequest.ToEntity(store);
+        spDbContext.Stores.Update(store);
         await spDbContext.SaveChangesAsync(ct);
         logger.LogInformation("Store with ID {StoreId} updated successfully", storeId);
         return true;

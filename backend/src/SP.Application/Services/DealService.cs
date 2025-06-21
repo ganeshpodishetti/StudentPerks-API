@@ -14,6 +14,8 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
     {
         logger.LogInformation("Retrieving a deal with ID {DealId}", dealId);
         var deal = await spDbContext.Deals
+                                    .Include(d => d.Category)
+                                    .Include(d => d.Store)
                                     .Where(d => d.Id == dealId)
                                     .Select(d => d.ToDto())
                                     .AsNoTracking()
@@ -28,37 +30,42 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         return deal;
     }
 
-    public Task<IEnumerable<GetDealsByCategoryResponse>?> GetDealsByCategoryAsync(string categoryName,
+    public async Task<IEnumerable<GetDealsByCategoryResponse>?> GetDealsByCategoryAsync(string categoryName,
         CancellationToken ct)
     {
         logger.LogInformation("Retrieving all deals with category {CategoryName}", categoryName);
-        var deals = spDbContext.Deals
-                               .Where(d => d.Category.Name == categoryName)
-                               .Select(d => d.ToCategoryDto())
-                               .AsNoTracking()
-                               .ToListAsync(ct);
+        var deals = await spDbContext.Deals
+                                     .Include(d => d.Category)
+                                     .Where(d => d.Category.Name == categoryName)
+                                     .Select(d => d.ToCategoryDto())
+                                     .AsNoTracking()
+                                     .ToListAsync(ct);
 
-        logger.LogInformation("Retrieved {Count} deals for category {CategoryName}", deals.Result.Count,
+        logger.LogInformation("Retrieved {Count} deals for category {CategoryName}", deals.Count,
             categoryName);
-        return Task.FromResult<IEnumerable<GetDealsByCategoryResponse>?>(deals.Result);
+        return deals;
     }
 
-    public Task<IEnumerable<GetDealsByStoreResponse>?> GetDealsByStoreAsync(string storeName, CancellationToken ct)
+    public async Task<IEnumerable<GetDealsByStoreResponse>?> GetDealsByStoreAsync(string storeName,
+        CancellationToken ct)
     {
         logger.LogInformation("Retrieving all deals for store {StoreName}", storeName);
-        var deals = spDbContext.Deals
-                               .Where(d => d.Store.Name == storeName)
-                               .Select(d => d.ToStoreDto())
-                               .AsNoTracking()
-                               .ToListAsync(ct);
-        logger.LogInformation("Retrieved {Count} deals for store {StoreName}", deals.Result.Count, storeName);
-        return Task.FromResult<IEnumerable<GetDealsByStoreResponse>?>(deals.Result);
+        var deals = await spDbContext.Deals
+                                     .Include(d => d.Store)
+                                     .Where(d => d.Store.Name == storeName)
+                                     .Select(d => d.ToStoreDto())
+                                     .AsNoTracking()
+                                     .ToListAsync(ct);
+        logger.LogInformation("Retrieved {Count} deals for store {StoreName}", deals.Count, storeName);
+        return deals;
     }
 
     public async Task<IEnumerable<GetDealResponse>> GetAllDealsAsync(CancellationToken ct)
     {
         logger.LogInformation("Retrieving all deals from the database");
         var deals = await spDbContext.Deals
+                                     .Include(d => d.Category)
+                                     .Include(d => d.Store)
                                      .Select(d => d.ToDto())
                                      .AsNoTracking()
                                      .ToListAsync(ct);
@@ -66,7 +73,7 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         return deals;
     }
 
-    public async Task<GetDealResponse> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
+    public async Task<bool> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
     {
         var existingStore = await spDbContext.Stores
                                              .FirstOrDefaultAsync(c => c.Name == request.StoreName,
@@ -109,7 +116,7 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         await spDbContext.SaveChangesAsync(ct);
 
         logger.LogInformation("Deal with ID {DealId} created successfully", deal.Id);
-        return deal.ToDto();
+        return true;
     }
 
     public async Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealRequest, CancellationToken ct)
@@ -143,9 +150,16 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
 
         logger.LogInformation("Updating deal with ID {DealId}", dealId);
         updateDealRequest.ToEntity(deal, existingCategory, existingStore);
-        await spDbContext.SaveChangesAsync(ct);
-        logger.LogInformation("Deal with ID {DealId} updated successfully", dealId);
-        return true;
+        spDbContext.Deals.Update(deal);
+        var rowsAffected = await spDbContext.SaveChangesAsync(ct);
+        if (rowsAffected > 0)
+        {
+            logger.LogInformation("Deal with ID {DealId} updated successfully", dealId);
+            return true;
+        }
+
+        logger.LogWarning("No changes were saved for deal with ID {DealId}", dealId);
+        return false;
     }
 
     public async Task<bool> DeleteDealAsync(Guid dealId, CancellationToken ct)
