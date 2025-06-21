@@ -21,7 +21,7 @@ public class GetDealsByStore : IEndpoint
                     return Results.BadRequest(new { message = "Store name cannot be empty" });
                 }
 
-                var dealsByStore = await dealService.GetDealsByStoreAsync(name.ToLower(), cancellationToken);
+                var dealsByStore = await dealService.GetDealsByStoreAsync(name, cancellationToken);
                 return dealsByStore is not null
                     ? Results.Ok(dealsByStore)
                     : Results.NotFound(new { message = "No deals found with this store" });

@@ -49,6 +49,7 @@ public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> l
 
         logger.LogInformation("Updating category with ID {CategoryId}", categoryId);
         updateCategoryRequest.ToEntity(category);
+        spDbContext.Categories.Update(category);
         await spDbContext.SaveChangesAsync(ct);
         logger.LogInformation("Category with ID {CategoryId} updated successfully", categoryId);
         return true;

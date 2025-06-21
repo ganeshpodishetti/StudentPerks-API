@@ -13,7 +13,7 @@ public interface IDeal
         CancellationToken cancellationToken);
 
     Task<IEnumerable<GetDealResponse>> GetAllDealsAsync(CancellationToken cancellationToken);
-    Task<GetDealResponse> CreateDealAsync(CreateDealRequest createDealRequest, CancellationToken cancellationToken);
+    Task<bool> CreateDealAsync(CreateDealRequest createDealRequest, CancellationToken cancellationToken);
     Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealDto, CancellationToken cancellationToken);
     Task<bool> DeleteDealAsync(Guid dealId, CancellationToken cancellationToken);
 }

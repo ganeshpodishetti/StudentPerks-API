@@ -21,7 +21,7 @@ public class GetDealsByCategory : IEndpoint
                     return Results.BadRequest(new { message = "Category name cannot be empty" });
                 }
 
-                var dealsByCategory = await dealService.GetDealsByCategoryAsync(name.ToLower(), cancellationToken);
+                var dealsByCategory = await dealService.GetDealsByCategoryAsync(name, cancellationToken);
                 return dealsByCategory is not null
                     ? Results.Ok(dealsByCategory)
                     : Results.NotFound(new { message = "No deals found with this category" });
