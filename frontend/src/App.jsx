@@ -1,26 +1,55 @@
 import { Toaster } from "@/components/ui/toaster";
 import { useState } from 'react';
+import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import DealList from './components/DealList';
 import Navigation from './components/Navigation';
+import CategoriesPage from './pages/CategoriesPage';
+import StoresPage from './pages/StoresPage';
 
-function App() {
+// Wrapper component to handle navigation state
+const AppContent = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedStore, setSelectedStore] = useState('All');
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+  };
+
+  const handleStoreSelect = (store) => {
+    setSelectedStore(store);
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+  };
 
   return (
     <div className="min-h-screen h-full w-full bg-[#FAFAFA] dark:bg-neutral-950 flex flex-col">
       <Navigation 
-        onCategorySelect={setSelectedCategory}
-        onStoreSelect={setSelectedStore}
+        onCategorySelect={handleCategorySelect}
+        onStoreSelect={handleStoreSelect}
       />
 
       <main className="flex-grow py-14 md:py-16 bg-[#FAFAFA] dark:bg-neutral-950">
         <div className="container mx-auto px-6 md:px-8 bg-[#FAFAFA] dark:bg-neutral-950">
-          <DealList 
-            initialCategory={selectedCategory}
-            initialStore={selectedStore}
-          />
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <DealList 
+                  initialCategory={selectedCategory}
+                  initialStore={selectedStore}
+                />
+              } 
+            />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/stores" element={<StoresPage />} />
+          </Routes>
         </div>
       </main>
 
@@ -60,6 +89,14 @@ function App() {
       {/* Toast notifications */}
       <Toaster />
     </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 
