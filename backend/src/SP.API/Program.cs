@@ -20,6 +20,7 @@ try
     Log.Information("Application Starting up");
     var builder = WebApplication.CreateBuilder(args);
 
+    builder.AddCors();
     builder.AddOptions();
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
@@ -63,6 +64,7 @@ try
         app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
     }
 
+    app.UseCors("AllowAll");
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
