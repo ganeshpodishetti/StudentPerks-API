@@ -56,7 +56,7 @@ const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
         type="button"
         ref={ref}
         className={cn(
-          "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-10 w-full items-center justify-between rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         onClick={() => setIsOpen(!isOpen)}
@@ -88,7 +88,11 @@ const SelectValue = ({ placeholder }: SelectValueProps) => {
 
   const { value } = context;
 
-  return <span>{value || placeholder}</span>;
+  return (
+    <span className={value ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400"}>
+      {value || placeholder}
+    </span>
+  );
 };
 
 const SelectContent = ({ children }: SelectContentProps) => {
@@ -105,7 +109,7 @@ const SelectContent = ({ children }: SelectContentProps) => {
         className="fixed inset-0 z-40"
         onClick={() => setIsOpen(false)}
       />
-      <div className="absolute top-full left-0 z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
+      <div className="absolute top-full left-0 z-50 mt-1 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-md">
         <div className="max-h-60 overflow-auto p-1">
           {children}
         </div>
@@ -122,7 +126,7 @@ const SelectItem = ({ value, children }: SelectItemProps) => {
 
   return (
     <div
-      className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+      className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700"
       onClick={() => {
         onValueChange(value);
         setIsOpen(false);

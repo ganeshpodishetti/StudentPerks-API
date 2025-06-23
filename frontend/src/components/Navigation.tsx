@@ -1,6 +1,6 @@
-import { LogOut, Menu, Settings, Store, Tag, User, X } from 'lucide-react';
+import { Menu, Settings, Store, Tag, User, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 
@@ -11,17 +11,7 @@ interface NavigationProps {
 
 // Auth buttons component
 const AuthButtons: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
+  const { user, isAuthenticated } = useAuth();
 
   if (isAuthenticated && user) {
     return (
@@ -39,13 +29,6 @@ const AuthButtons: React.FC = () => {
             {user.firstName}
           </span>
         </div>
-        <button
-          onClick={handleLogout}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-        >
-          <LogOut className="mr-1.5 h-4 w-4" />
-          Logout
-        </button>
       </div>
     );
   }
@@ -56,17 +39,7 @@ const AuthButtons: React.FC = () => {
 
 // Mobile auth buttons component
 const AuthButtonsMobile: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
+  const { user, isAuthenticated } = useAuth();
 
   if (isAuthenticated && user) {
     return (
@@ -84,13 +57,6 @@ const AuthButtonsMobile: React.FC = () => {
             Welcome, {user.firstName}
           </div>
         </div>
-        <button 
-          onClick={handleLogout}
-          className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-red-600 dark:hover:text-red-400"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
-        </button>
       </>
     );
   }
