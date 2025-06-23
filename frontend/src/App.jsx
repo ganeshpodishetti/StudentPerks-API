@@ -4,7 +4,10 @@ import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from
 import './App.css';
 import DealList from './components/DealList';
 import Navigation from './components/Navigation';
+import { AuthProvider } from './contexts/AuthContext';
 import CategoriesPage from './pages/CategoriesPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import StoresPage from './pages/StoresPage';
 
 // Wrapper component to handle navigation state
@@ -19,6 +22,22 @@ const AppContent = () => {
       navigate('/');
     }
   };
+
+  // Check if current path is auth-related
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+  // If it's an auth page, render without navigation and footer
+  if (isAuthPage) {
+    return (
+      <div className="min-h-screen">
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+        <Toaster />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen h-full w-full bg-[#FAFAFA] dark:bg-neutral-950 flex flex-col">
@@ -84,9 +103,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 
