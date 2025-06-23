@@ -1,20 +1,41 @@
 import DealFormModal from '@/components/DealFormModal';
+import ThemeToggle from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { dealService } from '@/services/dealService';
 import { Deal } from '@/types/Deal';
-import { Edit, Eye, Plus, Trash2 } from 'lucide-react';
+import { Edit, Eye, LogOut, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Success",
+        description: "Logged out successfully",
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to logout",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     loadDeals();
@@ -101,7 +122,7 @@ export default function AdminDashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 dark:border-gray-100"></div>
       </div>
     );
   }
@@ -117,10 +138,21 @@ export default function AdminDashboard() {
             Welcome back, {user?.firstName}! Manage your deals here.
           </p>
         </div>
-        <Button onClick={handleCreateDeal} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Create Deal
-        </Button>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <Button onClick={handleCreateDeal} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Create Deal
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout} 
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6">
@@ -171,36 +203,36 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-medium">Title</th>
-                    <th className="text-left p-4 font-medium">Store</th>
-                    <th className="text-left p-4 font-medium">Category</th>
-                    <th className="text-left p-4 font-medium">Discount</th>
-                    <th className="text-left p-4 font-medium">Status</th>
-                    <th className="text-left p-4 font-medium">Actions</th>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left p-4 font-medium text-gray-900 dark:text-gray-100">Title</th>
+                    <th className="text-left p-4 font-medium text-gray-900 dark:text-gray-100">Store</th>
+                    <th className="text-left p-4 font-medium text-gray-900 dark:text-gray-100">Category</th>
+                    <th className="text-left p-4 font-medium text-gray-900 dark:text-gray-100">Discount</th>
+                    <th className="text-left p-4 font-medium text-gray-900 dark:text-gray-100">Status</th>
+                    <th className="text-left p-4 font-medium text-gray-900 dark:text-gray-100">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {deals.map((deal) => (
-                    <tr key={deal.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <tr key={deal.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className="p-4">
-                        <div className="font-medium">{deal.title}</div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{deal.title}</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
                           {deal.description}
                         </div>
                       </td>
-                      <td className="p-4">{deal.storeName}</td>
-                      <td className="p-4">{deal.categoryName}</td>
+                      <td className="p-4 text-gray-900 dark:text-gray-100">{deal.storeName}</td>
+                      <td className="p-4 text-gray-900 dark:text-gray-100">{deal.categoryName}</td>
                       <td className="p-4">
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
+                        <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-sm">
                           {deal.discount}
                         </span>
                       </td>
                       <td className="p-4">
                         <span className={`px-2 py-1 rounded text-sm ${
                           deal.isActive 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
+                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                         }`}>
                           {deal.isActive ? 'Active' : 'Inactive'}
                         </span>
