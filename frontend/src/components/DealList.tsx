@@ -1,22 +1,21 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
 } from "@/components/ui/pagination";
-import { ArrowUpDown, ChevronDown, FilterX } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import React, { useEffect, useState } from 'react';
 import { fetchDeals } from '../services/dealService';
 import { Deal } from '../types/Deal';
@@ -40,29 +39,22 @@ const sortOptions: SortOption[] = [
 ];
 
 interface DealListProps {
-  initialCategory?: string;
-  initialStore?: string;
+  // No props needed anymore since we removed filters
 }
 
-const DealList: React.FC<DealListProps> = ({ initialCategory = 'All', initialStore = 'All' }) => {
+const DealList: React.FC<DealListProps> = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
   const [displayedDeals, setDisplayedDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeSort, setActiveSort] = useState<SortOption>(sortOptions[0]);
-  const [showFilters, setShowFilters] = useState(false);
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const dealsPerPage = 9; // 3x3 grid on desktop
-
-  // Additional filters
-  const [activeStore, setActiveStore] = useState<string>(initialStore);
-  const [filterExpired, setFilterExpired] = useState<boolean>(false);
   
   // Load deals from API
   const loadDeals = async () => {
@@ -86,34 +78,9 @@ const DealList: React.FC<DealListProps> = ({ initialCategory = 'All', initialSto
     loadDeals();
   }, []);
 
-  // Update active filters when props change
+  // Apply search and sort
   useEffect(() => {
-    if (initialCategory !== activeCategory) {
-      setActiveCategory(initialCategory);
-    }
-    if (initialStore !== activeStore) {
-      setActiveStore(initialStore);
-    }
-  }, [initialCategory, initialStore, activeCategory, activeStore]);
-
-  // Extract unique categories and stores
-  const categories = ['All', ...Array.from(new Set(deals.map(deal => deal.categoryName)))];
-  const stores = ['All', ...Array.from(new Set(deals.map(deal => deal.storeName)))];
-
-  // Apply filters
-  useEffect(() => {
-    // Filter deals based on category, store, search term, and expired status
     let result = deals;
-    
-    // Filter by category
-    if (activeCategory !== 'All') {
-      result = result.filter(deal => deal.categoryName === activeCategory);
-    }
-    
-    // Filter by store
-    if (activeStore !== 'All') {
-      result = result.filter(deal => deal.storeName === activeStore);
-    }
     
     // Filter by search term
     if (searchTerm) {
@@ -125,15 +92,6 @@ const DealList: React.FC<DealListProps> = ({ initialCategory = 'All', initialSto
         deal.categoryName.toLowerCase().includes(term) ||
         (deal.promo && deal.promo.toLowerCase().includes(term))
       );
-    }
-    
-    // Filter out expired deals if filterExpired is true
-    if (filterExpired) {
-      const now = new Date();
-      result = result.filter(deal => {
-        const endDate = new Date(deal.endDate);
-        return endDate >= now;
-      });
     }
     
     // Apply sorting
@@ -155,7 +113,7 @@ const DealList: React.FC<DealListProps> = ({ initialCategory = 'All', initialSto
     setFilteredDeals(result);
     setTotalPages(Math.ceil(result.length / dealsPerPage));
     setCurrentPage(1); // Reset to first page when filters change
-  }, [activeCategory, activeStore, searchTerm, filterExpired, activeSort, deals]);
+  }, [searchTerm, activeSort, deals]);
 
   // Paginate the filtered deals
   useEffect(() => {
@@ -163,15 +121,6 @@ const DealList: React.FC<DealListProps> = ({ initialCategory = 'All', initialSto
     const endIndex = startIndex + dealsPerPage;
     setDisplayedDeals(filteredDeals.slice(startIndex, endIndex));
   }, [currentPage, filteredDeals, dealsPerPage]);
-
-  // Clear all filters
-  const clearFilters = () => {
-    setActiveCategory('All');
-    setActiveStore('All');
-    setSearchTerm('');
-    setFilterExpired(false);
-    setActiveSort(sortOptions[0]);
-  };
 
   // Handle pagination
   const handlePageChange = (page: number) => {
@@ -264,132 +213,22 @@ const DealList: React.FC<DealListProps> = ({ initialCategory = 'All', initialSto
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              
-              {/* Toggle advanced filters */}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-9 flex items-center gap-2"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <span className="hidden sm:inline">Filters</span>
-                <span className="inline sm:hidden">Filter</span>
-                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </Button>
-              
-              {/* Clear filters */}
-              {(activeCategory !== 'All' || activeStore !== 'All' || searchTerm || filterExpired || activeSort !== sortOptions[0]) && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 flex items-center gap-2 text-neutral-500 dark:text-neutral-400"
-                  onClick={clearFilters}
-                >
-                  <FilterX className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Clear</span>
-                </Button>
-              )}
             </div>
           </div>
         </div>
         
-        {/* Advanced Filters */}
-        {showFilters && (
-          <div className="mb-6 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-md border border-neutral-100 dark:border-neutral-800">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Categories */}
-              <div>
-                <h3 className="text-sm font-medium mb-2 text-neutral-900 dark:text-neutral-100">Categories</h3>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map(category => (
-                    <Badge
-                      key={category}
-                      onClick={() => setActiveCategory(category)}
-                      className={`cursor-pointer px-3 py-1 text-xs ${activeCategory === category 
-                        ? 'bg-neutral-900 text-white hover:bg-neutral-900 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200' 
-                        : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'}`}
-                      variant={activeCategory === category ? "default" : "secondary"}
-                    >
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Stores */}
-              <div>
-                <h3 className="text-sm font-medium mb-2 text-neutral-900 dark:text-neutral-100">Stores</h3>
-                <div className="flex flex-wrap gap-2">
-                  {stores.map(store => (
-                    <Badge
-                      key={store}
-                      onClick={() => setActiveStore(store)}
-                      className={`cursor-pointer px-3 py-1 text-xs ${activeStore === store 
-                        ? 'bg-neutral-900 text-white hover:bg-neutral-900 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200' 
-                        : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'}`}
-                      variant={activeStore === store ? "default" : "secondary"}
-                    >
-                      {store}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Additional filters */}
-            <div className="mt-4 flex items-center">
-              <label className="flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={filterExpired} 
-                  onChange={() => setFilterExpired(!filterExpired)}
-                  className="rounded border-neutral-300 text-neutral-900 focus:ring-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:ring-offset-neutral-900 h-4 w-4 mr-2"
-                />
-                <span className="text-sm text-neutral-700 dark:text-neutral-300">Hide expired deals</span>
-              </label>
-            </div>
-          </div>
-        )}
-        
-        {/* Categories Quick Filter - shown when advanced filters are hidden */}
-        {!showFilters && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 flex-grow">
-              {categories.map(category => (
-                <Badge
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`cursor-pointer px-3 py-1 text-xs ${activeCategory === category 
-                    ? 'bg-neutral-900 text-white hover:bg-neutral-900 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200' 
-                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'}`}
-                  variant={activeCategory === category ? "default" : "secondary"}
-                >
-                  {category}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {/* Filter Stats */}
+        {/* Results Stats */}
         <div className="mb-6 text-xs text-neutral-500 dark:text-neutral-400">
           Showing {displayedDeals.length} of {filteredDeals.length} deals
-          {activeCategory !== 'All' && ` in ${activeCategory}`}
-          {activeStore !== 'All' && ` from ${activeStore}`}
           {searchTerm && ` matching "${searchTerm}"`}
-          {filterExpired && ' (hiding expired)'}
         </div>
         
         {/* Deals Grid */}
         {filteredDeals.length === 0 ? (
           <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-900 rounded-sm border border-neutral-100 dark:border-neutral-800">
-            <p className="text-neutral-500 dark:text-neutral-400 mb-4 text-sm">No deals found matching your criteria</p>
-            <Button 
-              onClick={clearFilters}
-              className="bg-black hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
-            >
-              Clear Filters
-            </Button>
+            <p className="text-neutral-500 dark:text-neutral-400 mb-4 text-sm">
+              {searchTerm ? `No deals found matching "${searchTerm}"` : 'No deals available'}
+            </p>
           </div>
         ) : (
           <>

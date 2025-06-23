@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowRight, Tag } from "lucide-react";
 import React, { useEffect, useState } from 'react';
 import { Category, fetchCategories } from '../services/categoryService';
 
@@ -69,12 +67,12 @@ const CategoriesPage: React.FC = () => {
             <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-4 rounded-md">
               {error}
             </div>
-            <Button 
+            <button 
               onClick={() => window.location.reload()} 
-              className="mt-4"
+              className="mt-4 px-4 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-md hover:bg-neutral-700 dark:hover:bg-neutral-200 transition-colors"
             >
               Try Again
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -84,39 +82,26 @@ const CategoriesPage: React.FC = () => {
   return (
     <div className="py-12">
       <div className="container mx-auto px-6 md:px-8">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-8">Categories</h1>
-          
+        <div className="max-w-6xl mx-auto">
+          {/* Header Section */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-neutral-900 dark:text-white mb-4">Categories</h1>
+          </div>
+        
           {categories.length === 0 ? (
             <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-900 rounded-md border border-neutral-100 dark:border-neutral-800">
               <p className="text-neutral-500 dark:text-neutral-400">No categories found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="flex flex-wrap gap-3 justify-center">
               {categories.map((category) => (
-                <div 
+                <button
                   key={category.id}
-                  className="bg-white dark:bg-neutral-900 rounded-lg p-6 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                  onClick={() => handleCategorySelect(category.name)}
+                  className="px-6 py-3 bg-neutral-800 dark:bg-neutral-700 text-white dark:text-neutral-200 rounded-full text-sm font-medium hover:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap"
                 >
-                  <div className="flex items-center gap-2 mb-3">
-                    <Tag className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
-                    <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">{category.name}</h2>
-                  </div>
-                  
-                  {category.description && (
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-                      {category.description}
-                    </p>
-                  )}
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full mt-2 flex items-center justify-center gap-1"
-                    onClick={() => handleCategorySelect(category.name)}
-                  >
-                    View Deals <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
+                  {category.name}
+                </button>
               ))}
             </div>
           )}
