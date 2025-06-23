@@ -12,17 +12,9 @@ const AppContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedStore, setSelectedStore] = useState('All');
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
-    if (location.pathname !== '/') {
-      navigate('/');
-    }
-  };
-
-  const handleStoreSelect = (store) => {
-    setSelectedStore(store);
     if (location.pathname !== '/') {
       navigate('/');
     }
@@ -32,7 +24,6 @@ const AppContent = () => {
     <div className="min-h-screen h-full w-full bg-[#FAFAFA] dark:bg-neutral-950 flex flex-col">
       <Navigation 
         onCategorySelect={handleCategorySelect}
-        onStoreSelect={handleStoreSelect}
       />
 
       <main className="flex-grow py-14 md:py-16 bg-[#FAFAFA] dark:bg-neutral-950">
@@ -43,7 +34,6 @@ const AppContent = () => {
               element={
                 <DealList 
                   initialCategory={selectedCategory}
-                  initialStore={selectedStore}
                 />
               } 
             />
