@@ -26,7 +26,7 @@ public class RefreshToken : IEndpoint
                     return Results.ValidationProblem(validationResult.ToDictionary());
                 }
 
-                var result = await authService.RefreshTokenAsync(request, cancellationToken);
+                var result = await authService.RefreshTokenAsync(cancellationToken);
                 return Results.Ok(result);
             });
     }

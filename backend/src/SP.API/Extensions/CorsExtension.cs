@@ -8,9 +8,13 @@ public static class CorsExtension
         {
             options.AddPolicy("AllowAll", corsPolicy =>
                 corsPolicy
-                    .AllowAnyOrigin()
+                    .WithOrigins("http://localhost:5173",
+                        "https://localhost:5173",
+                        "http://localhost:5254",
+                        "https://localhost:5254")
                     .AllowAnyMethod()
-                    .AllowAnyHeader());
+                    .AllowAnyHeader()
+                    .AllowCredentials());
         });
     }
 }
