@@ -5,7 +5,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -21,6 +20,7 @@ import { fetchDeals } from '../services/dealService';
 import { Deal } from '../types/Deal';
 import DealCard from './DealCard';
 import DealSkeleton from './DealSkeleton';
+import HeroSearchSection from './HeroSearchSection';
 
 // Sorting options
 type SortOption = {
@@ -39,16 +39,17 @@ const sortOptions: SortOption[] = [
 ];
 
 interface DealListProps {
-  // No props needed anymore since we removed filters
+  initialCategory?: string;
 }
 
-const DealList: React.FC<DealListProps> = () => {
+const DealList: React.FC<DealListProps> = ({ initialCategory }) => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
   const [displayedDeals, setDisplayedDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'All');
   const [activeSort, setActiveSort] = useState<SortOption>(sortOptions[0]);
   
   // Pagination
@@ -82,6 +83,13 @@ const DealList: React.FC<DealListProps> = () => {
   useEffect(() => {
     let result = deals;
     
+    // Filter by category
+    if (selectedCategory && selectedCategory !== 'All') {
+      result = result.filter(deal => 
+        deal.categoryName.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+    
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -113,7 +121,7 @@ const DealList: React.FC<DealListProps> = () => {
     setFilteredDeals(result);
     setTotalPages(Math.ceil(result.length / dealsPerPage));
     setCurrentPage(1); // Reset to first page when filters change
-  }, [searchTerm, activeSort, deals]);
+  }, [searchTerm, selectedCategory, activeSort, deals]);
 
   // Paginate the filtered deals
   useEffect(() => {
@@ -128,6 +136,16 @@ const DealList: React.FC<DealListProps> = () => {
       setCurrentPage(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  // Handle search
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (categoryName: string) => {
+    setSelectedCategory(categoryName);
   };
 
   if (loading) {
@@ -177,49 +195,43 @@ const DealList: React.FC<DealListProps> = () => {
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Exclusive offers for students</p>
         </div>
         
-        {/* Search and Sort */}
+        {/* Hero Search Section */}
+        <HeroSearchSection 
+          onSearch={handleSearch}
+          onCategorySelect={handleCategorySelect}
+          searchTerm={searchTerm}
+        />
+        
+        {/* Sort Only */}
         <div className="mb-6">
-          <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-            {/* Search */}
-            <div className="w-full md:w-64">
-              <Input
-                type="text"
-                placeholder="Search deals..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-9"
-              />
-            </div>
-            
-            {/* Sort dropdown */}
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-9 flex items-center gap-2">
-                    <ArrowUpDown className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">{activeSort.label}</span>
-                    <span className="inline sm:hidden">Sort</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {sortOptions.map((option) => (
-                    <DropdownMenuItem
-                      key={option.label}
-                      onClick={() => setActiveSort(option)}
-                      className={activeSort.label === option.label ? "bg-neutral-100 dark:bg-neutral-800" : ""}
-                    >
-                      {option.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 flex items-center gap-2">
+                  <ArrowUpDown className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{activeSort.label}</span>
+                  <span className="inline sm:hidden">Sort</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {sortOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option.label}
+                    onClick={() => setActiveSort(option)}
+                    className={activeSort.label === option.label ? "bg-neutral-100 dark:bg-neutral-800" : ""}
+                  >
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         
         {/* Results Stats */}
         <div className="mb-6 text-xs text-neutral-500 dark:text-neutral-400">
           Showing {displayedDeals.length} of {filteredDeals.length} deals
+          {selectedCategory && selectedCategory !== 'All' && ` in ${selectedCategory}`}
           {searchTerm && ` matching "${searchTerm}"`}
         </div>
         
@@ -227,7 +239,10 @@ const DealList: React.FC<DealListProps> = () => {
         {filteredDeals.length === 0 ? (
           <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-900 rounded-sm border border-neutral-100 dark:border-neutral-800">
             <p className="text-neutral-500 dark:text-neutral-400 mb-4 text-sm">
-              {searchTerm ? `No deals found matching "${searchTerm}"` : 'No deals available'}
+              {searchTerm || (selectedCategory && selectedCategory !== 'All') 
+                ? `No deals found${selectedCategory && selectedCategory !== 'All' ? ` in ${selectedCategory}` : ''}${searchTerm ? ` matching "${searchTerm}"` : ''}`
+                : 'No deals available'
+              }
             </p>
           </div>
         ) : (
