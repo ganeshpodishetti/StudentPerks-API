@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,7 @@ public class AuthService(
     IJwtHelper jwtHelper,
     IRefreshTokenHelper refreshTokenHelper,
     IOptions<JwtOptions> jwtOptions,
+    IHttpContextAccessor httpContextAccessor,
     SpDbContext dbContext,
     ILogger<AuthService> logger)
     : IAuth
@@ -44,7 +46,11 @@ public class AuthService(
     {
         var user = await dbContext.Users
                                   .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken)
-                   ?? throw new InvalidOperationException("Email not found.");
+                   ?? throw new InvalidOperationException("Invalid email or password.");
+
+        // Add this check in LoginAsync after retrieving the user
+        if (user is { LockoutEnabled: true, LockoutEnd: not null } && user.LockoutEnd.Value > DateTime.UtcNow)
+            throw new InvalidOperationException("Account is temporarily locked. Please try again later.");
 
         var isPasswordValid = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
@@ -68,26 +74,38 @@ public class AuthService(
         var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
 
+        // Set the refresh token as an HTTP-only cookie
+        httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            Expires = refreshTokenExpiration,
+            SameSite = SameSiteMode.Strict,
+            Path = "/"
+        });
+
         return new LoginResponse(accessToken,
-            accessTokenExpiration,
-            refreshToken,
-            refreshTokenExpiration);
+            accessTokenExpiration);
     }
 
-    public async Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request,
-        CancellationToken cancellationToken)
+    public async Task<RefreshTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken)
     {
+        // Get token from cookie instead of request parameter
+        var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(refreshToken))
+            throw new InvalidOperationException("Refresh token not found in cookies.");
+
         var existingUser = await dbContext.Users
                                           .Include(u => u.RefreshTokens)
                                           .SingleOrDefaultAsync(
-                                              u => u.RefreshTokens.Any(rt => rt.Token == request.RefreshToken),
+                                              u => u.RefreshTokens.Any(rt => rt.Token == refreshToken),
                                               cancellationToken);
 
         if (existingUser?.RefreshTokens is null)
             throw new InvalidOperationException("User not found or no refresh tokens associated with the user.");
 
         var oldRefreshToken = existingUser.RefreshTokens
-                                          .Single(rt => rt.Token == request.RefreshToken);
+                                          .Single(rt => rt.Token == refreshToken);
 
         if (!refreshTokenHelper.ValidateRefreshToken(existingUser, oldRefreshToken))
             throw new InvalidOperationException("Invalid or expired refresh token.");
@@ -117,9 +135,17 @@ public class AuthService(
         var newAccessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes)
                                                .ToString(CultureInfo.InvariantCulture);
 
+        // Set the new refresh token in cookie
+        httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            Expires = refreshTokenEntity.ExpirationDate,
+            SameSite = SameSiteMode.Strict,
+            Path = "/"
+        });
+
         return new RefreshTokenResponse(newAccessToken,
-            newAccessTokenExpiration,
-            newRefreshToken,
-            refreshTokenEntity.ExpirationDate.ToString(CultureInfo.InvariantCulture));
+            newAccessTokenExpiration);
     }
 }

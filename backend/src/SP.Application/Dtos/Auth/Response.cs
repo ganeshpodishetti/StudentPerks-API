@@ -6,7 +6,5 @@ public record RegisterResponse(
 
 public record LoginResponse(
     string AccessToken,
-    DateTime AccessTokenExpiration,
-    string RefreshToken,
-    DateTime RefreshTokenExpiration
+    DateTime AccessTokenExpirationInMinutes
 );
