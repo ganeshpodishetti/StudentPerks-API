@@ -4,7 +4,9 @@ import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from
 import './App.css';
 import DealList from './components/DealList';
 import Navigation from './components/Navigation';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import AdminDashboard from './pages/AdminDashboard';
 import CategoriesPage from './pages/CategoriesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -25,6 +27,7 @@ const AppContent = () => {
 
   // Check if current path is auth-related
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isAdminPage = location.pathname === '/admin';
 
   // If it's an auth page, render without navigation and footer
   if (isAuthPage) {
@@ -33,6 +36,25 @@ const AppContent = () => {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+        <Toaster />
+      </div>
+    );
+  }
+
+  // If it's an admin page, render with minimal layout
+  if (isAdminPage) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
+        <Routes>
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
         <Toaster />
       </div>

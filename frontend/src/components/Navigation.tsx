@@ -1,8 +1,7 @@
-import { Menu, Store, Tag, X } from 'lucide-react';
+import { LogOut, Menu, Settings, Store, Tag, User, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Category, fetchCategories } from '../services/categoryService';
-import { Store as StoreType, fetchStores } from '../services/storeService';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 
 interface NavigationProps {
@@ -10,36 +9,100 @@ interface NavigationProps {
   onStoreSelect?: (store: string) => void;
 }
 
+// Auth buttons component
+const AuthButtons: React.FC = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (isAuthenticated && user) {
+    return (
+      <div className="flex items-center space-x-3">
+        <Link
+          to="/admin"
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+        >
+          <Settings className="mr-1.5 h-4 w-4" />
+          Admin
+        </Link>
+        <div className="flex items-center space-x-2">
+          <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+          <span className="text-sm text-gray-700 dark:text-gray-300">
+            {user.firstName}
+          </span>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+        >
+          <LogOut className="mr-1.5 h-4 w-4" />
+          Logout
+        </button>
+      </div>
+    );
+  }
+
+  // Return null when not authenticated - no login/signup buttons in nav
+  return null;
+};
+
+// Mobile auth buttons component
+const AuthButtonsMobile: React.FC = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (isAuthenticated && user) {
+    return (
+      <>
+        <Link 
+          to="/admin" 
+          className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white"
+        >
+          <Settings className="mr-2 h-4 w-4" />
+          Admin Dashboard
+        </Link>
+        <div className="px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300">
+          <div className="flex items-center">
+            <User className="mr-2 h-4 w-4" />
+            Welcome, {user.firstName}
+          </div>
+        </div>
+        <button 
+          onClick={handleLogout}
+          className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-red-600 dark:hover:text-red-400"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </button>
+      </>
+    );
+  }
+
+  // Return null when not authenticated - no login/signup buttons in mobile nav
+  return null;
+};
+
 const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [stores, setStores] = useState<StoreType[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   
-  // Load categories and stores from API
-  useEffect(() => {
-    const loadCategoriesAndStores = async () => {
-      setLoading(true);
-      try {
-        // Fetch categories and stores in parallel
-        const [categoriesData, storesData] = await Promise.all([
-          fetchCategories(),
-          fetchStores()
-        ]);
-        
-        setCategories(categoriesData);
-        setStores(storesData);
-      } catch (err) {
-        console.error("Error loading categories and stores:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    loadCategoriesAndStores();
-  }, []);
-
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -134,9 +197,10 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
               </Link>
             </nav>
 
-            {/* Desktop Theme Toggle */}
-            <div className="hidden md:flex items-center">
+            {/* Desktop Theme Toggle and Auth */}
+            <div className="hidden md:flex items-center space-x-4">
               <ThemeToggle />
+              <AuthButtons />
             </div>
 
             {/* Mobile menu button */}
@@ -200,6 +264,9 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
                   <Store className="mr-2 h-4 w-4" />
                   Stores
                 </Link>
+                
+                {/* Mobile Auth Links */}
+                <AuthButtonsMobile />
               </div>
             </div>
           )}

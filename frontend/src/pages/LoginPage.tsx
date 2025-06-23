@@ -34,7 +34,7 @@ export default function LoginPage() {
         title: "Success",
         description: "Logged in successfully!",
       });
-      navigate('/'); // Redirect to home page
+      navigate('/admin'); // Redirect to admin dashboard
     } catch (error) {
       console.error('Login error:', error);
       toast({
