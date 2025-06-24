@@ -5,6 +5,9 @@ public record RegisterResponse(
 );
 
 public record LoginResponse(
-    string AccessToken,
-    DateTime AccessTokenExpirationInMinutes
+    string Id,
+    string FirstName,
+    string LastName,
+    string Email,
+    string AccessToken
 );

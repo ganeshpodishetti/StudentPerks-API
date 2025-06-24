@@ -23,10 +23,13 @@ try
 
     builder.AddCors();
     builder.AddOptions();
+
     builder.Services.ConfigureHttpJsonOptions(options =>
     {
-        options.SerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcDateTimeConverter());
+        options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcNullableDateTimeConverter());
     });
+
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
     builder.Services.AddHostedService<DatabaseInitializer>();

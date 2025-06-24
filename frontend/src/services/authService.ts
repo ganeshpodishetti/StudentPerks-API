@@ -1,3 +1,4 @@
+import { getTimeUntilExpiration, isTokenExpired } from '@/lib/tokenUtils';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5254';
@@ -15,12 +16,10 @@ export interface RegisterRequest {
 }
 
 export interface LoginResponse {
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   accessToken: string;
 }
 
@@ -52,6 +51,9 @@ const processQueue = (error: any, token: string | null = null) => {
 const authApi = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true, // Important for HTTP-only cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 export const authService = {
@@ -74,13 +76,24 @@ export const authService = {
 
   async login(loginData: LoginRequest): Promise<LoginResponse> {
     const response = await authApi.post('/auth/login', loginData);
-    const { accessToken } = response.data;
+    const responseData = response.data;
     
-    if (accessToken) {
-      this.setAccessToken(accessToken);
+    if (responseData.accessToken) {
+      this.setAccessToken(responseData.accessToken);
     }
     
-    return response.data;
+    // Extract user data from the flat response structure
+    if (responseData.id && responseData.firstName && responseData.lastName && responseData.email) {
+      const userData = {
+        id: responseData.id,
+        firstName: responseData.firstName,
+        lastName: responseData.lastName,
+        email: responseData.email
+      };
+      this.setUser(userData);
+    }
+    
+    return responseData;
   },
 
   async register(registerData: RegisterRequest) {
@@ -90,29 +103,99 @@ export const authService = {
 
   async refreshToken(): Promise<string> {
     try {
+      console.log('AuthService: Attempting to refresh access token...');
       const response = await authApi.post('/auth/refresh-token');
       const { accessToken } = response.data;
       
       if (accessToken) {
+        console.log('AuthService: Access token refreshed successfully');
         this.setAccessToken(accessToken);
         return accessToken;
       }
       
-      throw new Error('No access token received');
-    } catch (error) {
+      throw new Error('No access token received from refresh endpoint');
+    } catch (error: any) {
+      console.error('AuthService: Token refresh failed:', error.response?.data || error.message);
+      
+      // Clear the invalid token
       this.clearAccessToken();
+      
+      // If it's a 401 or 403, it means refresh token is invalid/expired
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.log('AuthService: Refresh token is invalid or expired');
+        throw new Error('Refresh token invalid or expired');
+      }
+      
       throw error;
     }
   },
 
+  // Check if current token is expired or needs refresh
+  isTokenExpired(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return true;
+    return isTokenExpired(token);
+  },
+
+  // Get time until current token expires (in milliseconds)
+  getTimeUntilTokenExpires(): number {
+    const token = this.getAccessToken();
+    if (!token) return 0;
+    return getTimeUntilExpiration(token);
+  },
+
+  // Check if user is authenticated and auto-refresh if needed
+  async checkAuthStatus(): Promise<boolean> {
+    const token = this.getAccessToken();
+    
+    if (!token) {
+      console.log('AuthService: No access token found');
+      return false;
+    }
+    
+    // Check if token is expired
+    if (this.isTokenExpired()) {
+      console.log('AuthService: Token expired, attempting refresh...');
+      try {
+        await this.refreshToken();
+        console.log('AuthService: Token refreshed successfully');
+        return true;
+      } catch (refreshError) {
+        console.log('AuthService: Refresh failed, user needs to login');
+        return false;
+      }
+    }
+    
+    console.log('AuthService: Current token is valid');
+    return true;
+  },
+
+  // Get user info if available
+  getUser() {
+    try {
+      const userJson = localStorage.getItem('user');
+      return userJson ? JSON.parse(userJson) : null;
+    } catch (error) {
+      console.error('Error parsing user data from localStorage:', error);
+      return null;
+    }
+  },
+
+  // Set user info
+  setUser(user: any) {
+    localStorage.setItem('user', JSON.stringify(user));
+  },
+
   async logout() {
     try {
+      console.log('AuthService: Logging out user...');
       await authApi.post('/auth/logout');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('AuthService: Logout error:', error);
     } finally {
       this.clearAccessToken();
       localStorage.removeItem('user');
+      console.log('AuthService: User logged out successfully');
     }
   }
 };

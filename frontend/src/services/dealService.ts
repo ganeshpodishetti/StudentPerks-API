@@ -1,16 +1,16 @@
 /// <reference types="vite/client" />
-import { Deal } from '../types/Deal';
+import { Deal, RedeemType } from '../types/Deal';
 import apiClient, { publicApiClient } from './apiClient';
 
 export interface CreateDealRequest {
   title: string;
   description: string;
   discount: string;
-  imageUrl: string;
+  imageUrl?: string;
   promo?: string;
   isActive: boolean;
-  url: string;
-  redeemType: string;
+  url?: string;
+  redeemType: RedeemType;
   startDate?: string;
   endDate?: string;
   categoryName: string;
@@ -69,7 +69,15 @@ export const dealService = {
   async createDeal(dealData: CreateDealRequest): Promise<Deal> {
     try {
       console.log('Creating deal with data:', dealData);
-      const response = await apiClient.post('/api/deals', dealData);
+      
+      // Clean up the data to remove undefined values
+      const cleanDealData = Object.fromEntries(
+        Object.entries(dealData).filter(([_, value]) => value !== undefined)
+      );
+      
+      console.log('Cleaned deal data:', cleanDealData);
+      
+      const response = await apiClient.post('/api/deals', cleanDealData);
       console.log('Deal created successfully:', response.data);
       return response.data;
     } catch (error) {
@@ -81,7 +89,15 @@ export const dealService = {
   async updateDeal(id: string, dealData: UpdateDealRequest): Promise<Deal> {
     try {
       console.log('Updating deal:', id, 'with data:', dealData);
-      const response = await apiClient.put(`/api/deals/${id}`, dealData);
+      
+      // Clean up the data to remove undefined values
+      const cleanDealData = Object.fromEntries(
+        Object.entries(dealData).filter(([_, value]) => value !== undefined)
+      );
+      
+      console.log('Cleaned deal data for update:', cleanDealData);
+      
+      const response = await apiClient.put(`/api/deals/${id}`, cleanDealData);
       console.log('Deal updated successfully:', response.data);
       return response.data;
     } catch (error) {

@@ -8,10 +8,18 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, redirectTo = '/login' }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
+  console.log('ProtectedRoute: Auth state check', { 
+    isAuthenticated, 
+    isLoading, 
+    hasUser: !!user,
+    currentPath: location.pathname 
+  });
+
   if (isLoading) {
+    console.log('ProtectedRoute: Still loading auth state...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -20,10 +28,12 @@ export const ProtectedRoute = ({ children, redirectTo = '/login' }: ProtectedRou
   }
 
   if (!isAuthenticated) {
+    console.log('ProtectedRoute: User not authenticated, redirecting to login');
     // Redirect them to the login page, but save the attempted location
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
+  console.log('ProtectedRoute: User authenticated, rendering protected content');
   return <>{children}</>;
 };
 

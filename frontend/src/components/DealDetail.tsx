@@ -1,13 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { Calendar, Clock, ExternalLink, MapPin, Tag } from 'lucide-react';
@@ -24,7 +24,8 @@ const DealDetail: React.FC<DealDetailProps> = ({ deal, trigger }) => {
   const { toast } = useToast();
   
   // Format date
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'No date specified';
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -35,6 +36,7 @@ const DealDetail: React.FC<DealDetailProps> = ({ deal, trigger }) => {
 
   // Calculate days remaining
   const getDaysRemaining = () => {
+    if (!deal.endDate) return 0;
     try {
       const endDate = new Date(deal.endDate);
       const now = new Date();
@@ -48,14 +50,32 @@ const DealDetail: React.FC<DealDetailProps> = ({ deal, trigger }) => {
 
   const daysRemaining = getDaysRemaining();
   
+  // Helper function to format redeem type for display
+  const formatRedeemType = (redeemType: string): string => {
+    switch (redeemType) {
+      case 'Online':
+        return 'Online only';
+      case 'InStore':
+        return 'In-store only';
+      case 'Both':
+        return 'Online & In-store';
+      case 'Unknown':
+        return 'Contact store';
+      default:
+        return redeemType;
+    }
+  };
+
   // Handle copy promo code
   const handleCopyPromo = () => {
-    navigator.clipboard.writeText(deal.promo);
-    toast({
-      title: "Promo code copied!",
-      description: `"${deal.promo}" has been copied to your clipboard.`,
-      duration: 3000,
-    });
+    if (deal.promo) {
+      navigator.clipboard.writeText(deal.promo);
+      toast({
+        title: "Promo code copied!",
+        description: `"${deal.promo}" has been copied to your clipboard.`,
+        duration: 3000,
+      });
+    }
   };
   
   return (
@@ -106,7 +126,7 @@ const DealDetail: React.FC<DealDetailProps> = ({ deal, trigger }) => {
             </div>
             <div className="flex items-center text-neutral-500 dark:text-neutral-400">
               <MapPin className="h-4 w-4 mr-1.5" />
-              <span>Redeem: {deal.redeemType}</span>
+              <span>Redeem: {formatRedeemType(deal.redeemType)}</span>
             </div>
           </div>
           
