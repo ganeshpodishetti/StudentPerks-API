@@ -71,7 +71,7 @@ public class AuthService(
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("User {UserName} logged in successfully and refresh token generated.", user.UserName);
 
-        var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
+       // var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
 
         // Set the refresh token as an HTTP-only cookie
@@ -84,8 +84,11 @@ public class AuthService(
             Path = "/"
         });
 
-        return new LoginResponse(accessToken,
-            accessTokenExpiration);
+        return new LoginResponse(user.Id,
+            user.FirstName,
+            user.LastName,
+            user.Email!,
+            accessToken);
     }
 
     public async Task<RefreshTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken)
@@ -147,5 +150,41 @@ public class AuthService(
 
         return new RefreshTokenResponse(newAccessToken,
             newAccessTokenExpiration);
+    }
+
+    public async Task<bool> LogoutAsync(CancellationToken cancellationToken)
+    {
+        var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
+
+        // If there's a refresh token, revoke it in the database
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            var token = await dbContext.RefreshTokens
+                                       .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
+
+            if (token != null)
+            {
+                // Mark the token as revoked
+                token.IsRevoked = true;
+                token.LastModifiedAt = DateTime.UtcNow;
+                dbContext.RefreshTokens.Update(token);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                logger.LogInformation("Refresh token revoked for user ID: {UserId}", token.UserId);
+            }
+        }
+
+        // Clear the refresh token cookie
+        httpContextAccessor.HttpContext?.Response.Cookies.Delete("refreshToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Path = "/"
+        });
+
+        // Clean up old tokens
+        await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
+        return true;
     }
 }

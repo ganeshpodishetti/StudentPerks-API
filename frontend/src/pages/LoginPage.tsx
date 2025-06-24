@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
@@ -11,10 +11,17 @@ export default function LoginPage() {
     email: '',
     password: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      navigate('/admin');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,15 +33,21 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       await login(formData.email, formData.password);
+      
       toast({
         title: "Success",
         description: "Logged in successfully!",
       });
-      navigate('/admin'); // Redirect to admin dashboard
+      
+      // Brief delay to ensure all state updates complete, then navigate
+      setTimeout(() => {
+        navigate('/admin', { replace: true });
+      }, 100);
+      
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -43,7 +56,7 @@ export default function LoginPage() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -112,10 +125,10 @@ export default function LoginPage() {
             <CardFooter className="flex flex-col space-y-4">
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting || isLoading}
                 className="w-full"
               >
-                {isLoading ? 'Signing in...' : 'Sign in'}
+                {(isSubmitting || isLoading) ? 'Signing in...' : 'Sign in'}
               </Button>
 
               <div className="text-center">

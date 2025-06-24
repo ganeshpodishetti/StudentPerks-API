@@ -3,28 +3,61 @@ using System.Text.Json.Serialization;
 
 namespace SP.API.Helpers;
 
-public class DateOnlyJsonConverter : JsonConverter<DateOnly>
+public static class DateTimeConverter
 {
-    private const string DateFormat = "yyyy-MM-dd";
-
-    public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    // Custom DateTime converter to ensure UTC
+    public class UtcDateTimeConverter : JsonConverter<DateTime>
     {
-        var value = reader.GetString();
-        if (string.IsNullOrEmpty(value))
-            return default;
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var dateTimeString = reader.GetString();
+            if (string.IsNullOrEmpty(dateTimeString))
+                return default;
 
-        if (DateOnly.TryParseExact(value, DateFormat, out var date))
-            return date;
+            if (!DateTime.TryParse(dateTimeString, out var dateTime))
+                throw new FormatException($"Unable to parse '{dateTimeString}' as DateTime.");
+            // If it's already UTC, return as is
+            return dateTime.Kind == DateTimeKind.Utc
+                ? dateTime
+                : DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+        }
 
-        // Try parsing the ISO date format and extract date part
-        if (DateTime.TryParse(value, out var dateTime))
-            return DateOnly.FromDateTime(dateTime);
-
-        throw new FormatException($"Unable to parse '{value}' as DateOnly.");
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            // Always write as UTC ISO string
+            var utcDateTime = value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
+            writer.WriteStringValue(utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
+        }
     }
 
-    public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options)
+    // Also add nullable DateTime converter
+    public class UtcNullableDateTimeConverter : JsonConverter<DateTime?>
     {
-        writer.WriteStringValue(value.ToString(DateFormat));
+        public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var dateTimeString = reader.GetString();
+            if (string.IsNullOrEmpty(dateTimeString))
+                return null;
+
+            if (!DateTime.TryParse(dateTimeString, out var dateTime)) return null;
+            // If it's already UTC, return as is
+            return dateTime.Kind == DateTimeKind.Utc
+                ? dateTime
+                : DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+        }
+
+        public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
+        {
+            if (value.HasValue)
+            {
+                // Always write as UTC ISO string
+                var utcDateTime = value.Value.Kind == DateTimeKind.Utc ? value.Value : value.Value.ToUniversalTime();
+                writer.WriteStringValue(utcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
+            }
+            else
+            {
+                writer.WriteNullValue();
+            }
+        }
     }
 }

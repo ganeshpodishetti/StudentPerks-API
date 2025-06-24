@@ -1,3 +1,5 @@
+export type RedeemType = 'Online' | 'InStore' | 'Both' | 'Unknown';
+
 export interface Deal {
   id: string;
   title: string;
@@ -7,7 +9,7 @@ export interface Deal {
   promo?: string;
   isActive: boolean;
   url: string;
-  redeemType: string;
+  redeemType: RedeemType;
   startDate?: string;
   endDate?: string;
   categoryName: string;

@@ -11,4 +11,5 @@ public interface IAuth
         CancellationToken cancellationToken = default);
 
     Task<RefreshTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken = default);
+    Task<bool> LogoutAsync(CancellationToken cancellationToken = default);
 }

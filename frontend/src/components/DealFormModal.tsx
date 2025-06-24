@@ -8,24 +8,35 @@ import { Textarea } from '@/components/ui/textarea';
 import { categoryService } from '@/services/categoryService';
 import { CreateDealRequest } from '@/services/dealService';
 import { storeService } from '@/services/storeService';
-import { Deal } from '@/types/Deal';
+import { Deal, RedeemType } from '@/types/Deal';
 import { useEffect, useState } from 'react';
 
-// Helper function to format date for DateOnly backend (YYYY-MM-DD)
-const formatDateForBackend = (date: string): string => {
-  if (!date) return '';
-  // If it's already in YYYY-MM-DD format, return as is
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    return date;
-  }
-  // Otherwise, convert from ISO string to YYYY-MM-DD
-  const dateObj = new Date(date);
-  if (isNaN(dateObj.getTime())) return ''; // Invalid date
+// Form data interface that allows optional fields to be empty strings
+interface FormData {
+  title: string;
+  description: string;
+  discount: string;
+  imageUrl?: string;
+  promo?: string;
+  isActive: boolean;
+  url?: string;
+  redeemType: RedeemType;
+  startDate?: string;
+  endDate?: string;
+  categoryName: string;
+  storeName: string;
+}
+
+// Helper function to format date for backend as UTC ISO string
+const formatDateForBackend = (date: string): string | null => {
+  if (!date) return null;
   
-  const year = dateObj.getFullYear();
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  // Create a Date object from the input (assumes local date input like "2024-12-25")
+  const dateObj = new Date(date + 'T00:00:00.000Z'); // Force UTC interpretation
+  if (isNaN(dateObj.getTime())) return null; // Invalid date
+  
+  // Return as UTC ISO string
+  return dateObj.toISOString();
 };
 
 // Helper function to format date for input field (YYYY-MM-DD)
@@ -49,7 +60,7 @@ interface DealFormModalProps {
 }
 
 export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFormModalProps) {
-  const [formData, setFormData] = useState<CreateDealRequest>({
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
     discount: '',
@@ -57,7 +68,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
     promo: '',
     isActive: true,
     url: '',
-    redeemType: 'code',
+    redeemType: 'Online',
     startDate: '',
     endDate: '',
     categoryName: '',
@@ -82,7 +93,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           promo: deal.promo || '',
           isActive: deal.isActive,
           url: deal.url || '',
-          redeemType: deal.redeemType || 'code',
+          redeemType: deal.redeemType || 'Online',
           startDate: formatDateForInput(deal.startDate || '') || '',
           endDate: formatDateForInput(deal.endDate || '') || '',
           categoryName: deal.categoryName,
@@ -98,7 +109,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           promo: '',
           isActive: true,
           url: '',
-          redeemType: 'code',
+          redeemType: 'Online',
           startDate: '',
           endDate: '',
           categoryName: '',
@@ -153,19 +164,45 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
     setIsLoading(true);
     
     try {
-      // Format dates properly for backend DateOnly type
-      const dealData = {
-        ...formData,
-        startDate: formatDateForBackend(formData.startDate || ''),
-        endDate: formatDateForBackend(formData.endDate || ''),
+      // Create clean deal data
+      const dealData: CreateDealRequest = {
+        title: formData.title,
+        description: formData.description,
+        discount: formData.discount,
+        isActive: formData.isActive,
+        redeemType: formData.redeemType,
+        categoryName: formData.categoryName,
+        storeName: formData.storeName,
       };
+
+      // Add optional fields only if they have values
+      if (formData.imageUrl?.trim()) {
+        dealData.imageUrl = formData.imageUrl.trim();
+      }
       
-      console.log('Sending deal data with formatted dates:', {
-        startDate: dealData.startDate,
-        endDate: dealData.endDate,
-        originalStartDate: formData.startDate,
-        originalEndDate: formData.endDate
-      });
+      if (formData.promo?.trim()) {
+        dealData.promo = formData.promo.trim();
+      }
+      
+      if (formData.url?.trim()) {
+        dealData.url = formData.url.trim();
+      }
+      
+      if (formData.startDate?.trim()) {
+        const formattedStartDate = formatDateForBackend(formData.startDate);
+        if (formattedStartDate) {
+          dealData.startDate = formattedStartDate;
+        }
+      }
+      
+      if (formData.endDate?.trim()) {
+        const formattedEndDate = formatDateForBackend(formData.endDate);
+        if (formattedEndDate) {
+          dealData.endDate = formattedEndDate;
+        }
+      }
+      
+      console.log('Sending deal data:', dealData);
       
       await onSave(dealData);
       onClose();
@@ -260,53 +297,56 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="imageUrl">Image URL</Label>
-            <Input
-              id="imageUrl"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleInputChange}
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <Input
+                id="imageUrl"
+                name="imageUrl"
+                value={formData.imageUrl || ''}
+                onChange={handleInputChange}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
             <div>
               <Label htmlFor="url">Deal URL</Label>
               <Input
                 id="url"
                 name="url"
-                value={formData.url}
+                value={formData.url || ''}
                 onChange={handleInputChange}
-                placeholder="https://store.com/deal"
+                placeholder="https://example.com/deal"
               />
             </div>
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="promo">Promo Code</Label>
               <Input
                 id="promo"
                 name="promo"
-                value={formData.promo}
+                value={formData.promo || ''}
                 onChange={handleInputChange}
-                placeholder="SAVE50"
+                placeholder="e.g., SAVE50"
               />
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="redeemType">Redeem Type</Label>
-            <Select value={formData.redeemType} onValueChange={(value: string) => handleSelectChange('redeemType', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select redeem type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="code">Promo Code</SelectItem>
-                <SelectItem value="link">Direct Link</SelectItem>
-                <SelectItem value="instore">In Store</SelectItem>
-              </SelectContent>
-            </Select>
+            <div>
+              <Label htmlFor="redeemType">Redeem Type *</Label>
+              <Select value={formData.redeemType} onValueChange={(value: string) => handleSelectChange('redeemType', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select redeem type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Online">Online</SelectItem>
+                  <SelectItem value="InStore">In-Store</SelectItem>
+                  <SelectItem value="Both">Both</SelectItem>
+                  <SelectItem value="Unknown">Unknown</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -316,7 +356,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
                 id="startDate"
                 name="startDate"
                 type="date"
-                value={formData.startDate}
+                value={formData.startDate || ''}
                 onChange={handleInputChange}
               />
             </div>
@@ -327,7 +367,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
                 id="endDate"
                 name="endDate"
                 type="date"
-                value={formData.endDate}
+                value={formData.endDate || ''}
                 onChange={handleInputChange}
               />
             </div>
@@ -347,10 +387,11 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : deal ? 'Update Deal' : 'Create Deal'}
+              {isLoading ? 'Saving...' : (deal ? 'Update Deal' : 'Create Deal')}
             </Button>
           </DialogFooter>
         </form>
+
       </DialogContent>
     </Dialog>
   );
