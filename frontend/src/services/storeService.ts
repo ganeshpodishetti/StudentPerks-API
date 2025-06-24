@@ -1,5 +1,5 @@
 // Service for fetching stores
-import axios from 'axios';
+import { publicApiClient } from './apiClient';
 
 // Define response types
 export interface Store {
@@ -9,19 +9,10 @@ export interface Store {
   website?: string;
 }
 
-// API base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5254';
-
-// Create axios instance
-const storeApi = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-});
-
 export const storeService = {
   async getStores(): Promise<Store[]> {
     try {
-      const response = await storeApi.get('/api/stores');
+      const response = await publicApiClient.get('/api/stores');
       return response.data;
     } catch (error) {
       console.error('Error fetching stores:', error);
@@ -31,7 +22,7 @@ export const storeService = {
 
   async getStore(id: string): Promise<Store> {
     try {
-      const response = await storeApi.get(`/api/stores/${id}`);
+      const response = await publicApiClient.get(`/api/stores/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching store:', error);
@@ -41,7 +32,7 @@ export const storeService = {
 
   async createStore(storeData: { name: string; description?: string; website?: string }): Promise<Store> {
     try {
-      const response = await storeApi.post('/api/stores', storeData);
+      const response = await publicApiClient.post('/api/stores', storeData);
       return response.data;
     } catch (error) {
       console.error('Error creating store:', error);
@@ -51,7 +42,7 @@ export const storeService = {
 
   async updateStore(id: string, storeData: { name: string; description?: string; website?: string }): Promise<Store> {
     try {
-      const response = await storeApi.put(`/api/stores/${id}`, storeData);
+      const response = await publicApiClient.put(`/api/stores/${id}`, storeData);
       return response.data;
     } catch (error) {
       console.error('Error updating store:', error);
@@ -61,7 +52,7 @@ export const storeService = {
 
   async deleteStore(id: string): Promise<void> {
     try {
-      await storeApi.delete(`/api/stores/${id}`);
+      await publicApiClient.delete(`/api/stores/${id}`);
     } catch (error) {
       console.error('Error deleting store:', error);
       throw error;

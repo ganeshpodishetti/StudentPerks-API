@@ -38,22 +38,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // Check if user is already logged in
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const accessToken = authService.getAccessToken();
+    
+    if (savedUser && accessToken) {
       try {
         setUser(JSON.parse(savedUser));
       } catch (error) {
         console.error('Error parsing saved user:', error);
         localStorage.removeItem('user');
+        authService.clearAccessToken();
       }
+    } else if (!accessToken) {
+      // Clear user data if no access token
+      localStorage.removeItem('user');
+      setUser(null);
     }
     setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await authService.login({ email, password });
-    const userData = response.user || response; // Adjust based on your API response structure
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    try {
+      const response = await authService.login({ email, password });
+      const userData = response.user || response; // Adjust based on your API response structure
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      // Clear any existing tokens on login failure
+      authService.clearAccessToken();
+      localStorage.removeItem('user');
+      throw error;
+    }
   };
 
   const register = async (firstName: string, lastName: string, email: string, password: string) => {
@@ -64,15 +78,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = async () => {
-    await authService.logout();
-    setUser(null);
-    localStorage.removeItem('user');
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('user');
+      authService.clearAccessToken();
+    }
   };
 
   const value: AuthContextType = {
     user,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!authService.getAccessToken(),
     login,
     register,
     logout,

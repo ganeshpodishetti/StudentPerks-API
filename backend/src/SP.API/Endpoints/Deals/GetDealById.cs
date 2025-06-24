@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 
@@ -9,7 +10,7 @@ public class GetDealById : IEndpoint
     {
         var route = endpoints.MapGroup("/api/deals").WithTags("Deals");
         route.MapGet("/{id:guid}",
-            async (IDeal dealService, Guid id,
+            async (IDeal dealService, [FromRoute] Guid id,
                 ILogger<GetDealById> logger,
                 CancellationToken cancellationToken) =>
             {

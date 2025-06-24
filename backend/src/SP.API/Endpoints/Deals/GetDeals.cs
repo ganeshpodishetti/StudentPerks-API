@@ -15,7 +15,10 @@ public class GetDeals : IEndpoint
                 CancellationToken cancellationToken) =>
             {
                 var deals = await dealService.GetAllDealsAsync(cancellationToken);
-                return Results.Ok(deals);
+                var getDealResponses = deals.ToList();
+                if (getDealResponses.Count != 0) return Results.Ok(getDealResponses);
+                logger.LogWarning("No deals found.");
+                return Results.NoContent();
             });
     }
 }

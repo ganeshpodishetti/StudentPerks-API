@@ -9,8 +9,8 @@ public sealed class Deal : Base
     public required string Url { get; set; }
     public bool IsActive { get; set; } = true;
     public required string RedeemType { get; set; }
-    public DateOnly? StartDate { get; set; }
-    public DateOnly? EndDate { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
 
     // Navigation properties
     public Guid CategoryId { get; set; }

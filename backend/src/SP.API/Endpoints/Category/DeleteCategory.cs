@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 
@@ -12,7 +13,7 @@ public class DeleteCategory : IEndpoint
                              .RequireAuthorization();
 
         route.MapDelete("/{id:guid}",
-            async (Guid id, ICategory categoryService,
+            async ([FromRoute] Guid id, ICategory categoryService,
                 ILogger<DeleteCategory> logger,
                 CancellationToken cancellationToken) =>
             {

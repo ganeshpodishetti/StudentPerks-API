@@ -10,8 +10,8 @@ public record GetDealResponse(
     bool IsActive,
     string Url,
     string RedeemType,
-    DateOnly? StartDate,
-    DateOnly? EndDate,
+    DateTime? StartDate,
+    DateTime? EndDate,
     string CategoryName,
     string StoreName);
 
@@ -25,8 +25,8 @@ public record GetDealsByCategoryResponse(
     bool IsActive,
     string Url,
     string RedeemType,
-    DateOnly? StartDate,
-    DateOnly? EndDate,
+    DateTime? StartDate,
+    DateTime? EndDate,
     string CategoryName);
 
 public record GetDealsByStoreResponse(
@@ -39,6 +39,6 @@ public record GetDealsByStoreResponse(
     bool IsActive,
     string Url,
     string RedeemType,
-    DateOnly? StartDate,
-    DateOnly? EndDate,
+    DateTime? StartDate,
+    DateTime? EndDate,
     string StoreName);

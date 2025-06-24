@@ -45,7 +45,7 @@ public class EditDealValidator : AbstractValidator<UpdateDealRequest>
             .WithMessage("Start date must be less than or equal to end date.");
 
         RuleFor(x => x.EndDate)
-            .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
+            .GreaterThanOrEqualTo(DateTime.UtcNow)
             .WithMessage("End date must be in the future.");
 
         RuleFor(x => x.CategoryName)

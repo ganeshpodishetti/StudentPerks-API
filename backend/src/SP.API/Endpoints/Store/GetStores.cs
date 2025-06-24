@@ -15,7 +15,10 @@ public class GetStores : IEndpoint
                 CancellationToken cancellationToken) =>
             {
                 var stores = await storeService.GetAllStoresAsync(cancellationToken);
-                return Results.Ok(stores);
+                var storeResponses = stores.ToList();
+                if (storeResponses.Count != 0) return Results.Ok(storeResponses);
+                logger.LogWarning("No stores found.");
+                return Results.NoContent();
             });
     }
 }

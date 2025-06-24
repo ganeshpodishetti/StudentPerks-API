@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 
@@ -12,7 +13,7 @@ public class DeleteStore : IEndpoint
                              .RequireAuthorization();
 
         route.MapDelete("/{id:guid}",
-            async (IStore storeService, Guid id,
+            async (IStore storeService, [FromRoute] Guid id,
                 ILogger<DeleteStore> logger,
                 CancellationToken cancellationToken) =>
             {

@@ -60,20 +60,8 @@ public static class AuthenticationExtension
 
                     options.Events = new JwtBearerEvents
                     {
-                        OnAuthenticationFailed = context =>
-                        {
-                            context.NoResult();
-                            context.Response.StatusCode = 401;
-                            context.Response.ContentType = "application/json";
-                            return context.Response.WriteAsync("Authentication failed.");
-                        },
-                        OnChallenge = context =>
-                        {
-                            context.HandleResponse();
-                            context.Response.StatusCode = 401;
-                            context.Response.ContentType = "application/json";
-                            return context.Response.WriteAsync("You are not authorized to access this resource.");
-                        }
+                        OnAuthenticationFailed = OnAuthenticationFailed,
+                        OnChallenge = OnChallenge
                     };
                 });
 
@@ -84,5 +72,27 @@ public static class AuthenticationExtension
                     policy.RequireRole("User"));
 
         return services;
+    }
+
+    private static Task OnAuthenticationFailed(AuthenticationFailedContext context)
+    {
+        context.NoResult();
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = "application/json";
+        return context.Response.WriteAsync("Authentication failed.");
+    }
+
+    private static Task OnChallenge(JwtBearerChallengeContext context)
+    {
+        // Important: Call HandleResponse() first to prevent a default response
+        context.HandleResponse();
+
+        // Only set properties if the response hasn't started yet
+        if (context.Response.HasStarted) return Task.CompletedTask;
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = "application/json";
+
+        var response = new { message = "You are not authorized to access this resource" };
+        return context.Response.WriteAsJsonAsync(response);
     }
 }
