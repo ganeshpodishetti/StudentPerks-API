@@ -9,8 +9,8 @@ public record CreateDealRequest(
     bool IsActive,
     string Url,
     string RedeemType,
-    DateOnly? StartDate,
-    DateOnly? EndDate,
+    DateTime? StartDate,
+    DateTime? EndDate,
     string CategoryName,
     string StoreName);
 
@@ -23,7 +23,7 @@ public record UpdateDealRequest(
     bool IsActive,
     string Url,
     string RedeemType,
-    DateOnly? StartDate,
-    DateOnly? EndDate,
+    DateTime? StartDate,
+    DateTime? EndDate,
     string CategoryName,
     string StoreName);

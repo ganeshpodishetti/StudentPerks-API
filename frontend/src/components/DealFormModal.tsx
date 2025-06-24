@@ -11,6 +11,36 @@ import { storeService } from '@/services/storeService';
 import { Deal } from '@/types/Deal';
 import { useEffect, useState } from 'react';
 
+// Helper function to format date for DateOnly backend (YYYY-MM-DD)
+const formatDateForBackend = (date: string): string => {
+  if (!date) return '';
+  // If it's already in YYYY-MM-DD format, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date;
+  }
+  // Otherwise, convert from ISO string to YYYY-MM-DD
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) return ''; // Invalid date
+  
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Helper function to format date for input field (YYYY-MM-DD)
+const formatDateForInput = (date: string): string => {
+  if (!date) return '';
+  // If it's already in YYYY-MM-DD format, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date;
+  }
+  // Otherwise, convert from ISO string
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) return ''; // Invalid date
+  return dateObj.toISOString().split('T')[0];
+};
+
 interface DealFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -47,14 +77,14 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
         setFormData({
           title: deal.title,
           description: deal.description,
-          discount: deal.discount,
+          discount: deal.discount || '',
           imageUrl: deal.imageUrl || '',
           promo: deal.promo || '',
           isActive: deal.isActive,
           url: deal.url || '',
           redeemType: deal.redeemType || 'code',
-          startDate: deal.startDate || '',
-          endDate: deal.endDate || '',
+          startDate: formatDateForInput(deal.startDate || '') || '',
+          endDate: formatDateForInput(deal.endDate || '') || '',
           categoryName: deal.categoryName,
           storeName: deal.storeName,
         });
@@ -123,7 +153,21 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
     setIsLoading(true);
     
     try {
-      await onSave(formData);
+      // Format dates properly for backend DateOnly type
+      const dealData = {
+        ...formData,
+        startDate: formatDateForBackend(formData.startDate || ''),
+        endDate: formatDateForBackend(formData.endDate || ''),
+      };
+      
+      console.log('Sending deal data with formatted dates:', {
+        startDate: dealData.startDate,
+        endDate: dealData.endDate,
+        originalStartDate: formData.startDate,
+        originalEndDate: formData.endDate
+      });
+      
+      await onSave(dealData);
       onClose();
     } catch (error) {
       console.error('Error saving deal:', error);
@@ -185,7 +229,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="categoryName">Category *</Label>
-              <Select value={formData.categoryName} onValueChange={(value) => handleSelectChange('categoryName', value)}>
+              <Select value={formData.categoryName} onValueChange={(value: string) => handleSelectChange('categoryName', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -201,7 +245,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
 
             <div>
               <Label htmlFor="storeName">Store *</Label>
-              <Select value={formData.storeName} onValueChange={(value) => handleSelectChange('storeName', value)}>
+              <Select value={formData.storeName} onValueChange={(value: string) => handleSelectChange('storeName', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select store" />
                 </SelectTrigger>
@@ -253,7 +297,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
 
           <div>
             <Label htmlFor="redeemType">Redeem Type</Label>
-            <Select value={formData.redeemType} onValueChange={(value) => handleSelectChange('redeemType', value)}>
+            <Select value={formData.redeemType} onValueChange={(value: string) => handleSelectChange('redeemType', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select redeem type" />
               </SelectTrigger>

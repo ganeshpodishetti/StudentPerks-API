@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 
@@ -10,7 +11,7 @@ public class GetStoreById : IEndpoint
         var route = endpoints.MapGroup("/api/stores").WithTags("Stores");
 
         route.MapGet("/{id:guid}",
-            async (IStore storeService, Guid id,
+            async (IStore storeService, [FromRoute] Guid id,
                 ILogger<GetStoreById> logger,
                 CancellationToken cancellationToken) =>
             {

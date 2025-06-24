@@ -15,7 +15,7 @@ public class EditStore : IEndpoint
                              .RequireAuthorization();
 
         route.MapPut("/{id:guid}",
-            async (IStore storeService, Guid id,
+            async (IStore storeService, [FromRoute] Guid id,
                 [FromBody] UpdateStoreRequest request,
                 IValidator<UpdateStoreRequest> validator,
                 ILogger<EditStore> logger,

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 using Serilog;
 using SP.API.Extensions;
+using SP.API.Helpers;
 using SP.API.Validators.Category;
 using SP.Infrastructure.Extensions;
 
@@ -22,6 +23,10 @@ try
 
     builder.AddCors();
     builder.AddOptions();
+    builder.Services.ConfigureHttpJsonOptions(options =>
+    {
+        options.SerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+    });
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
     builder.Services.AddHostedService<DatabaseInitializer>();

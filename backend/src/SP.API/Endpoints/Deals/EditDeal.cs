@@ -15,7 +15,7 @@ public class EditDeal : IEndpoint
                              .RequireAuthorization();
 
         route.MapPut("/{id:guid}",
-            async (IDeal dealService, Guid id,
+            async (IDeal dealService, [FromRoute] Guid id,
                 [FromBody] UpdateDealRequest request,
                 IValidator<UpdateDealRequest> validator,
                 ILogger<EditDeal> logger,

@@ -1,5 +1,5 @@
 // Service for fetching categories
-import axios from 'axios';
+import { publicApiClient } from './apiClient';
 
 // Define response types
 export interface Category {
@@ -8,19 +8,10 @@ export interface Category {
   description?: string;
 }
 
-// API base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5254';
-
-// Create axios instance
-const categoryApi = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-});
-
 export const categoryService = {
   async getCategories(): Promise<Category[]> {
     try {
-      const response = await categoryApi.get('/api/categories');
+      const response = await publicApiClient.get('/api/categories');
       return response.data;
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -30,7 +21,7 @@ export const categoryService = {
 
   async getCategory(id: string): Promise<Category> {
     try {
-      const response = await categoryApi.get(`/api/categories/${id}`);
+      const response = await publicApiClient.get(`/api/categories/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching category:', error);
@@ -40,7 +31,7 @@ export const categoryService = {
 
   async createCategory(categoryData: { name: string; description?: string }): Promise<Category> {
     try {
-      const response = await categoryApi.post('/api/categories', categoryData);
+      const response = await publicApiClient.post('/api/categories', categoryData);
       return response.data;
     } catch (error) {
       console.error('Error creating category:', error);
@@ -50,7 +41,7 @@ export const categoryService = {
 
   async updateCategory(id: string, categoryData: { name: string; description?: string }): Promise<Category> {
     try {
-      const response = await categoryApi.put(`/api/categories/${id}`, categoryData);
+      const response = await publicApiClient.put(`/api/categories/${id}`, categoryData);
       return response.data;
     } catch (error) {
       console.error('Error updating category:', error);
@@ -60,7 +51,7 @@ export const categoryService = {
 
   async deleteCategory(id: string): Promise<void> {
     try {
-      await categoryApi.delete(`/api/categories/${id}`);
+      await publicApiClient.delete(`/api/categories/${id}`);
     } catch (error) {
       console.error('Error deleting category:', error);
       throw error;

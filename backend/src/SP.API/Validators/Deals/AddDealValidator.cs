@@ -36,11 +36,11 @@ public class AddDealValidator : AbstractValidator<CreateDealRequest>
             .WithMessage("Redeem type must be in Online, InStore, Both, Unknown.");
 
         RuleFor(x => x.StartDate)
-            .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
+            .LessThanOrEqualTo(DateTime.UtcNow)
             .WithMessage("Start date must be in the past or today.");
 
         RuleFor(x => x.EndDate)
-            .GreaterThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
+            .GreaterThanOrEqualTo(DateTime.UtcNow)
             .WithMessage("End date must be in the future.");
 
         RuleFor(x => x.CategoryName)

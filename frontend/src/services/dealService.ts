@@ -1,14 +1,6 @@
 /// <reference types="vite/client" />
-import axios from 'axios';
 import { Deal } from '../types/Deal';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5254';
-
-// Create axios instance with default config
-const dealApi = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-});
+import apiClient, { publicApiClient } from './apiClient';
 
 export interface CreateDealRequest {
   title: string;
@@ -28,9 +20,14 @@ export interface CreateDealRequest {
 export interface UpdateDealRequest extends CreateDealRequest {}
 
 export const dealService = {
+  // Public endpoints - no authentication required
   async getDeals(): Promise<Deal[]> {
     try {
-      const response = await dealApi.get('/api/deals');
+      const response = await publicApiClient.get('/api/deals');
+      console.log('Deal API Response (getDeals):', {
+        status: response.status,
+        dataLength: response.data?.length || 0,
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching deals:', error);
@@ -40,7 +37,7 @@ export const dealService = {
 
   async getDeal(id: string): Promise<Deal> {
     try {
-      const response = await dealApi.get(`/api/deals/${id}`);
+      const response = await publicApiClient.get(`/api/deals/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching deal:', error);
@@ -48,38 +45,9 @@ export const dealService = {
     }
   },
 
-  async createDeal(dealData: CreateDealRequest): Promise<Deal> {
-    try {
-      const response = await dealApi.post('/api/deals', dealData);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating deal:', error);
-      throw error;
-    }
-  },
-
-  async updateDeal(id: string, dealData: UpdateDealRequest): Promise<Deal> {
-    try {
-      const response = await dealApi.put(`/api/deals/${id}`, dealData);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating deal:', error);
-      throw error;
-    }
-  },
-
-  async deleteDeal(id: string): Promise<void> {
-    try {
-      await dealApi.delete(`/api/deals/${id}`);
-    } catch (error) {
-      console.error('Error deleting deal:', error);
-      throw error;
-    }
-  },
-
   async getDealsByCategory(categoryName: string): Promise<Deal[]> {
     try {
-      const response = await dealApi.get(`/api/deals/category?name=${encodeURIComponent(categoryName)}`);
+      const response = await publicApiClient.get(`/api/deals/category?name=${encodeURIComponent(categoryName)}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching deals by category:', error);
@@ -89,10 +57,46 @@ export const dealService = {
 
   async getDealsByStore(storeName: string): Promise<Deal[]> {
     try {
-      const response = await dealApi.get(`/api/deals/store?name=${encodeURIComponent(storeName)}`);
+      const response = await publicApiClient.get(`/api/deals/store?name=${encodeURIComponent(storeName)}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching deals by store:', error);
+      throw error;
+    }
+  },
+
+  // Admin endpoints - authentication required
+  async createDeal(dealData: CreateDealRequest): Promise<Deal> {
+    try {
+      console.log('Creating deal with data:', dealData);
+      const response = await apiClient.post('/api/deals', dealData);
+      console.log('Deal created successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating deal:', error);
+      throw error;
+    }
+  },
+
+  async updateDeal(id: string, dealData: UpdateDealRequest): Promise<Deal> {
+    try {
+      console.log('Updating deal:', id, 'with data:', dealData);
+      const response = await apiClient.put(`/api/deals/${id}`, dealData);
+      console.log('Deal updated successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating deal:', error);
+      throw error;
+    }
+  },
+
+  async deleteDeal(id: string): Promise<void> {
+    try {
+      console.log('Deleting deal:', id);
+      await apiClient.delete(`/api/deals/${id}`);
+      console.log('Deal deleted successfully');
+    } catch (error) {
+      console.error('Error deleting deal:', error);
       throw error;
     }
   }

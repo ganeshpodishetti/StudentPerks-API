@@ -4,6 +4,7 @@ public static class DatabaseConstants
 {
     public const string DefaultSchema = "sp";
     public const string DealsCategoryIndexName = "IX_sp_Deals_CategoryId";
+    public const string DealsStoreIndexName = "IX_sp_Deals_StoreId";
     public const string CategoriesIndexName = "IX_sp_Categories_Name";
     public const string StoresIndexName = "IX_sp_Stores_Name";
 

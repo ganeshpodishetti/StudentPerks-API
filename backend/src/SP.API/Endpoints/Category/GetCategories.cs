@@ -15,7 +15,10 @@ public class GetCategories : IEndpoint
                 CancellationToken cancellationToken) =>
             {
                 var categories = await categoryService.GetAllCategoriesAsync(cancellationToken);
-                return Results.Ok(categories);
+                var categoryResponses = categories.ToList();
+                if (categoryResponses.Count != 0) return Results.Ok(categoryResponses);
+                logger.LogWarning("No categories found.");
+                return Results.NoContent();
             });
     }
 }
