@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ExternalLink } from 'lucide-react';
-import React, { memo } from 'react';
+import { ExternalLink, Image } from 'lucide-react';
+import React, { memo, useState } from 'react';
 import { Deal } from '../types/Deal';
 import DealDetail from './DealDetail';
 
@@ -10,8 +10,13 @@ interface DealCardProps {
 }
 
 const DealCard: React.FC<DealCardProps> = memo(({ deal }) => {
-  const imageUrl = deal.imageUrl || '/no-image.svg';
+  const [imageError, setImageError] = useState(false);
+  const imageUrl = deal.imageUrl;
   
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   return (
     <Card className="overflow-hidden flex flex-col h-full group hover:shadow-lg transition-all duration-300 border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 rounded-2xl p-6">
       {/* Header with Icon and External Link */}
@@ -20,14 +25,20 @@ const DealCard: React.FC<DealCardProps> = memo(({ deal }) => {
           deal={deal} 
           trigger={
             <div className="cursor-pointer">
-              <img 
-                src={imageUrl} 
-                alt={deal.title} 
-                className="w-16 h-16 object-contain rounded-2xl transition-transform duration-300 group-hover:scale-105" 
-                onError={(e) => {
-                  e.currentTarget.src = '/no-image.svg';
-                }}
-              />
+              <div className="w-16 h-16 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
+                {!imageError && imageUrl ? (
+                  <img 
+                    src={imageUrl} 
+                    alt={deal.title} 
+                    className="w-full h-full object-contain" 
+                    onError={handleImageError}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Image className="w-8 h-8 text-neutral-400 dark:text-neutral-500" />
+                  </div>
+                )}
+              </div>
             </div>
           } 
         />
