@@ -3,6 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+import { AppProviders } from './providers/AppProviders'
 
 // Apply dark mode from localStorage to ensure consistent styling
 const storedTheme = localStorage.getItem('theme');
@@ -28,7 +29,9 @@ if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
-    <Toaster />
+    <AppProviders>
+      <App />
+      <Toaster />
+    </AppProviders>
   </StrictMode>
 )

@@ -1,17 +1,30 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import './App.css';
 import DealList from './components/DealList';
 import Navigation from './components/Navigation';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
-import AdminCategoriesPage from './pages/AdminCategoriesPage';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminStoresPage from './pages/AdminStoresPage';
-import CategoriesPage from './pages/CategoriesPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import StoresPage from './pages/StoresPage';
+
+// Lazy load admin components
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminStoresPage = lazy(() => import('./pages/AdminStoresPage'));
+const AdminCategoriesPage = lazy(() => import('./pages/AdminCategoriesPage'));
+
+// Lazy load auth components
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+
+// Lazy load other pages
+const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
+const StoresPage = lazy(() => import('./pages/StoresPage'));
+
+// Loading spinner component
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-neutral-100"></div>
+  </div>
+);
 
 // Wrapper component to handle navigation state
 const AppContent = () => {
@@ -25,10 +38,12 @@ const AppContent = () => {
   if (isAuthPage) {
     return (
       <div className="min-h-screen">
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-        </Routes>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Routes>
+        </Suspense>
         <Toaster />
       </div>
     );
@@ -38,32 +53,34 @@ const AppContent = () => {
   if (isAdminPage) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
-        <Routes>
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/stores" 
-            element={
-              <ProtectedRoute>
-                <AdminStoresPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/categories" 
-            element={
-              <ProtectedRoute>
-                <AdminCategoriesPage />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/stores" 
+              element={
+                <ProtectedRoute>
+                  <AdminStoresPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/categories" 
+              element={
+                <ProtectedRoute>
+                  <AdminCategoriesPage />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </Suspense>
         <Toaster />
       </div>
     );
@@ -75,16 +92,18 @@ const AppContent = () => {
 
       <main className="flex-grow py-14 md:py-16 bg-[#FAFAFA] dark:bg-neutral-950">
         <div className="container mx-auto px-6 md:px-8 bg-[#FAFAFA] dark:bg-neutral-950">
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <DealList />
-              } 
-            />
-            <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/stores" element={<StoresPage />} />
-          </Routes>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <DealList />
+                } 
+              />
+              <Route path="/categories" element={<CategoriesPage />} />
+              <Route path="/stores" element={<StoresPage />} />
+            </Routes>
+          </Suspense>
         </div>
       </main>
 
@@ -128,13 +147,7 @@ const AppContent = () => {
 };
 
 function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
-  );
+  return <AppContent />;
 }
 
 export default App;

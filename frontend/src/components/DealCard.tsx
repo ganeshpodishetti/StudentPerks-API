@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Calendar, ExternalLink, Tag } from 'lucide-react';
-import React from 'react';
+import React, { memo } from 'react';
 import { Deal } from '../types/Deal';
 import DealDetail from './DealDetail';
 
@@ -10,7 +10,7 @@ interface DealCardProps {
   deal: Deal;
 }
 
-const DealCard: React.FC<DealCardProps> = ({ deal }) => {
+const DealCard: React.FC<DealCardProps> = memo(({ deal }) => {
   const imageUrl = deal.imageUrl || '/no-image.svg';
   
   // Format date
@@ -142,6 +142,6 @@ const DealCard: React.FC<DealCardProps> = ({ deal }) => {
       </CardFooter>
     </Card>
   );
-};
+});
 
 export default DealCard;

@@ -1,10 +1,10 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useErrorHandler } from '@/contexts/ErrorContext';
 import {
-  useCreateDealMutation,
-  useDealsQuery,
-  useDeleteDealMutation,
-  useUpdateDealMutation
+    useCreateDealMutation,
+    useDealsQuery,
+    useDeleteDealMutation,
+    useUpdateDealMutation
 } from '@/hooks/queries/useDealsQuery';
 import { authService } from '@/services/authService';
 import { Deal } from '@/types/Deal';

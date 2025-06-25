@@ -2,6 +2,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import AdminLoadingSpinner from '@/components/admin/AdminLoadingSpinner';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 import AdminStoresList from '@/components/admin/AdminStoresList';
+import { AdminLayout } from '@/components/admin/shared/AdminLayout';
 import StoreFormModal from '@/components/StoreFormModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminStores } from '@/hooks/useAdminStores';
@@ -35,7 +36,7 @@ export default function AdminStoresPage() {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-8">
+    <AdminLayout navigation={<AdminNavigation />}>
       <AdminHeader 
         user={user}
         onCreateDeal={handleCreateStore}
@@ -45,8 +46,6 @@ export default function AdminStoresPage() {
         title="Store Management"
         createButtonText="Create Store"
       />
-
-      <AdminNavigation />
 
       <div className="grid gap-3 sm:gap-4 md:gap-6">
         <AdminStoresList 
@@ -62,6 +61,6 @@ export default function AdminStoresPage() {
         onSave={handleSaveStore}
         store={editingStore}
       />
-    </div>
+    </AdminLayout>
   );
 }

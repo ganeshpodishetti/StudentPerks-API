@@ -4,6 +4,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import AdminLoadingSpinner from '@/components/admin/AdminLoadingSpinner';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 import AdminStats from '@/components/admin/AdminStats';
+import { AdminLayout } from '@/components/admin/shared/AdminLayout';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 
 export default function AdminDashboard() {
@@ -28,16 +29,17 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-8">
+    <AdminLayout
+      navigation={<AdminNavigation />}
+    >
       <AdminHeader 
         user={user}
         onCreateDeal={handleCreateDeal}
         onLogout={handleLogout}
         onDebugAuth={debugAuth}
         onTestConnectivity={testConnectivity}
+        title="Dashboard"
       />
-
-      <AdminNavigation />
 
       <div className="grid gap-3 sm:gap-4 md:gap-6">
         <AdminStats deals={deals} />
@@ -54,6 +56,6 @@ export default function AdminDashboard() {
         onSave={handleSaveDeal}
         deal={editingDeal}
       />
-    </div>
+    </AdminLayout>
   );
 }
