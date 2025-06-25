@@ -1,12 +1,15 @@
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import React, { useEffect, useState } from 'react';
+import DealList from '../components/DealList';
 import { Store as StoreType, fetchStores } from '../services/storeService';
 
 const StoresPage: React.FC = () => {
   const [stores, setStores] = useState<StoreType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedStore, setSelectedStore] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,8 +36,11 @@ const StoresPage: React.FC = () => {
   }, [toast]);
 
   const handleStoreSelect = (storeName: string) => {
-    // This will be replaced with actual navigation in a routing system
-    window.location.href = `?store=${encodeURIComponent(storeName)}`;
+    setSelectedStore(storeName);
+  };
+
+  const handleBackToStores = () => {
+    setSelectedStore(null);
   };
 
   if (loading) {
@@ -88,21 +94,45 @@ const StoresPage: React.FC = () => {
             <h1 className="text-4xl font-bold text-neutral-900 dark:text-white mb-4">Stores</h1>
           </div>
           
+          {/* Stores Section - Always visible */}
           {stores.length === 0 ? (
             <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-900 rounded-md border border-neutral-100 dark:border-neutral-800">
               <p className="text-neutral-500 dark:text-neutral-400">No stores found</p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-3 justify-center">
+            <div className="flex flex-wrap gap-3 justify-center mb-8">
               {stores.map((store) => (
                 <button
                   key={store.id}
                   onClick={() => handleStoreSelect(store.name)}
-                  className="px-6 py-3 bg-neutral-800 dark:bg-neutral-700 text-white dark:text-neutral-200 rounded-full text-sm font-medium hover:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap"
+                  className={`px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap ${
+                    selectedStore === store.name
+                      ? 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600'
+                      : 'bg-neutral-800 dark:bg-neutral-700 text-white dark:text-neutral-200 hover:bg-neutral-700 dark:hover:bg-neutral-600'
+                  }`}
                 >
                   {store.name}
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* Deals Section - Show when store is selected */}
+          {selectedStore && (
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+                  {selectedStore} Deals
+                </h2>
+                <Button
+                  variant="outline"
+                  onClick={handleBackToStores}
+                  className="flex items-center gap-2"
+                >
+                  Clear Selection
+                </Button>
+              </div>
+              <DealList initialStore={selectedStore} />
             </div>
           )}
         </div>
