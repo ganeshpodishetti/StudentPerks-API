@@ -35,13 +35,23 @@ public class AddDealValidator : AbstractValidator<CreateDealRequest>
             .IsEnumName(typeof(RedeemType), false)
             .WithMessage("Redeem type must be in Online, InStore, Both, Unknown.");
 
-        RuleFor(x => x.StartDate)
-            .LessThanOrEqualTo(x => x.EndDate)
-            .WithMessage("Start date must be in the past or today.");
+        When(x => x.EndDate.HasValue, () =>
+        {
+            RuleFor(x => x.StartDate)
+                .LessThanOrEqualTo(x => x.EndDate)
+                .WithMessage("Start date must be less than or equal to end date.");
 
-        RuleFor(x => x.EndDate)
-            .GreaterThanOrEqualTo(DateTime.UtcNow)
-            .WithMessage("End date must be in the future.");
+            RuleFor(x => x.EndDate)
+                .GreaterThanOrEqualTo(x => x.StartDate)
+                .WithMessage("End date must be in the future.");
+        });
+
+        When(x => !x.EndDate.HasValue, () =>
+        {
+            RuleFor(x => x.StartDate)
+                .LessThanOrEqualTo(DateTime.UtcNow)
+                .WithMessage("Start date must be in the future when no end date is provided.");
+        });
 
         RuleFor(x => x.CategoryName)
             .Must(x => !string.IsNullOrEmpty(x))

@@ -15,7 +15,7 @@ public interface IRefreshTokenHelper
 
 public class RefreshTokenHelper(
     ILogger<RefreshTokenHelper> logger,
-    HttpContextAccessor httpContextAccessor,
+    IHttpContextAccessor httpContextAccessor,
     SpDbContext dbContext)
     : IRefreshTokenHelper
 {
