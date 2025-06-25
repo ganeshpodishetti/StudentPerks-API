@@ -173,7 +173,7 @@ public class AuthService(
     public async Task<CurrentUserResponse?> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
         var (user, _) = await refreshTokenHelper.ValidateRefreshToken(cancellationToken);
-        return new CurrentUserResponse(user.Id, user.Email);
+        return new CurrentUserResponse(user.Id, user.Email!);
     }
 
     public async Task<bool> ValidateRefreshTokenAsync(CancellationToken cancellationToken)
