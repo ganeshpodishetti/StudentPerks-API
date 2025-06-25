@@ -10,6 +10,8 @@ interface AdminHeaderProps {
   onLogout: () => void;
   onDebugAuth: () => void;
   onTestConnectivity: () => void;
+  title?: string;
+  createButtonText?: string;
 }
 
 export default function AdminHeader({ 
@@ -17,16 +19,18 @@ export default function AdminHeader({
   onCreateDeal, 
   onLogout, 
   onDebugAuth, 
-  onTestConnectivity 
+  onTestConnectivity,
+  title = "Admin Dashboard",
+  createButtonText = "Create Deal"
 }: AdminHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0 mb-4 md:mb-8">
       <div>
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-          Admin Dashboard
+          {title}
         </h1>
-        <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1 md:mt-2">
-          Welcome back, {user?.firstName}! Manage your deals here.
+        <p className="text-xs sm:text-sm md:text-base text-neutral-600 dark:text-neutral-400 mt-1 md:mt-2">
+          Welcome back, {user?.firstName}! Manage your {title.toLowerCase().includes('dashboard') ? 'content' : title.toLowerCase()} here.
         </p>
       </div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-4">
@@ -45,14 +49,13 @@ export default function AdminHeader({
             size="sm"
           >
             Test API
-          </Button>
-          <Button 
-            onClick={onCreateDeal} 
+          </Button>          <Button 
+            onClick={onCreateDeal}
             className="flex items-center gap-2 flex-1 sm:flex-none"
             size="sm"
           >
             <Plus className="h-4 w-4" />
-            <span className="hidden xs:inline">Create Deal</span>
+            <span className="hidden xs:inline">{createButtonText}</span>
             <span className="xs:hidden">Create</span>
           </Button>
         </div>

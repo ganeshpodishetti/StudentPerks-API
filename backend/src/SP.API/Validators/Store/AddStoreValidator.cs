@@ -15,9 +15,11 @@ public class AddStoreValidator : AbstractValidator<CreateStoreRequest>
             .MaximumLength(150)
             .WithMessage("Description cannot exceed 150 characters.");
 
-        RuleFor(x => x.Website)
-            .Must(url => !string.IsNullOrEmpty(url) || Uri.TryCreate(url, UriKind.Absolute, out _))
-            .WithMessage("Invalid website URL format.")
-            .When(x => !string.IsNullOrEmpty(x.Website));
+        When(x => !string.IsNullOrEmpty(x.Website), () =>
+        {
+            RuleFor(x => x.Website)
+                .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))
+                .WithMessage("Invalid website URL format.");
+        });
     }
 }

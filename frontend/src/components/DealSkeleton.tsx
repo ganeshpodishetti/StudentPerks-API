@@ -38,7 +38,7 @@ const DealSkeleton: React.FC<DealSkeletonProps> = ({ count = 9 }) => {
         {Array(count).fill(0).map((_, index) => (
           <Card key={index} className="overflow-hidden flex flex-col h-full">
             {/* Image skeleton */}
-            <div className="relative aspect-[3/2] bg-gray-50 dark:bg-neutral-900">
+            <div className="relative aspect-[3/2] bg-neutral-50 dark:bg-neutral-900">
               <Skeleton className="w-full h-full" />
               {/* Discount badge skeleton */}
               <div className="absolute top-3 right-3">

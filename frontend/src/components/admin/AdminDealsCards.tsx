@@ -13,16 +13,16 @@ export default function AdminDealsCards({ deals, onEditDeal, onDeleteDeal }: Adm
   return (
     <div className="md2:hidden space-y-3 sm:space-y-4 p-3 sm:p-4">
       {deals.map((deal) => (
-        <Card key={deal.id} className="border border-gray-200 dark:border-gray-700">
+        <Card key={deal.id} className="border border-neutral-200 dark:border-neutral-700">
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col space-y-2 sm:space-y-3">
               {/* Header with title and actions */}
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0 pr-2">
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate text-sm sm:text-base">
+                  <h3 className="font-medium text-neutral-900 dark:text-neutral-100 truncate text-sm sm:text-base">
                     {deal.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 overflow-hidden" style={{
+                  <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-1 overflow-hidden" style={{
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical'
@@ -53,14 +53,14 @@ export default function AdminDealsCards({ deals, onEditDeal, onDeleteDeal }: Adm
               {/* Deal details */}
               <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Store:</span>
-                  <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <span className="text-neutral-500 dark:text-neutral-400">Store:</span>
+                  <div className="font-medium text-neutral-900 dark:text-neutral-100 truncate">
                     {deal.storeName}
                   </div>
                 </div>
                 <div>
-                  <span className="text-gray-500 dark:text-gray-400">Category:</span>
-                  <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <span className="text-neutral-500 dark:text-neutral-400">Category:</span>
+                  <div className="font-medium text-neutral-900 dark:text-neutral-100 truncate">
                     {deal.categoryName}
                   </div>
                 </div>

@@ -4,6 +4,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Outfit", "sans-serif"],
+      },
       screens: {
         xs: "475px",
         md2: "788px",

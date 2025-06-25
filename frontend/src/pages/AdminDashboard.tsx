@@ -2,6 +2,7 @@ import DealFormModal from '@/components/DealFormModal';
 import AdminDealsList from '@/components/admin/AdminDealsList';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminLoadingSpinner from '@/components/admin/AdminLoadingSpinner';
+import AdminNavigation from '@/components/admin/AdminNavigation';
 import AdminStats from '@/components/admin/AdminStats';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 
@@ -35,6 +36,8 @@ export default function AdminDashboard() {
         onDebugAuth={debugAuth}
         onTestConnectivity={testConnectivity}
       />
+
+      <AdminNavigation />
 
       <div className="grid gap-3 sm:gap-4 md:gap-6">
         <AdminStats deals={deals} />

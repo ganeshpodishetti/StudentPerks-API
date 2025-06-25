@@ -74,35 +74,35 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-3xl font-extrabold text-neutral-900 dark:text-white">
             Create your account
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
             Or{' '}
             <Link
               to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              className="font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline"
             >
               sign in to your existing account
             </Link>
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Register</CardTitle>
-            <CardDescription>
+        <Card className="border-neutral-200 dark:border-neutral-800 shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Register</CardTitle>
+            <CardDescription className="text-center">
               Fill in your details to create a new account
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <div className="space-y-2">
+                  <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     First name
                   </label>
                   <Input
@@ -118,8 +118,8 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <div className="space-y-2">
+                  <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                     Last name
                   </label>
                   <Input
@@ -136,8 +136,8 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <div className="space-y-2">
+                <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Email address
                 </label>
                 <Input
@@ -153,8 +153,8 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <div className="space-y-2">
+                <label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Password
                 </label>
                 <Input
@@ -170,8 +170,8 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <div className="space-y-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Confirm password
                 </label>
                 <Input
@@ -186,21 +186,22 @@ export default function RegisterPage() {
                   className="w-full"
                 />
               </div>
-            </CardContent>
 
-            <CardFooter className="flex flex-col space-y-4">
               <Button
                 type="submit"
                 disabled={isLoading}
                 className="w-full"
+                size="lg"
               >
                 {isLoading ? 'Creating account...' : 'Create account'}
               </Button>
+            </CardContent>
 
-              <div className="text-center">
+            <CardFooter className="pt-0">
+              <div className="w-full text-center">
                 <Link
                   to="/"
-                  className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white inline-flex items-center justify-center"
                 >
                   ← Back to home
                 </Link>

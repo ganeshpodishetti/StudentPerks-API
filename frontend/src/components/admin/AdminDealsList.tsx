@@ -34,7 +34,7 @@ export default function AdminDealsList({ deals, onEditDeal, onDeleteDeal }: Admi
         />
 
         {deals.length === 0 && (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
             No deals found. Create your first deal to get started!
           </div>
         )}

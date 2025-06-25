@@ -50,9 +50,9 @@ const DealCard: React.FC<DealCardProps> = ({ deal }) => {
   };
   
   return (
-    <Card className="overflow-hidden flex flex-col h-full group hover:shadow-md transition-all duration-300 dark:border-neutral-800">
+    <Card className="overflow-hidden flex flex-col h-full group hover:shadow-md transition-all duration-300 border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
       {/* Image */}
-      <div className="relative aspect-[3/2] bg-gray-50 cursor-pointer overflow-hidden">
+      <div className="relative aspect-[3/2] bg-neutral-50 dark:bg-neutral-900 cursor-pointer overflow-hidden">
         <DealDetail 
           deal={deal} 
           trigger={
@@ -69,7 +69,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal }) => {
           } 
         />
         <div className="absolute top-3 right-3">
-          <Badge variant="default" className="bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-neutral-200">
+          <Badge variant="default" className="bg-neutral-900 hover:bg-neutral-800 text-neutral-50 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200">
             {deal.discount}
           </Badge>
         </div>
@@ -77,12 +77,12 @@ const DealCard: React.FC<DealCardProps> = ({ deal }) => {
         {/* Status badges - New or Expiring Soon */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {isNew() && (
-            <Badge variant="default" className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700">
+            <Badge variant="default" className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700 dark:text-white">
               New
             </Badge>
           )}
           {isExpiringSoon() && (
-            <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 dark:bg-amber-500 dark:hover:bg-amber-600">
+            <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-500 dark:hover:bg-amber-600 dark:text-white">
               Expiring Soon
             </Badge>
           )}
@@ -93,7 +93,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal }) => {
         <div className="flex items-center gap-2 mb-1">
           <Badge 
             variant="secondary" 
-            className="text-[10px] bg-neutral-100 hover:bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            className="text-[10px] bg-neutral-100 hover:bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
           >
             <Tag className="h-3 w-3 mr-1" />
             {deal.categoryName}
@@ -107,7 +107,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal }) => {
         <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4 line-clamp-3">{deal.description}</p>
         
         {/* Promo */}
-        <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-sm mb-3 border border-neutral-100 dark:border-neutral-800">
+        <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-sm mb-3 border border-neutral-200 dark:border-neutral-800">
           <div className="flex justify-between items-center mb-0.5">
             <span className="text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-medium">PROMO</span>
             <span className="font-mono font-bold text-sm text-neutral-900 dark:text-neutral-100">{deal.promo}</span>
@@ -126,7 +126,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal }) => {
       
       <CardFooter className="p-4 pt-0">
         <Button 
-          className="w-full text-xs bg-black hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 group"
+          className="w-full text-xs bg-neutral-900 hover:bg-neutral-800 text-neutral-50 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200 group"
           asChild
         >
           <a
