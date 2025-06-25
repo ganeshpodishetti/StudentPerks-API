@@ -1,18 +1,18 @@
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
 } from "@/components/ui/pagination";
 import { ArrowUpDown } from "lucide-react";
 import React, { useEffect, useState } from 'react';
@@ -198,18 +198,22 @@ const DealList: React.FC<DealListProps> = ({ initialCategory, initialStore }) =>
   return (
     <div className="container mx-auto px-6 md:px-8 bg-[#FAFAFA] dark:bg-neutral-950">
       <div className="max-w-5xl mx-auto bg-[#FAFAFA] dark:bg-neutral-950">
-        {/* Centered Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Student Deals</h1>
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Exclusive offers for students</p>
-        </div>
+        {/* Centered Header - only show if no initial category or store */}
+        {!initialCategory && !initialStore && (
+          <div className="mb-8 text-center">
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Student Deals</h1>
+            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Exclusive offers for students</p>
+          </div>
+        )}
         
-        {/* Hero Search Section */}
-        <HeroSearchSection 
-          onSearch={handleSearch}
-          onCategorySelect={handleCategorySelect}
-          searchTerm={searchTerm}
-        />
+        {/* Hero Search Section - only show if no initial category or store */}
+        {!initialCategory && !initialStore && (
+          <HeroSearchSection 
+            onSearch={handleSearch}
+            onCategorySelect={handleCategorySelect}
+            searchTerm={searchTerm}
+          />
+        )}
         
         {/* Sort Only */}
         <div className="mb-6">

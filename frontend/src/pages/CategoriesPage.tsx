@@ -132,7 +132,8 @@ const CategoriesPage: React.FC = () => {
                   Clear Selection
                 </Button>
               </div>
-              <DealList initialCategory={selectedCategory} />
+              <DealList initialCategory={selectedCategory}
+              />
             </div>
           )}
         </div>
