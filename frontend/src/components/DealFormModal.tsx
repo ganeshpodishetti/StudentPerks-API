@@ -220,8 +220,10 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
         <DialogHeader>
           <DialogTitle>{deal ? 'Edit Deal' : 'Create New Deal'}</DialogTitle>
           <DialogDescription>
-            {deal ? 'Update the deal information below.' : 'Fill in the details to create a new deal.'} 
-            You can select existing categories/stores or type new names to create them.
+            {deal 
+              ? 'Update the deal information below. Select from existing categories and stores.' 
+              : 'Fill in the details to create a new deal. You can select existing categories/stores or type new names to create them.'
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -272,13 +274,15 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
                 options={categories.map(cat => ({ value: cat.name, label: cat.name }))}
                 value={formData.categoryName}
                 onValueChange={(value) => handleSelectChange('categoryName', value)}
-                placeholder="Select or create category"
+                placeholder={deal ? "Select category" : "Select or create category"}
                 searchPlaceholder="Search categories..."
-                emptyText="No categories found. Type to create new."
+                emptyText={deal ? "No categories found." : "No categories found. Type to create new."}
                 customText="Create category"
-                allowCustom={true}
+                allowCustom={!deal}
               />
-              <p className="text-xs text-gray-500 mt-1">Select existing or type new category name</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {deal ? "Select from existing categories" : "Select existing or type new category name"}
+              </p>
             </div>
 
             <div>
@@ -287,13 +291,15 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
                 options={stores.map(store => ({ value: store.name, label: store.name }))}
                 value={formData.storeName}
                 onValueChange={(value) => handleSelectChange('storeName', value)}
-                placeholder="Select or create store"
+                placeholder={deal ? "Select store" : "Select or create store"}
                 searchPlaceholder="Search stores..."
-                emptyText="No stores found. Type to create new."
+                emptyText={deal ? "No stores found." : "No stores found. Type to create new."}
                 customText="Create store"
-                allowCustom={true}
+                allowCustom={!deal}
               />
-              <p className="text-xs text-gray-500 mt-1">Select existing or type new store name</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {deal ? "Select from existing stores" : "Select existing or type new store name"}
+              </p>
             </div>
           </div>
 

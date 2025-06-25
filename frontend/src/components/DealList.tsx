@@ -54,6 +54,20 @@ const DealList: React.FC<DealListProps> = ({ initialCategory, initialStore }) =>
   const [selectedStore, setSelectedStore] = useState<string>(initialStore || 'All');
   const [activeSort, setActiveSort] = useState<SortOption>(sortOptions[0]);
   
+  // Update selectedCategory when initialCategory prop changes
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory]);
+  
+  // Update selectedStore when initialStore prop changes
+  useEffect(() => {
+    if (initialStore) {
+      setSelectedStore(initialStore);
+    }
+  }, [initialStore]);
+  
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

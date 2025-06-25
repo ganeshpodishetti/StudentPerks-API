@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import React, { useEffect, useState } from 'react';
@@ -37,10 +36,6 @@ const CategoriesPage: React.FC = () => {
 
   const handleCategorySelect = (categoryName: string) => {
     setSelectedCategory(categoryName);
-  };
-
-  const handleBackToCategories = () => {
-    setSelectedCategory(null);
   };
 
   if (loading) {
@@ -120,17 +115,10 @@ const CategoriesPage: React.FC = () => {
           {/* Deals Section - Show when category is selected */}
           {selectedCategory && (
             <div className="mt-8">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
                   {selectedCategory} Deals
                 </h2>
-                <Button
-                  variant="outline"
-                  onClick={handleBackToCategories}
-                  className="flex items-center gap-2"
-                >
-                  Clear Selection
-                </Button>
               </div>
               <DealList initialCategory={selectedCategory}
               />

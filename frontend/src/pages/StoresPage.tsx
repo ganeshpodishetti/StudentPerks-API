@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import React, { useEffect, useState } from 'react';
@@ -37,10 +36,6 @@ const StoresPage: React.FC = () => {
 
   const handleStoreSelect = (storeName: string) => {
     setSelectedStore(storeName);
-  };
-
-  const handleBackToStores = () => {
-    setSelectedStore(null);
   };
 
   if (loading) {
@@ -120,17 +115,10 @@ const StoresPage: React.FC = () => {
           {/* Deals Section - Show when store is selected */}
           {selectedStore && (
             <div className="mt-8">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
                   {selectedStore} Deals
                 </h2>
-                <Button
-                  variant="outline"
-                  onClick={handleBackToStores}
-                  className="flex items-center gap-2"
-                >
-                  Clear Selection
-                </Button>
               </div>
               <DealList initialStore={selectedStore} />
             </div>
