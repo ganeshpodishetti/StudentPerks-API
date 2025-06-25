@@ -1,12 +1,13 @@
 import { Toaster } from "@/components/ui/toaster";
-import { useState } from 'react';
-import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import './App.css';
 import DealList from './components/DealList';
 import Navigation from './components/Navigation';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import AdminCategoriesPage from './pages/AdminCategoriesPage';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminStoresPage from './pages/AdminStoresPage';
 import CategoriesPage from './pages/CategoriesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -14,20 +15,11 @@ import StoresPage from './pages/StoresPage';
 
 // Wrapper component to handle navigation state
 const AppContent = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
-    if (location.pathname !== '/') {
-      navigate('/');
-    }
-  };
 
   // Check if current path is auth-related
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-  const isAdminPage = location.pathname === '/admin';
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   // If it's an auth page, render without navigation and footer
   if (isAuthPage) {
@@ -55,6 +47,22 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/admin/stores" 
+            element={
+              <ProtectedRoute>
+                <AdminStoresPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/categories" 
+            element={
+              <ProtectedRoute>
+                <AdminCategoriesPage />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
         <Toaster />
       </div>
@@ -63,9 +71,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen h-full w-full bg-[#FAFAFA] dark:bg-neutral-950 flex flex-col">
-      <Navigation 
-        onCategorySelect={handleCategorySelect}
-      />
+      <Navigation />
 
       <main className="flex-grow py-14 md:py-16 bg-[#FAFAFA] dark:bg-neutral-950">
         <div className="container mx-auto px-6 md:px-8 bg-[#FAFAFA] dark:bg-neutral-950">
@@ -74,7 +80,7 @@ const AppContent = () => {
               path="/" 
               element={
                 <DealList 
-                  initialCategory={selectedCategory}
+                  initialCategory="All"
                 />
               } 
             />

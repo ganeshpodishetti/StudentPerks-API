@@ -142,7 +142,7 @@ export function Combobox({
               <CommandItem
                 value={searchValue}
                 onSelect={handleCreateCustom}
-                className="cursor-pointer text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                className="cursor-pointer text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800/50"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 {customText} "{searchValue}"

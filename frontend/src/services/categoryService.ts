@@ -1,5 +1,5 @@
 // Service for fetching categories
-import { publicApiClient } from './apiClient';
+import apiClient, { publicApiClient } from './apiClient';
 
 // Define response types
 export interface Category {
@@ -8,7 +8,15 @@ export interface Category {
   description?: string;
 }
 
+export interface CreateCategoryRequest {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateCategoryRequest extends CreateCategoryRequest {}
+
 export const categoryService = {
+  // Public endpoints - no authentication required
   async getCategories(): Promise<Category[]> {
     try {
       const response = await publicApiClient.get('/api/categories');
@@ -29,9 +37,20 @@ export const categoryService = {
     }
   },
 
-  async createCategory(categoryData: { name: string; description?: string }): Promise<Category> {
+  // Admin endpoints - authentication required
+  async createCategory(categoryData: CreateCategoryRequest): Promise<Category> {
     try {
-      const response = await publicApiClient.post('/api/categories', categoryData);
+      console.log('Creating category with data:', categoryData);
+      
+      // Clean up the data to remove undefined values
+      const cleanCategoryData = Object.fromEntries(
+        Object.entries(categoryData).filter(([_, value]) => value !== undefined)
+      );
+      
+      console.log('Cleaned category data:', cleanCategoryData);
+      
+      const response = await apiClient.post('/api/categories', cleanCategoryData);
+      console.log('Category created successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error creating category:', error);
@@ -39,9 +58,19 @@ export const categoryService = {
     }
   },
 
-  async updateCategory(id: string, categoryData: { name: string; description?: string }): Promise<Category> {
+  async updateCategory(id: string, categoryData: UpdateCategoryRequest): Promise<Category> {
     try {
-      const response = await publicApiClient.put(`/api/categories/${id}`, categoryData);
+      console.log('Updating category:', id, 'with data:', categoryData);
+      
+      // Clean up the data to remove undefined values
+      const cleanCategoryData = Object.fromEntries(
+        Object.entries(categoryData).filter(([_, value]) => value !== undefined)
+      );
+      
+      console.log('Cleaned category data for update:', cleanCategoryData);
+      
+      const response = await apiClient.put(`/api/categories/${id}`, cleanCategoryData);
+      console.log('Category updated successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error updating category:', error);
@@ -51,7 +80,9 @@ export const categoryService = {
 
   async deleteCategory(id: string): Promise<void> {
     try {
-      await publicApiClient.delete(`/api/categories/${id}`);
+      console.log('Deleting category:', id);
+      await apiClient.delete(`/api/categories/${id}`);
+      console.log('Category deleted successfully');
     } catch (error) {
       console.error('Error deleting category:', error);
       throw error;

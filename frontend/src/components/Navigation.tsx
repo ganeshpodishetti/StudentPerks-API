@@ -1,71 +1,25 @@
-import { Menu, Settings, Store, Tag, User, X } from 'lucide-react';
+import { Menu, Store, Tag, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 
 interface NavigationProps {
-  onCategorySelect?: (category: string) => void;
-  onStoreSelect?: (store: string) => void;
+  // Props removed as admin/user functionality is hidden
 }
 
 // Auth buttons component
 const AuthButtons: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
-
-  if (isAuthenticated && user) {
-    return (
-      <div className="flex items-center space-x-3">
-        <Link
-          to="/admin"
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-        >
-          <Settings className="mr-1.5 h-4 w-4" />
-          Admin
-        </Link>
-        <div className="flex items-center space-x-2">
-          <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            {user.firstName}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  // Return null when not authenticated - no login/signup buttons in nav
+  // Hide admin and user info from navigation
   return null;
 };
 
 // Mobile auth buttons component
 const AuthButtonsMobile: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
-
-  if (isAuthenticated && user) {
-    return (
-      <>
-        <Link 
-          to="/admin" 
-          className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white"
-        >
-          <Settings className="mr-2 h-4 w-4" />
-          Admin Dashboard
-        </Link>
-        <div className="px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-300">
-          <div className="flex items-center">
-            <User className="mr-2 h-4 w-4" />
-            Welcome, {user.firstName}
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  // Return null when not authenticated - no login/signup buttons in mobile nav
+  // Hide admin and user info from mobile navigation
   return null;
 };
 
-const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect }) => {
+const Navigation: React.FC<NavigationProps> = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   
@@ -88,22 +42,6 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [isMobileMenuOpen]);
-
-  // Handle category selection
-  const handleCategorySelect = (categoryName: string) => {
-    if (onCategorySelect) {
-      onCategorySelect(categoryName);
-    }
-    setIsMobileMenuOpen(false); // Close mobile menu after selection
-  };
-
-  // Handle store selection
-  const handleStoreSelect = (storeName: string) => {
-    if (onStoreSelect) {
-      onStoreSelect(storeName);
-    }
-    setIsMobileMenuOpen(false); // Close mobile menu after selection
-  };
 
   // Toggle mobile menu
   const toggleMobileMenu = () => {
@@ -135,7 +73,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
             <nav className="hidden md:flex space-x-6 lg:space-x-8">
               <Link 
                 to="/" 
-                className={`text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors ${
+                className={`text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors ${
                   location.pathname === '/' ? 'text-black dark:text-white border-b-2 border-black dark:border-white pb-1' : ''
                 }`}
               >
@@ -144,7 +82,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
               
               <Link 
                 to="/categories" 
-                className={`flex items-center text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors focus:outline-none ${
+                className={`flex items-center text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors focus:outline-none ${
                   location.pathname === '/categories' ? 'text-black dark:text-white border-b-2 border-black dark:border-white pb-1' : ''
                 }`}
               >
@@ -154,7 +92,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
               
               <Link 
                 to="/stores" 
-                className={`flex items-center text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors focus:outline-none ${
+                className={`flex items-center text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors focus:outline-none ${
                   location.pathname === '/stores' ? 'text-black dark:text-white border-b-2 border-black dark:border-white pb-1' : ''
                 }`}
               >
@@ -174,7 +112,7 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
               <ThemeToggle />
               <button
                 type="button"
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-neutral-500 transition-colors"
+                className="inline-flex items-center justify-center p-2 rounded-md text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-neutral-500 transition-colors"
                 aria-controls="mobile-menu"
                 aria-expanded={isMobileMenuOpen}
                 onClick={toggleMobileMenu}
@@ -192,13 +130,13 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
           {/* Mobile Navigation Menu */}
           {isMobileMenuOpen && (
             <div className="md:hidden mt-4 pb-4">
-              <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800">
+              <div className="px-2 pt-2 pb-3 space-y-1 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
                 <Link 
                   to="/" 
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === '/' 
-                      ? 'bg-gray-200 dark:bg-neutral-800 text-black dark:text-white' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
+                      ? 'bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white' 
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
                   }`}
                   onClick={closeMobileMenu}
                 >
@@ -209,8 +147,8 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
                   to="/categories" 
                   className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === '/categories' 
-                      ? 'bg-gray-200 dark:bg-neutral-800 text-black dark:text-white' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
+                      ? 'bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white' 
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
                   }`}
                   onClick={closeMobileMenu}
                 >
@@ -222,8 +160,8 @@ const Navigation: React.FC<NavigationProps> = ({ onCategorySelect, onStoreSelect
                   to="/stores" 
                   className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === '/stores' 
-                      ? 'bg-gray-200 dark:bg-neutral-800 text-black dark:text-white' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
+                      ? 'bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white' 
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
                   }`}
                   onClick={closeMobileMenu}
                 >

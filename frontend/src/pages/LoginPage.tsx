@@ -61,34 +61,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-neutral-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-3xl font-extrabold text-neutral-900 dark:text-white">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
             Or{' '}
             <Link
               to="/register"
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              className="font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100 underline"
             >
               create a new account
             </Link>
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>
+        <Card className="border-neutral-200 dark:border-neutral-800 shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Login</CardTitle>
+            <CardDescription className="text-center">
               Enter your email and password to access your account
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Email address
                 </label>
                 <Input
@@ -104,8 +104,8 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <div className="space-y-2">
+                <label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   Password
                 </label>
                 <Input
@@ -120,21 +120,22 @@ export default function LoginPage() {
                   className="w-full"
                 />
               </div>
-            </CardContent>
 
-            <CardFooter className="flex flex-col space-y-4">
               <Button
                 type="submit"
                 disabled={isSubmitting || isLoading}
                 className="w-full"
+                size="lg"
               >
                 {(isSubmitting || isLoading) ? 'Signing in...' : 'Sign in'}
               </Button>
+            </CardContent>
 
-              <div className="text-center">
+            <CardFooter className="pt-0">
+              <div className="w-full text-center">
                 <Link
                   to="/"
-                  className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white inline-flex items-center justify-center"
                 >
                   ← Back to home
                 </Link>

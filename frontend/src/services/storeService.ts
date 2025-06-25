@@ -1,5 +1,5 @@
 // Service for fetching stores
-import { publicApiClient } from './apiClient';
+import apiClient, { publicApiClient } from './apiClient';
 
 // Define response types
 export interface Store {
@@ -9,7 +9,16 @@ export interface Store {
   website?: string;
 }
 
+export interface CreateStoreRequest {
+  name: string;
+  description?: string;
+  website?: string;
+}
+
+export interface UpdateStoreRequest extends CreateStoreRequest {}
+
 export const storeService = {
+  // Public endpoints - no authentication required
   async getStores(): Promise<Store[]> {
     try {
       const response = await publicApiClient.get('/api/stores');
@@ -30,9 +39,20 @@ export const storeService = {
     }
   },
 
-  async createStore(storeData: { name: string; description?: string; website?: string }): Promise<Store> {
+  // Admin endpoints - authentication required
+  async createStore(storeData: CreateStoreRequest): Promise<Store> {
     try {
-      const response = await publicApiClient.post('/api/stores', storeData);
+      console.log('Creating store with data:', storeData);
+      
+      // Clean up the data to remove undefined values
+      const cleanStoreData = Object.fromEntries(
+        Object.entries(storeData).filter(([_, value]) => value !== undefined)
+      );
+      
+      console.log('Cleaned store data:', cleanStoreData);
+      
+      const response = await apiClient.post('/api/stores', cleanStoreData);
+      console.log('Store created successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error creating store:', error);
@@ -40,9 +60,19 @@ export const storeService = {
     }
   },
 
-  async updateStore(id: string, storeData: { name: string; description?: string; website?: string }): Promise<Store> {
+  async updateStore(id: string, storeData: UpdateStoreRequest): Promise<Store> {
     try {
-      const response = await publicApiClient.put(`/api/stores/${id}`, storeData);
+      console.log('Updating store:', id, 'with data:', storeData);
+      
+      // Clean up the data to remove undefined values
+      const cleanStoreData = Object.fromEntries(
+        Object.entries(storeData).filter(([_, value]) => value !== undefined)
+      );
+      
+      console.log('Cleaned store data for update:', cleanStoreData);
+      
+      const response = await apiClient.put(`/api/stores/${id}`, cleanStoreData);
+      console.log('Store updated successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error updating store:', error);
@@ -52,7 +82,9 @@ export const storeService = {
 
   async deleteStore(id: string): Promise<void> {
     try {
-      await publicApiClient.delete(`/api/stores/${id}`);
+      console.log('Deleting store:', id);
+      await apiClient.delete(`/api/stores/${id}`);
+      console.log('Store deleted successfully');
     } catch (error) {
       console.error('Error deleting store:', error);
       throw error;

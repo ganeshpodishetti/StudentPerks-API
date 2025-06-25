@@ -59,7 +59,11 @@ try
     {
         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
     });
-    app.MapHealthChecksUI(options => options.UIPath = "/health-checks-ui");
+    app.MapHealthChecksUI(options =>
+    {
+        options.UIPath = "/health-ui";
+        options.ApiPath = "/health-api";
+    });
     app.UseSerilogRequestLogging(options =>
     {
         options.MessageTemplate =

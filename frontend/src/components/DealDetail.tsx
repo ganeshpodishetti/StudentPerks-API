@@ -103,7 +103,7 @@ const DealDetail: React.FC<DealDetailProps> = ({ deal, trigger }) => {
         </DialogHeader>
         
         <div className="grid gap-6 py-4">
-          <div className="relative aspect-video bg-gray-50 dark:bg-neutral-900 rounded-md overflow-hidden">
+          <div className="relative aspect-video bg-neutral-50 dark:bg-neutral-900 rounded-md overflow-hidden">
             <img 
               src={imageUrl} 
               alt={deal.title} 
