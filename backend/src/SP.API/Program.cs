@@ -48,7 +48,6 @@ try
     builder.Services.AddProblemDetails();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddEndpoints(typeof(Program).Assembly);
-    builder.Services.AddHttpContextAccessor();
 
     var app = builder.Build();
     Log.Information("Application Started up");

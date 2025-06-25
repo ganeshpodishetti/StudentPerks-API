@@ -71,7 +71,7 @@ public class AuthService(
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("User {UserName} logged in successfully and refresh token generated.", user.UserName);
 
-       // var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
+        // var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
 
         // Set the refresh token as an HTTP-only cookie
@@ -93,25 +93,7 @@ public class AuthService(
 
     public async Task<RefreshTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken)
     {
-        // Get token from cookie instead of request parameter
-        var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
-        if (string.IsNullOrEmpty(refreshToken))
-            throw new InvalidOperationException("Refresh token not found in cookies.");
-
-        var existingUser = await dbContext.Users
-                                          .Include(u => u.RefreshTokens)
-                                          .SingleOrDefaultAsync(
-                                              u => u.RefreshTokens.Any(rt => rt.Token == refreshToken),
-                                              cancellationToken);
-
-        if (existingUser?.RefreshTokens is null)
-            throw new InvalidOperationException("User not found or no refresh tokens associated with the user.");
-
-        var oldRefreshToken = existingUser.RefreshTokens
-                                          .Single(rt => rt.Token == refreshToken);
-
-        if (!refreshTokenHelper.ValidateRefreshToken(existingUser, oldRefreshToken))
-            throw new InvalidOperationException("Invalid or expired refresh token.");
+        var (existingUser, oldRefreshToken) = await refreshTokenHelper.ValidateRefreshToken(cancellationToken);
 
         oldRefreshToken.IsRevoked = true;
         oldRefreshToken.LastModifiedAt = DateTime.UtcNow;
@@ -138,7 +120,7 @@ public class AuthService(
         var newAccessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes)
                                                .ToString(CultureInfo.InvariantCulture);
 
-        // Set the new refresh token in cookie
+        // Set the new refresh token in the cookie
         httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
         {
             HttpOnly = true,
@@ -185,6 +167,18 @@ public class AuthService(
 
         // Clean up old tokens
         await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
+        return true;
+    }
+
+    public async Task<CurrentUserResponse?> GetCurrentUserAsync(CancellationToken cancellationToken)
+    {
+        var (user, _) = await refreshTokenHelper.ValidateRefreshToken(cancellationToken);
+        return new CurrentUserResponse(user.Id, user.Email);
+    }
+
+    public async Task<bool> ValidateRefreshTokenAsync(CancellationToken cancellationToken)
+    {
+        await refreshTokenHelper.ValidateRefreshToken(cancellationToken);
         return true;
     }
 }

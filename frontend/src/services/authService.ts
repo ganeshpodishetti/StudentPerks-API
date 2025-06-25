@@ -1,7 +1,7 @@
 import { getTimeUntilExpiration, isTokenExpired } from '@/lib/tokenUtils';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5254';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export interface LoginRequest {
   email: string;

@@ -12,4 +12,6 @@ public interface IAuth
 
     Task<RefreshTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken = default);
     Task<bool> LogoutAsync(CancellationToken cancellationToken = default);
+    Task<CurrentUserResponse?> GetCurrentUserAsync(CancellationToken cancellationToken = default);
+    Task<bool> ValidateRefreshTokenAsync(CancellationToken cancellationToken = default);
 }

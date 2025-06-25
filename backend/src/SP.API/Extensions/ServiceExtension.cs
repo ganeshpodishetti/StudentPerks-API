@@ -8,6 +8,7 @@ public static class ServiceExtension
 {
     public static void AddServices(this IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
         services.AddScoped<IDeal, DealService>();
         services.AddScoped<ICategory, CategoryService>();
         services.AddScoped<IStore, StoreService>();
