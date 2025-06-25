@@ -100,11 +100,7 @@ const CategoriesPage: React.FC = () => {
                 <button
                   key={category.id}
                   onClick={() => handleCategorySelect(category.name)}
-                  className={`px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap ${
-                    selectedCategory === category.name
-                      ? 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600'
-                      : 'bg-neutral-800 dark:bg-neutral-700 text-white dark:text-neutral-200 hover:bg-neutral-700 dark:hover:bg-neutral-600'
-                  }`}
+                  className="px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap bg-neutral-100 dark:bg-secondary text-neutral-700 dark:text-secondary-foreground hover:bg-neutral-200 dark:hover:bg-secondary/80"
                 >
                   {category.name}
                 </button>
