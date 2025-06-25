@@ -11,3 +11,8 @@ public record LoginResponse(
     string Email,
     string AccessToken
 );
+
+public record CurrentUserResponse(
+    string Id,
+    string Email
+);

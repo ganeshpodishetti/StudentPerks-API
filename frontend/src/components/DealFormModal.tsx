@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -219,7 +220,8 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
         <DialogHeader>
           <DialogTitle>{deal ? 'Edit Deal' : 'Create New Deal'}</DialogTitle>
           <DialogDescription>
-            {deal ? 'Update the deal information below.' : 'Fill in the details to create a new deal.'}
+            {deal ? 'Update the deal information below.' : 'Fill in the details to create a new deal.'} 
+            You can select existing categories/stores or type new names to create them.
           </DialogDescription>
         </DialogHeader>
 
@@ -266,34 +268,32 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="categoryName">Category *</Label>
-              <Select value={formData.categoryName} onValueChange={(value: string) => handleSelectChange('categoryName', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Combobox
+                options={categories.map(cat => ({ value: cat.name, label: cat.name }))}
+                value={formData.categoryName}
+                onValueChange={(value) => handleSelectChange('categoryName', value)}
+                placeholder="Select or create category"
+                searchPlaceholder="Search categories..."
+                emptyText="No categories found. Type to create new."
+                customText="Create category"
+                allowCustom={true}
+              />
+              <p className="text-xs text-gray-500 mt-1">Select existing or type new category name</p>
             </div>
 
             <div>
               <Label htmlFor="storeName">Store *</Label>
-              <Select value={formData.storeName} onValueChange={(value: string) => handleSelectChange('storeName', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select store" />
-                </SelectTrigger>
-                <SelectContent>
-                  {stores.map((store) => (
-                    <SelectItem key={store.id} value={store.name}>
-                      {store.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Combobox
+                options={stores.map(store => ({ value: store.name, label: store.name }))}
+                value={formData.storeName}
+                onValueChange={(value) => handleSelectChange('storeName', value)}
+                placeholder="Select or create store"
+                searchPlaceholder="Search stores..."
+                emptyText="No stores found. Type to create new."
+                customText="Create store"
+                allowCustom={true}
+              />
+              <p className="text-xs text-gray-500 mt-1">Select existing or type new store name</p>
             </div>
           </div>
 
