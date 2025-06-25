@@ -79,9 +79,7 @@ const AppContent = () => {
             <Route 
               path="/" 
               element={
-                <DealList 
-                  initialCategory="All"
-                />
+                <DealList />
               } 
             />
             <Route path="/categories" element={<CategoriesPage />} />
