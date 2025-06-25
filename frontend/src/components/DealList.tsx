@@ -1,18 +1,18 @@
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious
 } from "@/components/ui/pagination";
 import { ArrowUpDown } from "lucide-react";
 import React, { useEffect, useState } from 'react';
@@ -40,9 +40,10 @@ const sortOptions: SortOption[] = [
 
 interface DealListProps {
   initialCategory?: string;
+  initialStore?: string;
 }
 
-const DealList: React.FC<DealListProps> = ({ initialCategory }) => {
+const DealList: React.FC<DealListProps> = ({ initialCategory, initialStore }) => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [filteredDeals, setFilteredDeals] = useState<Deal[]>([]);
   const [displayedDeals, setDisplayedDeals] = useState<Deal[]>([]);
@@ -50,6 +51,7 @@ const DealList: React.FC<DealListProps> = ({ initialCategory }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'All');
+  const [selectedStore, setSelectedStore] = useState<string>(initialStore || 'All');
   const [activeSort, setActiveSort] = useState<SortOption>(sortOptions[0]);
   
   // Pagination
@@ -90,6 +92,13 @@ const DealList: React.FC<DealListProps> = ({ initialCategory }) => {
       );
     }
     
+    // Filter by store
+    if (selectedStore && selectedStore !== 'All') {
+      result = result.filter(deal => 
+        deal.storeName.toLowerCase() === selectedStore.toLowerCase()
+      );
+    }
+    
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -121,7 +130,7 @@ const DealList: React.FC<DealListProps> = ({ initialCategory }) => {
     setFilteredDeals(result);
     setTotalPages(Math.ceil(result.length / dealsPerPage));
     setCurrentPage(1); // Reset to first page when filters change
-  }, [searchTerm, selectedCategory, activeSort, deals]);
+  }, [searchTerm, selectedCategory, selectedStore, activeSort, deals]);
 
   // Paginate the filtered deals
   useEffect(() => {
@@ -232,6 +241,7 @@ const DealList: React.FC<DealListProps> = ({ initialCategory }) => {
         <div className="mb-6 text-xs text-neutral-500 dark:text-neutral-400">
           Showing {displayedDeals.length} of {filteredDeals.length} deals
           {selectedCategory && selectedCategory !== 'All' && ` in ${selectedCategory}`}
+          {selectedStore && selectedStore !== 'All' && ` from ${selectedStore}`}
           {searchTerm && ` matching "${searchTerm}"`}
         </div>
         
@@ -239,8 +249,8 @@ const DealList: React.FC<DealListProps> = ({ initialCategory }) => {
         {filteredDeals.length === 0 ? (
           <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-900 rounded-sm border border-neutral-100 dark:border-neutral-800">
             <p className="text-neutral-500 dark:text-neutral-400 mb-4 text-sm">
-              {searchTerm || (selectedCategory && selectedCategory !== 'All') 
-                ? `No deals found${selectedCategory && selectedCategory !== 'All' ? ` in ${selectedCategory}` : ''}${searchTerm ? ` matching "${searchTerm}"` : ''}`
+              {searchTerm || (selectedCategory && selectedCategory !== 'All') || (selectedStore && selectedStore !== 'All')
+                ? `No deals found${selectedCategory && selectedCategory !== 'All' ? ` in ${selectedCategory}` : ''}${selectedStore && selectedStore !== 'All' ? ` from ${selectedStore}` : ''}${searchTerm ? ` matching "${searchTerm}"` : ''}`
                 : 'No deals available'
               }
             </p>

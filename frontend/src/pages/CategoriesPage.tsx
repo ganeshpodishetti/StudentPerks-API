@@ -1,12 +1,15 @@
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import React, { useEffect, useState } from 'react';
+import DealList from '../components/DealList';
 import { Category, fetchCategories } from '../services/categoryService';
 
 const CategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,8 +36,11 @@ const CategoriesPage: React.FC = () => {
   }, [toast]);
 
   const handleCategorySelect = (categoryName: string) => {
-    // This will be replaced with actual navigation in a routing system
-    window.location.href = `/?category=${encodeURIComponent(categoryName)}`;
+    setSelectedCategory(categoryName);
+  };
+
+  const handleBackToCategories = () => {
+    setSelectedCategory(null);
   };
 
   if (loading) {
@@ -88,21 +94,45 @@ const CategoriesPage: React.FC = () => {
             <h1 className="text-4xl font-bold text-neutral-900 dark:text-white mb-4">Categories</h1>
           </div>
         
+          {/* Categories Section - Always visible */}
           {categories.length === 0 ? (
             <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-900 rounded-md border border-neutral-100 dark:border-neutral-800">
               <p className="text-neutral-500 dark:text-neutral-400">No categories found</p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-3 justify-center">
+            <div className="flex flex-wrap gap-3 justify-center mb-8">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategorySelect(category.name)}
-                  className="px-6 py-3 bg-neutral-800 dark:bg-neutral-700 text-white dark:text-neutral-200 rounded-full text-sm font-medium hover:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap"
+                  className={`px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap ${
+                    selectedCategory === category.name
+                      ? 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600'
+                      : 'bg-neutral-800 dark:bg-neutral-700 text-white dark:text-neutral-200 hover:bg-neutral-700 dark:hover:bg-neutral-600'
+                  }`}
                 >
                   {category.name}
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* Deals Section - Show when category is selected */}
+          {selectedCategory && (
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+                  {selectedCategory} Deals
+                </h2>
+                <Button
+                  variant="outline"
+                  onClick={handleBackToCategories}
+                  className="flex items-center gap-2"
+                >
+                  Clear Selection
+                </Button>
+              </div>
+              <DealList initialCategory={selectedCategory} />
             </div>
           )}
         </div>
