@@ -43,7 +43,7 @@ export const DealsContainer: React.FC<DealsContainerProps> = ({
     handlePageChange,
   } = useDealsPagination({
     deals: filteredDeals,
-    pageSize: 9,
+    pageSize: 12,
   });
 
   const generateEmptyMessage = () => {

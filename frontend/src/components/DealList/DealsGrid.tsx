@@ -15,10 +15,10 @@ export const DealsGrid: React.FC<DealsGridProps> = memo(({
 }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="animate-pulse">
-            <div className="bg-neutral-200 dark:bg-neutral-700 rounded-lg h-64"></div>
+            <div className="bg-neutral-200 dark:bg-neutral-700 rounded-2xl h-80"></div>
           </div>
         ))}
       </div>
@@ -36,7 +36,7 @@ export const DealsGrid: React.FC<DealsGridProps> = memo(({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {deals.map((deal) => (
         <DealCard key={deal.id} deal={deal} />
       ))}
