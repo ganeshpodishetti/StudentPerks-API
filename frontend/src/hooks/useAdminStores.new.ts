@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { useErrorHandler } from '@/contexts/ErrorContext';
 import {
     useCreateStoreMutation,
     useDeleteStoreMutation,
@@ -12,6 +13,7 @@ export const useAdminStores = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
   const { user } = useAuth();
+  const { showSuccess } = useErrorHandler();
 
   // React Query hooks
   const { data: stores = [], isLoading } = useStoresQuery();

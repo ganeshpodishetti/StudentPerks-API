@@ -2,6 +2,7 @@ import AdminCategoriesList from '@/components/admin/AdminCategoriesList';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminLoadingSpinner from '@/components/admin/AdminLoadingSpinner';
 import AdminNavigation from '@/components/admin/AdminNavigation';
+import { AdminLayout } from '@/components/admin/shared/AdminLayout';
 import CategoryFormModal from '@/components/CategoryFormModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminCategories } from '@/hooks/useAdminCategories';
@@ -35,7 +36,7 @@ export default function AdminCategoriesPage() {
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-8">
+    <AdminLayout navigation={<AdminNavigation />}>
       <AdminHeader 
         user={user}
         onCreateDeal={handleCreateCategory}
@@ -45,8 +46,6 @@ export default function AdminCategoriesPage() {
         title="Category Management"
         createButtonText="Create Category"
       />
-
-      <AdminNavigation />
 
       <div className="grid gap-3 sm:gap-4 md:gap-6">
         <AdminCategoriesList 
@@ -62,6 +61,6 @@ export default function AdminCategoriesPage() {
         onSave={handleSaveCategory}
         category={editingCategory}
       />
-    </div>
+    </AdminLayout>
   );
 }
