@@ -91,7 +91,7 @@ const AppContent = () => {
       <Navigation />
 
       <main className="flex-grow py-14 md:py-16 bg-[#FAFAFA] dark:bg-neutral-950">
-        <div className="container mx-auto px-6 md:px-8 bg-[#FAFAFA] dark:bg-neutral-950">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-8 bg-[#FAFAFA] dark:bg-neutral-950">
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               <Route 
