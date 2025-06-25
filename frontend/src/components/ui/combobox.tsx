@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-} from "@/components/ui/command"
+import { Input } from "@/components/ui/input"
 import {
     Popover,
     PopoverContent,
@@ -54,6 +48,7 @@ export function Combobox({
 
   // Handle selection
   const handleSelect = (selectedValue: string) => {
+    console.log('Selecting value:', selectedValue)
     onValueChange(selectedValue)
     setOpen(false)
     setSearchValue("")
@@ -64,17 +59,10 @@ export function Combobox({
     if (searchValue.trim() && !options.some(option => 
       option.label.toLowerCase() === searchValue.toLowerCase()
     )) {
+      console.log('Creating custom value:', searchValue.trim())
       onValueChange(searchValue.trim())
       setOpen(false)
       setSearchValue("")
-    }
-  }
-
-  // Handle Enter key for creating custom values
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && showCreateOption) {
-      e.preventDefault()
-      handleCreateCustom()
     }
   }
 
@@ -85,8 +73,38 @@ export function Combobox({
       option.label.toLowerCase() === searchValue.toLowerCase()
     )
 
+  // Handle Enter key for creating custom values
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      if (showCreateOption) {
+        handleCreateCustom()
+      } else if (filteredOptions.length === 1) {
+        handleSelect(filteredOptions[0].value)
+      } else if (allowCustom && searchValue.trim()) {
+        onValueChange(searchValue.trim())
+        setOpen(false)
+        setSearchValue("")
+      }
+    }
+  }
+
+  // Handle open change
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen)
+    if (!newOpen) {
+      // When closing, if there's a search value and allowCustom is true, create it
+      if (allowCustom && searchValue.trim() && !options.some(option => 
+        option.label.toLowerCase() === searchValue.toLowerCase()
+      )) {
+        onValueChange(searchValue.trim())
+      }
+      setSearchValue("")
+    }
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -105,25 +123,43 @@ export function Combobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
-        <Command onKeyDown={handleKeyDown}>
-          <CommandInput 
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onValueChange={setSearchValue}
-          />
-          <CommandEmpty className="py-2">
-            {emptyText}
-          </CommandEmpty>
+      <PopoverContent 
+        className="w-[--radix-popover-trigger-width] max-w-[400px] p-0 z-[9999]" 
+        align="start" 
+        sideOffset={4}
+        avoidCollisions={true}
+        collisionPadding={8}
+      >
+        <div className="flex flex-col">
+          <div className="px-3 py-2 border-b">
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="h-8 border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              autoFocus
+            />
+          </div>
           
-          {filteredOptions.length > 0 && (
-            <CommandGroup>
-              {filteredOptions.map((option) => (
-                <CommandItem
+          <div className="max-h-[200px] overflow-y-auto">
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option) => (
+                <div
                   key={option.value}
-                  value={option.value}
-                  onSelect={handleSelect}
-                  className="cursor-pointer"
+                  onClick={() => handleSelect(option.value)}
+                  className={cn(
+                    "flex items-center px-3 py-2 text-sm cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                    "focus:bg-neutral-100 dark:focus:bg-neutral-800 outline-none"
+                  )}
+                  role="option"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      handleSelect(option.value)
+                    }
+                  }}
                 >
                   <Check
                     className={cn(
@@ -132,24 +168,43 @@ export function Combobox({
                     )}
                   />
                   {option.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
-          
-          {showCreateOption && (
-            <CommandGroup>
-              <CommandItem
-                value={searchValue}
-                onSelect={handleCreateCustom}
-                className="cursor-pointer text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800/50"
+                </div>
+              ))
+            ) : searchValue.trim() ? (
+              allowCustom ? null : (
+                <div className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
+                  {emptyText}
+                </div>
+              )
+            ) : (
+              <div className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
+                {emptyText}
+              </div>
+            )}
+            
+            {showCreateOption && (
+              <div
+                onClick={handleCreateCustom}
+                className={cn(
+                  "flex items-center px-3 py-2 text-sm cursor-pointer",
+                  "text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800/50",
+                  "hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                )}
+                role="option"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    handleCreateCustom()
+                  }
+                }}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 {customText} "{searchValue}"
-              </CommandItem>
-            </CommandGroup>
-          )}
-        </Command>
+              </div>
+            )}
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   )
