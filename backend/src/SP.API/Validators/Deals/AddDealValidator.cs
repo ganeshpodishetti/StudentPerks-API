@@ -1,4 +1,5 @@
 using FluentValidation;
+using SP.API.Helpers;
 using SP.Application.Dtos.Deal;
 using SP.Domain.Enums;
 
@@ -13,16 +14,19 @@ public class AddDealValidator : AbstractValidator<CreateDealRequest>
             .WithMessage("Deal title can't be empty.");
 
         RuleFor(x => x.Description)
-            .MaximumLength(1024)
+            .MaximumLength(512)
             .WithMessage("Description cannot exceed 1024 characters.");
 
         RuleFor(x => x.Discount)
             .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage("Discount is required.");
 
-        RuleFor(x => x.ImageUrl)
-            .Must(x => !string.IsNullOrEmpty(x))
-            .WithMessage("ImageUrl is required.");
+        When(x => x.Image is not null, () =>
+        {
+            RuleFor(x => x.Image)
+                .Must(ValidImageHelper.IsValidImageFile)
+                .WithMessage("Invalid image file type. Only SVG and PNG files are allowed.");
+        });
 
         RuleFor(x => x.Url)
             .Must(x => !string.IsNullOrEmpty(x)).WithMessage("URL is required.")
@@ -60,5 +64,9 @@ public class AddDealValidator : AbstractValidator<CreateDealRequest>
         RuleFor(x => x.StoreName)
             .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage("Store name is required.");
+
+        RuleFor(x => x.HowToRedeem)
+            .MaximumLength(1024)
+            .WithMessage("How to redeem cannot exceed 512 characters.");
     }
 }

@@ -1,4 +1,5 @@
 using SP.Application.Dtos.Deal;
+using SP.Application.Helper;
 using SP.Domain.Entities;
 
 namespace SP.Application.Mapping;
@@ -12,11 +13,12 @@ public static class DealMappingExtension
             deal.Name,
             deal.Description,
             deal.Discount,
-            deal.ImageUrl,
+            ConvertToBase64Helper.ConvertImageToBase64(deal.ImageData, deal.ImageContentType),
             deal.Promo,
             deal.IsActive,
             deal.Url,
             deal.RedeemType,
+            deal.HowToRedeem,
             deal.StartDate,
             deal.EndDate,
             deal.Category.Name,
@@ -30,11 +32,12 @@ public static class DealMappingExtension
             deal.Name,
             deal.Description,
             deal.Discount,
-            deal.ImageUrl,
+            ConvertToBase64Helper.ConvertImageToBase64(deal.ImageData, deal.ImageContentType),
             deal.Promo,
             deal.IsActive,
             deal.Url,
             deal.RedeemType,
+            deal.HowToRedeem,
             deal.StartDate,
             deal.EndDate,
             deal.Category.Name
@@ -48,11 +51,12 @@ public static class DealMappingExtension
             deal.Name,
             deal.Description,
             deal.Discount,
-            deal.ImageUrl,
+            ConvertToBase64Helper.ConvertImageToBase64(deal.ImageData, deal.ImageContentType),
             deal.Promo,
             deal.IsActive,
             deal.Url,
             deal.RedeemType,
+            deal.HowToRedeem,
             deal.StartDate,
             deal.EndDate,
             deal.Store.Name
@@ -62,16 +66,25 @@ public static class DealMappingExtension
     public static Deal ToEntity(this CreateDealRequest request,
         Guid categoryId, Guid storeId)
     {
+        byte[] imageData;
+        using (var memoryStream = new MemoryStream())
+        {
+            request.Image?.CopyToAsync(memoryStream);
+            imageData = memoryStream.ToArray();
+        }
+
         return new Deal
         {
             Name = request.Title,
             Description = request.Description,
             Discount = request.Discount,
-            ImageUrl = request.ImageUrl,
+            ImageData = imageData,
+            ImageContentType = request.Image?.ContentType,
             Promo = request.Promo,
             IsActive = request.IsActive,
             Url = request.Url,
             RedeemType = request.RedeemType,
+            HowToRedeem = request.HowToRedeem,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             CategoryId = categoryId,
@@ -85,11 +98,20 @@ public static class DealMappingExtension
         deal.Name = request.Title;
         deal.Description = request.Description;
         deal.Discount = request.Discount;
-        deal.ImageUrl = request.ImageUrl;
+
+        if (request.Image != null)
+        {
+            using var memoryStream = new MemoryStream();
+            request.Image.CopyToAsync(memoryStream);
+            deal.ImageData = memoryStream.ToArray();
+            deal.ImageContentType = request.Image.ContentType;
+        }
+
         deal.Promo = request.Promo;
         deal.IsActive = request.IsActive;
         deal.Url = request.Url;
         deal.RedeemType = request.RedeemType;
+        deal.HowToRedeem = request.HowToRedeem;
         deal.StartDate = request.StartDate;
         deal.EndDate = request.EndDate;
         deal.CategoryId = category.Id;
