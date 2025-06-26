@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { Check, ChevronsUpDown, Plus } from "lucide-react"
@@ -124,33 +124,35 @@ export function Combobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[--radix-popover-trigger-width] max-w-[400px] p-0 z-[9999]" 
+        className="w-[--radix-popover-trigger-width] max-w-[400px] p-0 z-[9999] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 shadow-lg" 
         align="start" 
         sideOffset={4}
         avoidCollisions={true}
         collisionPadding={8}
       >
         <div className="flex flex-col">
-          <div className="px-3 py-2 border-b">
+          <div className="px-3 py-2 border-b border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900">
             <Input
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="h-8 border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="h-8 border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
               autoFocus
             />
           </div>
           
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="max-h-[300px] overflow-y-auto bg-white dark:bg-neutral-900 custom-scrollbar">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
                 <div
                   key={option.value}
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                    "flex items-center px-3 py-2 text-sm cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                    "focus:bg-neutral-100 dark:focus:bg-neutral-800 outline-none"
+                    "flex items-center px-3 py-2.5 text-sm cursor-pointer transition-colors",
+                    "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-900 dark:text-neutral-100",
+                    "focus:bg-neutral-100 dark:focus:bg-neutral-800 outline-none",
+                    value === option.value && "bg-neutral-100 dark:bg-neutral-800"
                   )}
                   role="option"
                   tabIndex={0}
@@ -163,21 +165,21 @@ export function Combobox({
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mr-2 h-4 w-4 text-neutral-600 dark:text-neutral-400",
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {option.label}
+                  <span className="truncate">{option.label}</span>
                 </div>
               ))
             ) : searchValue.trim() ? (
               allowCustom ? null : (
-                <div className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
+                <div className="px-3 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">
                   {emptyText}
                 </div>
               )
             ) : (
-              <div className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
+              <div className="px-3 py-2.5 text-sm text-neutral-500 dark:text-neutral-400">
                 {emptyText}
               </div>
             )}
@@ -186,9 +188,9 @@ export function Combobox({
               <div
                 onClick={handleCreateCustom}
                 className={cn(
-                  "flex items-center px-3 py-2 text-sm cursor-pointer",
-                  "text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800/50",
-                  "hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                  "flex items-center px-3 py-2.5 text-sm cursor-pointer transition-colors border-t border-neutral-200 dark:border-neutral-700",
+                  "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30",
+                  "hover:bg-blue-100 dark:hover:bg-blue-950/50"
                 )}
                 role="option"
                 tabIndex={0}
@@ -200,7 +202,7 @@ export function Combobox({
                 }}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                {customText} "{searchValue}"
+                <span className="truncate">{customText} "{searchValue}"</span>
               </div>
             )}
           </div>
