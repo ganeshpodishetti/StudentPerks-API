@@ -25,9 +25,12 @@ public class EditDealValidator : AbstractValidator<UpdateDealRequest>
             .Must(x => !string.IsNullOrEmpty(x))
             .WithMessage("Discount type is required.");
 
-        RuleFor(x => x.Image)
-            .Must(ValidImageHelper.IsValidImageFile)
-            .WithMessage("Invalid image file type. Only SVG and PNG files are allowed.");
+        When(x => x.Image is not null, () =>
+        {
+            RuleFor(x => x.Image)
+                .Must(ValidImageHelper.IsValidImageFile)
+                .WithMessage("Invalid image file type. Only SVG and PNG files are allowed.");
+        });
 
         RuleFor(x => x.Url)
             .Must(x => !string.IsNullOrEmpty(x))

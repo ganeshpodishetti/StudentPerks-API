@@ -6,7 +6,7 @@ export interface CreateDealRequest {
   title: string;
   description: string;
   discount: string;
-  imageUrl?: string;
+  image?: File | null;
   promo?: string;
   isActive: boolean;
   url?: string;
@@ -70,14 +70,42 @@ export const dealService = {
     try {
       console.log('Creating deal with data:', dealData);
       
-      // Clean up the data to remove undefined values
-      const cleanDealData = Object.fromEntries(
-        Object.entries(dealData).filter(([_, value]) => value !== undefined)
-      );
+      // Create FormData for multipart upload
+      const formData = new FormData();
       
-      console.log('Cleaned deal data:', cleanDealData);
+      // Add all fields to FormData
+      formData.append('title', dealData.title);
+      formData.append('description', dealData.description);
+      formData.append('discount', dealData.discount);
+      formData.append('isActive', dealData.isActive.toString());
+      formData.append('redeemType', dealData.redeemType);
+      formData.append('categoryName', dealData.categoryName);
+      formData.append('storeName', dealData.storeName);
       
-      const response = await apiClient.post('/api/deals', cleanDealData);
+      // Add optional fields if they exist
+      if (dealData.image) {
+        formData.append('image', dealData.image);
+      }
+      if (dealData.promo) {
+        formData.append('promo', dealData.promo);
+      }
+      if (dealData.url) {
+        formData.append('url', dealData.url);
+      }
+      if (dealData.startDate) {
+        formData.append('startDate', dealData.startDate);
+      }
+      if (dealData.endDate) {
+        formData.append('endDate', dealData.endDate);
+      }
+      
+      console.log('Sending FormData to backend');
+      
+      const response = await apiClient.post('/api/deals', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       console.log('Deal created successfully:', response.data);
       return response.data;
     } catch (error) {
@@ -90,14 +118,42 @@ export const dealService = {
     try {
       console.log('Updating deal:', id, 'with data:', dealData);
       
-      // Clean up the data to remove undefined values
-      const cleanDealData = Object.fromEntries(
-        Object.entries(dealData).filter(([_, value]) => value !== undefined)
-      );
+      // Create FormData for multipart upload
+      const formData = new FormData();
       
-      console.log('Cleaned deal data for update:', cleanDealData);
+      // Add all fields to FormData
+      formData.append('title', dealData.title);
+      formData.append('description', dealData.description);
+      formData.append('discount', dealData.discount);
+      formData.append('isActive', dealData.isActive.toString());
+      formData.append('redeemType', dealData.redeemType);
+      formData.append('categoryName', dealData.categoryName);
+      formData.append('storeName', dealData.storeName);
       
-      const response = await apiClient.put(`/api/deals/${id}`, cleanDealData);
+      // Add optional fields if they exist
+      if (dealData.image) {
+        formData.append('image', dealData.image);
+      }
+      if (dealData.promo) {
+        formData.append('promo', dealData.promo);
+      }
+      if (dealData.url) {
+        formData.append('url', dealData.url);
+      }
+      if (dealData.startDate) {
+        formData.append('startDate', dealData.startDate);
+      }
+      if (dealData.endDate) {
+        formData.append('endDate', dealData.endDate);
+      }
+      
+      console.log('Sending FormData to backend for update');
+      
+      const response = await apiClient.put(`/api/deals/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       console.log('Deal updated successfully:', response.data);
       return response.data;
     } catch (error) {

@@ -66,11 +66,15 @@ public static class DealMappingExtension
     public static Deal ToEntity(this CreateDealRequest request,
         Guid categoryId, Guid storeId)
     {
-        byte[] imageData;
-        using (var memoryStream = new MemoryStream())
+        byte[]? imageData = null;
+        string? imageContentType = null;
+
+        if (request.Image != null)
         {
-            request.Image?.CopyToAsync(memoryStream);
+            using var memoryStream = new MemoryStream();
+            request.Image.CopyTo(memoryStream);
             imageData = memoryStream.ToArray();
+            imageContentType = request.Image.ContentType;
         }
 
         return new Deal
@@ -79,14 +83,18 @@ public static class DealMappingExtension
             Description = request.Description,
             Discount = request.Discount,
             ImageData = imageData,
-            ImageContentType = request.Image?.ContentType,
+            ImageContentType = imageContentType,
             Promo = request.Promo,
             IsActive = request.IsActive,
             Url = request.Url,
             RedeemType = request.RedeemType,
             HowToRedeem = request.HowToRedeem,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
+            StartDate = request.StartDate?.Kind == DateTimeKind.Utc
+                ? request.StartDate
+                : request.StartDate?.ToUniversalTime(),
+            EndDate = request.EndDate?.Kind == DateTimeKind.Utc
+                ? request.EndDate
+                : request.EndDate?.ToUniversalTime(),
             CategoryId = categoryId,
             StoreId = storeId
         };
@@ -102,7 +110,7 @@ public static class DealMappingExtension
         if (request.Image != null)
         {
             using var memoryStream = new MemoryStream();
-            request.Image.CopyToAsync(memoryStream);
+            request.Image.CopyTo(memoryStream);
             deal.ImageData = memoryStream.ToArray();
             deal.ImageContentType = request.Image.ContentType;
         }
@@ -112,8 +120,13 @@ public static class DealMappingExtension
         deal.Url = request.Url;
         deal.RedeemType = request.RedeemType;
         deal.HowToRedeem = request.HowToRedeem;
-        deal.StartDate = request.StartDate;
-        deal.EndDate = request.EndDate;
+        deal.StartDate = request.StartDate?.Kind == DateTimeKind.Utc
+            ? request.StartDate
+            : request.StartDate?.ToUniversalTime();
+
+        deal.EndDate = request.EndDate?.Kind == DateTimeKind.Utc
+            ? request.EndDate
+            : request.EndDate?.ToUniversalTime();
         deal.CategoryId = category.Id;
         deal.StoreId = store.Id;
         deal.UpdatedAt = DateTime.UtcNow;

@@ -27,7 +27,10 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(x => x.ImageContentType)
                .HasMaxLength(250);
 
-        builder.Property(x => x.Url)
+              builder.Property(x => x.ImageData)
+                     .HasColumnType("varbinary(max)");
+
+              builder.Property(x => x.Url)
                .IsRequired()
                .HasMaxLength(250);
 
