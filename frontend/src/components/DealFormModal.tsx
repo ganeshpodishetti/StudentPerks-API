@@ -17,7 +17,7 @@ interface FormData {
   title: string;
   description: string;
   discount: string;
-  imageUrl?: string;
+  image?: File | null;
   promo?: string;
   isActive: boolean;
   url?: string;
@@ -65,7 +65,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
     title: '',
     description: '',
     discount: '',
-    imageUrl: '',
+    image: null,
     promo: '',
     isActive: true,
     url: '',
@@ -90,7 +90,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           title: deal.title,
           description: deal.description,
           discount: deal.discount || '',
-          imageUrl: deal.imageUrl || '',
+          image: null, // Can't restore file from deal data
           promo: deal.promo || '',
           isActive: deal.isActive,
           url: deal.url || '',
@@ -106,7 +106,7 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           title: '',
           description: '',
           discount: '',
-          imageUrl: '',
+          image: null,
           promo: '',
           isActive: true,
           url: '',
@@ -146,6 +146,14 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData(prev => ({
+      ...prev,
+      image: file
+    }));
+  };
+
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -165,6 +173,8 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
     setIsLoading(true);
     
     try {
+      console.log('Form submitted with data:', formData);
+      
       // Create clean deal data
       const dealData: CreateDealRequest = {
         title: formData.title,
@@ -177,8 +187,9 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
       };
 
       // Add optional fields only if they have values
-      if (formData.imageUrl?.trim()) {
-        dealData.imageUrl = formData.imageUrl.trim();
+      if (formData.image) {
+        dealData.image = formData.image;
+        console.log('Adding image file:', formData.image.name, formData.image.type, formData.image.size);
       }
       
       if (formData.promo?.trim()) {
@@ -305,14 +316,18 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
+              <Label htmlFor="image">Image (PNG/SVG)</Label>
               <Input
-                id="imageUrl"
-                name="imageUrl"
-                value={formData.imageUrl || ''}
-                onChange={handleInputChange}
-                placeholder="https://example.com/image.jpg"
+                id="image"
+                name="image"
+                type="file"
+                accept=".png,.svg,image/png,image/svg+xml"
+                onChange={handleFileChange}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-neutral-50 file:text-neutral-700 hover:file:bg-neutral-100"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Upload a PNG or SVG image (max 5MB)
+              </p>
             </div>
 
             <div>

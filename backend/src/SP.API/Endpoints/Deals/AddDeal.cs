@@ -15,27 +15,54 @@ public class AddDeal : IEndpoint
                              .RequireAuthorization();
 
         route.MapPost("",
-            async (IDeal dealService, [FromBody] CreateDealRequest request,
+            async (IDeal dealService, HttpRequest request,
                 IValidator<CreateDealRequest> validator,
                 ILogger<AddDeal> logger,
                 CancellationToken cancellationToken) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
-                if (!validationResult.IsValid)
+                try
                 {
-                    logger.LogWarning("Validation failed for deal creation: {Errors}", validationResult.Errors);
-                    return Results.ValidationProblem(validationResult.ToDictionary());
-                }
+                    var form = await request.ReadFormAsync(cancellationToken);
 
-                var deal = await dealService.CreateDealAsync(request, cancellationToken);
-                if (!deal)
+                    // Build the CreateDealRequest from form data
+                    var createRequest = new CreateDealRequest(
+                        Title: form["title"].ToString(),
+                        Description: form["description"].ToString(),
+                        Discount: form["discount"].ToString(),
+                        Image: form.Files.GetFile("image"),
+                        Promo: string.IsNullOrEmpty(form["promo"]) ? null : form["promo"].ToString(),
+                        IsActive: bool.Parse(form["isActive"].ToString()),
+                        Url: form["url"].ToString(),
+                        RedeemType: form["redeemType"].ToString(),
+                        HowToRedeem: string.IsNullOrEmpty(form["howToRedeem"]) ? null : form["howToRedeem"].ToString(),
+                        StartDate: string.IsNullOrEmpty(form["startDate"]) ? null : DateTime.Parse(form["startDate"].ToString()),
+                        EndDate: string.IsNullOrEmpty(form["endDate"]) ? null : DateTime.Parse(form["endDate"].ToString()),
+                        CategoryName: form["categoryName"].ToString(),
+                        StoreName: form["storeName"].ToString()
+                    );
+
+                    var validationResult = await validator.ValidateAsync(createRequest, cancellationToken);
+                    if (!validationResult.IsValid)
+                    {
+                        logger.LogWarning("Validation failed for deal creation: {Errors}", validationResult.Errors);
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+
+                    var deal = await dealService.CreateDealAsync(createRequest, cancellationToken);
+                    if (!deal)
+                    {
+                        logger.LogError("Failed to create deal with title {Title}", createRequest.Title);
+                        return Results.Problem("Failed to create deal.");
+                    }
+
+                    return Results.Created($"/api/deals/{createRequest.Title}",
+                        new { Message = "Deal created successfully." });
+                }
+                catch (Exception ex)
                 {
-                    logger.LogError("Failed to create deal with title {Title}", request.Title);
-                    return Results.Problem("Failed to create deal.");
+                    logger.LogError(ex, "Error processing deal creation request");
+                    return Results.BadRequest(new { message = "Invalid form data", error = ex.Message });
                 }
-
-                return Results.Created($"/api/deals/{request.Title}",
-                    new { Message = "Deal created successfully." });
             });
     }
 }

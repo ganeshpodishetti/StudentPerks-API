@@ -1,10 +1,12 @@
-namespace SP.API.Helpers;
+using Microsoft.AspNetCore.Http;
+
+namespace SP.Application.Helper;
 
 public static class ValidImageHelper
 {
-    private static readonly string[] AllowedExtensions = [".png", ".svg"];
-    private static readonly string[] AllowedMimeTypes = ["image/png", "image/svg+xml"];
-
+    private static readonly string[] AllowedExtensions = { ".png", ".svg" };
+    private static readonly string[] AllowedMimeTypes = { "image/png", "image/svg+xml" };
+    
     public static bool IsValidImageFile(IFormFile? file)
     {
         if (file == null || file.Length == 0)
