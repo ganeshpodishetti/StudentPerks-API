@@ -13,7 +13,8 @@ public class DeleteCategory : IEndpoint
                              .RequireAuthorization();
 
         route.MapDelete("/{id:guid}",
-            async ([FromRoute] Guid id, ICategory categoryService,
+            async ([FromRoute] Guid id,
+                ICategory categoryService,
                 ILogger<DeleteCategory> logger,
                 CancellationToken cancellationToken) =>
             {

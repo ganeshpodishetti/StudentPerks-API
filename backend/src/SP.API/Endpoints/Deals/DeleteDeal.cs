@@ -13,7 +13,8 @@ public class DeleteDeal : IEndpoint
                              .RequireAuthorization();
 
         route.MapDelete("/{id:guid}",
-            async (IDeal dealService, [FromRoute] Guid id,
+            async (IDeal dealService,
+                [FromRoute] Guid id,
                 ILogger<DeleteDeal> logger,
                 CancellationToken cancellationToken) =>
             {

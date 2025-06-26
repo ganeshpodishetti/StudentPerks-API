@@ -15,7 +15,8 @@ public class EditCategory : IEndpoint
                              .RequireAuthorization();
 
         route.MapPut("/{id:guid}",
-            async ([FromRoute] Guid id, [FromBody] UpdateCategoryRequest updateCategory,
+            async ([FromRoute] Guid id,
+                [FromBody] UpdateCategoryRequest updateCategory,
                 ICategory categoryService,
                 IValidator<UpdateCategoryRequest> validator,
                 ILogger<EditCategory> logger,

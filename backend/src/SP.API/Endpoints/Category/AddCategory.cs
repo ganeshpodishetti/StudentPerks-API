@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Category;
@@ -20,7 +21,8 @@ public class AddCategory : IEndpoint
                              .RequireAuthorization();
 
         route.MapPost("",
-            async (ICategory categoryService, CreateCategoryRequest request,
+            async (ICategory categoryService,
+                [FromBody]CreateCategoryRequest request,
                 IValidator<CreateCategoryRequest> validator,
                 ILogger<AddCategory> logger,
                 CancellationToken cancellationToken) =>

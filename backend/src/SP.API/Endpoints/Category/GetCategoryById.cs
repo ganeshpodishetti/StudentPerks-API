@@ -11,7 +11,9 @@ public class GetCategoryById : IEndpoint
         var route = endpoints.MapGroup("/api/categories").WithTags("Categories");
 
         route.MapGet("/{id:guid}",
-            async ([FromRoute] Guid id, ICategory categoryService, ILogger<GetCategoryById> logger,
+            async ([FromRoute] Guid id,
+                ICategory categoryService,
+                ILogger<GetCategoryById> logger,
                 CancellationToken cancellationToken) =>
             {
                 if (id == Guid.Empty)

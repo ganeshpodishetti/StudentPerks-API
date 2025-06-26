@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Auth;
@@ -12,7 +13,8 @@ public class Login : IEndpoint
         var route = endpoints.MapGroup("auth/login")
                              .WithTags("Auth");
         route.MapPost("",
-            async (IAuth authService, LoginRequest request,
+            async (IAuth authService,
+                [FromBody] LoginRequest request,
                 IValidator<LoginRequest> validator,
                 ILogger<Login> logger,
                 CancellationToken cancellationToken) =>

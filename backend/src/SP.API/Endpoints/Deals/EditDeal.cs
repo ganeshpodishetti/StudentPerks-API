@@ -15,7 +15,8 @@ public class EditDeal : IEndpoint
                              .RequireAuthorization();
 
         route.MapPut("/{id:guid}",
-            async (IDeal dealService, [FromRoute] Guid id,
+            async (IDeal dealService,
+                [FromRoute] Guid id,
                 HttpRequest request,
                 IValidator<UpdateDealRequest> validator,
                 ILogger<EditDeal> logger,
@@ -27,19 +28,19 @@ public class EditDeal : IEndpoint
 
                     // Build the UpdateDealRequest from form data
                     var updateRequest = new UpdateDealRequest(
-                        Title: form["title"].ToString(),
-                        Description: form["description"].ToString(),
-                        Discount: form["discount"].ToString(),
-                        Image: form.Files.GetFile("image"),
-                        Promo: string.IsNullOrEmpty(form["promo"]) ? null : form["promo"].ToString(),
-                        IsActive: bool.Parse(form["isActive"].ToString()),
-                        Url: form["url"].ToString(),
-                        RedeemType: form["redeemType"].ToString(),
-                        HowToRedeem: string.IsNullOrEmpty(form["howToRedeem"]) ? null : form["howToRedeem"].ToString(),
-                        StartDate: string.IsNullOrEmpty(form["startDate"]) ? null : DateTime.Parse(form["startDate"].ToString()),
-                        EndDate: string.IsNullOrEmpty(form["endDate"]) ? null : DateTime.Parse(form["endDate"].ToString()),
-                        CategoryName: form["categoryName"].ToString(),
-                        StoreName: form["storeName"].ToString()
+                        form["title"].ToString(),
+                        form["description"].ToString(),
+                        form["discount"].ToString(),
+                        form.Files.GetFile("image"),
+                        string.IsNullOrEmpty(form["promo"]) ? null : form["promo"].ToString(),
+                        bool.Parse(form["isActive"].ToString()),
+                        form["url"].ToString(),
+                        form["redeemType"].ToString(),
+                        string.IsNullOrEmpty(form["howToRedeem"]) ? null : form["howToRedeem"].ToString(),
+                        string.IsNullOrEmpty(form["startDate"]) ? null : DateTime.Parse(form["startDate"].ToString()),
+                        string.IsNullOrEmpty(form["endDate"]) ? null : DateTime.Parse(form["endDate"].ToString()),
+                        form["categoryName"].ToString(),
+                        form["storeName"].ToString()
                     );
 
                     var validationResult = await validator.ValidateAsync(updateRequest, cancellationToken);

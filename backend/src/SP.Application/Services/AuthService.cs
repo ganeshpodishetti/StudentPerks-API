@@ -91,9 +91,10 @@ public class AuthService(
             accessToken);
     }
 
-    public async Task<RefreshTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken)
+    public async Task<RefreshTokenResponse> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        var (existingUser, oldRefreshToken) = await refreshTokenHelper.ValidateRefreshToken(cancellationToken);
+        var (existingUser, oldRefreshToken) =
+            await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
 
         oldRefreshToken.IsRevoked = true;
         oldRefreshToken.LastModifiedAt = DateTime.UtcNow;
@@ -134,10 +135,21 @@ public class AuthService(
             newAccessTokenExpiration);
     }
 
-    public async Task<bool> LogoutAsync(CancellationToken cancellationToken)
+    public async Task<CurrentUserResponse?> GetCurrentUserAsync(string refreshToken,
+        CancellationToken cancellationToken)
     {
-        var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
+        var (user, _) = await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
+        return new CurrentUserResponse(user.Id, user.Email!);
+    }
 
+    public async Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    {
+        await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> LogoutAsync(string refreshToken, CancellationToken cancellationToken)
+    {
         // If there's a refresh token, revoke it in the database
         if (!string.IsNullOrEmpty(refreshToken))
         {
@@ -167,18 +179,6 @@ public class AuthService(
 
         // Clean up old tokens
         await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
-        return true;
-    }
-
-    public async Task<CurrentUserResponse?> GetCurrentUserAsync(CancellationToken cancellationToken)
-    {
-        var (user, _) = await refreshTokenHelper.ValidateRefreshToken(cancellationToken);
-        return new CurrentUserResponse(user.Id, user.Email!);
-    }
-
-    public async Task<bool> ValidateRefreshTokenAsync(CancellationToken cancellationToken)
-    {
-        await refreshTokenHelper.ValidateRefreshToken(cancellationToken);
         return true;
     }
 }

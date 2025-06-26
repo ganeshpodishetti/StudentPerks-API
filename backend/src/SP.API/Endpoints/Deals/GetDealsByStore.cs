@@ -11,7 +11,8 @@ public class GetDealsByStore : IEndpoint
         var route = endpoints.MapGroup("/api/deals").WithTags("Deals");
 
         route.MapGet("/store",
-            async (IDeal dealService, [FromQuery] string name,
+            async (IDeal dealService,
+                [FromQuery] string name,
                 ILogger<GetDealsByStore> logger,
                 CancellationToken cancellationToken) =>
             {

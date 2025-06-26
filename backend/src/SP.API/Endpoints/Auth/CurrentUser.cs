@@ -11,9 +11,13 @@ public class CurrentUser : IEndpoint
                              .WithTags("Auth");
 
         route.MapGet("",
-            async (IAuth authService, CancellationToken cancellationToken) =>
+            async (IAuth authService,
+                HttpContextAccessor httpContextAccessor,
+                CancellationToken cancellationToken) =>
             {
-                var currentUser = await authService.GetCurrentUserAsync(cancellationToken);
+                var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
+                if (string.IsNullOrEmpty(refreshToken)) return Results.Unauthorized();
+                var currentUser = await authService.GetCurrentUserAsync(refreshToken, cancellationToken);
                 return currentUser is null ? Results.Unauthorized() : Results.Ok(currentUser);
             });
     }
