@@ -18,14 +18,13 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
 
         builder.Property(x => x.Description)
                .IsRequired()
-               .HasMaxLength(1024);
+               .HasMaxLength(512);
 
         builder.Property(x => x.Discount)
                .IsRequired()
                .HasMaxLength(250);
 
-        builder.Property(x => x.ImageUrl)
-               .IsRequired()
+        builder.Property(x => x.ImageContentType)
                .HasMaxLength(250);
 
         builder.Property(x => x.Url)
@@ -38,6 +37,9 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(x => x.RedeemType)
                .HasMaxLength(50)
                .IsRequired();
+
+        builder.Property(x => x.HowToRedeem)
+               .HasMaxLength(1024);
 
         // Relationships
         builder.HasOne(x => x.Category)
