@@ -11,9 +11,14 @@ public class ValidateRefreshToken : IEndpoint
                              .WithTags("Auth");
 
         route.MapGet("",
-            async (IAuth authService, CancellationToken cancellationToken) =>
+            async (IAuth authService,
+                HttpContextAccessor httpContextAccessor,
+                CancellationToken cancellationToken) =>
             {
-                var isValid = await authService.ValidateRefreshTokenAsync(cancellationToken);
+                var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
+                if (string.IsNullOrEmpty(refreshToken))
+                    return Results.Problem("Refresh token is missing or invalid", statusCode: 400);
+                var isValid = await authService.ValidateRefreshTokenAsync(refreshToken, cancellationToken);
                 return isValid ? Results.Ok() : Results.Unauthorized();
             });
     }

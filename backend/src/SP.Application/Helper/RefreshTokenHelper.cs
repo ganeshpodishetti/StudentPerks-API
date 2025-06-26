@@ -10,7 +10,9 @@ namespace SP.Application.Helper;
 public interface IRefreshTokenHelper
 {
     string GenerateRefreshToken();
-    Task<(User User, RefreshToken Token)> ValidateRefreshToken(CancellationToken cancellationToken);
+
+    Task<(User User, RefreshToken Token)>
+        ValidateRefreshToken(string refreshToken, CancellationToken cancellationToken);
 }
 
 public class RefreshTokenHelper(
@@ -28,12 +30,9 @@ public class RefreshTokenHelper(
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task<(User User, RefreshToken Token)> ValidateRefreshToken(CancellationToken cancellationToken)
+    public async Task<(User User, RefreshToken Token)> ValidateRefreshToken(string refreshToken,
+        CancellationToken cancellationToken)
     {
-        var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
-        if (string.IsNullOrEmpty(refreshToken))
-            throw new UnauthorizedAccessException("Refresh token not found.");
-
         // Find the token in the database
         var tokenEntity = await dbContext.RefreshTokens
                                          .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);

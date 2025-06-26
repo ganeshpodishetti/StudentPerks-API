@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Auth;
@@ -13,7 +14,8 @@ public class Register : IEndpoint
                              .WithTags("Auth");
 
         route.MapPost("",
-            async (IAuth authService, RegisterRequest request,
+            async (IAuth authService,
+                [FromBody] RegisterRequest request,
                 IValidator<RegisterRequest> validator,
                 ILogger<Register> logger,
                 CancellationToken cancellationToken) =>

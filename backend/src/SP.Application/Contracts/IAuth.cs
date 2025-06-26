@@ -10,8 +10,15 @@ public interface IAuth
     Task<LoginResponse> LoginAsync(LoginRequest request,
         CancellationToken cancellationToken = default);
 
-    Task<RefreshTokenResponse> RefreshTokenAsync(CancellationToken cancellationToken = default);
-    Task<bool> LogoutAsync(CancellationToken cancellationToken = default);
-    Task<CurrentUserResponse?> GetCurrentUserAsync(CancellationToken cancellationToken = default);
-    Task<bool> ValidateRefreshTokenAsync(CancellationToken cancellationToken = default);
+    Task<RefreshTokenResponse> RefreshTokenAsync(string refreshToken,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> LogoutAsync(string refreshToken,
+        CancellationToken cancellationToken = default);
+
+    Task<CurrentUserResponse?> GetCurrentUserAsync(string refreshToken,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ValidateRefreshTokenAsync(string refreshToken,
+        CancellationToken cancellationToken = default);
 }

@@ -16,8 +16,17 @@ public class RefreshToken : IEndpoint
             async (IAuth authService, RefreshTokenRequest request,
                 IValidator<RefreshTokenRequest> validator,
                 ILogger<RefreshToken> logger,
+                HttpContextAccessor httpContextAccessor,
                 CancellationToken cancellationToken) =>
             {
+                var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
+
+                if (string.IsNullOrEmpty(refreshToken))
+                {
+                    logger.LogWarning("Refresh token is missing or invalid");
+                    return Results.Unauthorized();
+                }
+
                 var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
                 if (!validationResult.IsValid)
@@ -26,7 +35,7 @@ public class RefreshToken : IEndpoint
                     return Results.ValidationProblem(validationResult.ToDictionary());
                 }
 
-                var result = await authService.RefreshTokenAsync(cancellationToken);
+                var result = await authService.RefreshTokenAsync(refreshToken, cancellationToken);
                 return Results.Ok(result);
             });
     }
