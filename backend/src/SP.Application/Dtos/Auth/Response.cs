@@ -22,5 +22,5 @@ public record CurrentUserResponse(
 
 public record RefreshTokenResponse(
     string AccessToken,
-    DateTime AccessTokenExpirationInMinutes
+    DateTime ExpiresAt
 );
