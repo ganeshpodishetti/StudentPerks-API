@@ -7,15 +7,15 @@ public class CurrentUser : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("auth/current-user")
+        var route = endpoints.MapGroup("/api/auth/current-user")
                              .WithTags("Auth");
 
         route.MapGet("",
             async (IAuth authService,
-                HttpContextAccessor httpContextAccessor,
+                HttpContext httpContext,
                 CancellationToken cancellationToken) =>
             {
-                var refreshToken = httpContextAccessor.HttpContext?.Request.Cookies["refreshToken"];
+                var refreshToken = httpContext?.Request.Cookies["refreshToken"];
                 if (string.IsNullOrEmpty(refreshToken)) return Results.Unauthorized();
                 var currentUser = await authService.GetCurrentUserAsync(refreshToken, cancellationToken);
                 return currentUser is null ? Results.Unauthorized() : Results.Ok(currentUser);

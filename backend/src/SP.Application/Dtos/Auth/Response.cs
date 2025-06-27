@@ -6,13 +6,16 @@ public record RegisterResponse(
 
 public record LoginResponse(
     string Id,
-    string FirstName,
-    string LastName,
     string Email,
-    string AccessToken
+    string? FirstName,
+    string? LastName,
+    string AccessToken,
+    DateTime AccessTokenExpirationInMinutes
 );
 
 public record CurrentUserResponse(
     string Id,
-    string Email
+    string Email,
+    string? FirstName,
+    string? LastName
 );
