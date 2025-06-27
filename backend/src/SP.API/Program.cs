@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using FluentValidation;
 using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 using Serilog;
@@ -30,6 +31,7 @@ try
         options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcNullableDateTimeConverter());
     });
 
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
     builder.Services.AddHostedService<DatabaseInitializer>();
@@ -55,26 +57,15 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
-        app.MapOpenApi();
-        app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
     }
     else
     {
-        app.UseExceptionHandler(_ => { });
+        app.UseExceptionHandler("/error");
         app.UseHsts();
     }
 
     app.UseStatusCodePages();
     app.UseHttpsRedirection();
-    app.MapHealthChecks("/healthz", new HealthCheckOptions
-    {
-        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-    });
-    app.MapHealthChecksUI(options =>
-    {
-        options.UIPath = "/health-ui";
-        options.ApiPath = "/health-api";
-    });
     app.UseSerilogRequestLogging(options =>
     {
         options.MessageTemplate =
@@ -84,7 +75,41 @@ try
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.MapHealthChecks("/healthz", new HealthCheckOptions
+    {
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
+
+    if (app.Environment.IsDevelopment())
+        app.MapHealthChecksUI(options =>
+        {
+            options.UIPath = "/health-ui";
+            options.ApiPath = "/health-api";
+        });
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+        app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
+    }
+
+    app.Map("/error", (HttpContext context, ILogger<Program> logger) =>
+    {
+        var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionFeature?.Error;
+
+        logger.LogError(exception, "Unhandled exception at {Path}", context.Request.Path);
+
+        return Results.Problem(
+            title: "Internal Server Error",
+            detail: app.Environment.IsDevelopment() ? exception?.ToString() : "An unexpected error occurred",
+            statusCode: 500,
+            instance: context.Request.Path
+        );
+    });
     app.UseEndpoints();
+
     app.Run();
 }
 catch (Exception e)

@@ -19,7 +19,7 @@ public class Logout : IEndpoint
                 var refreshToken = httpContext?.Request.Cookies["refreshToken"];
                 if (string.IsNullOrEmpty(refreshToken))
                     return Results.BadRequest("Refresh token is missing or invalid");
-                var result = await authService.LogoutAsync(refreshToken, cancellationToken);
+                var result = await authService.RevokeRefreshTokenAsync(refreshToken, cancellationToken);
                 if (!result.IsSuccess) return Results.BadRequest(new { errors = result.Errors });
                 logger.LogInformation("User logged out successfully");
                 return Results.Ok(new { message = "User logged out successfully" });
