@@ -20,7 +20,7 @@ public class AuthService(
     IJwtHelper jwtHelper,
     IRefreshTokenHelper refreshTokenHelper,
     IOptions<JwtOptions> jwtOptions,
-    HttpContext httpContext,
+    IHttpContextAccessor httpContextAccessor,
     SpDbContext dbContext,
     ILogger<AuthService> logger)
     : IAuth
@@ -73,7 +73,7 @@ public class AuthService(
         //if (httpContextAccessor.HttpContext?.Request.IsHttps == false) cookieOptions.Secure = false;
 
         // Set the refresh token as an HTTP-only cookie
-        httpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
 
         var response = user.ToLoginDto(accessToken.Value!, accessTokenExpiration);
         return Result<LoginResponse>.Success(response);
@@ -111,7 +111,7 @@ public class AuthService(
             RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(newRefreshTokenEntity.ExpirationDate);
 
         // Set the new refresh token in the cookie
-        httpContext.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
+        httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
 
         var response = AuthMappingExtension.ToRefreshTokenDto(newAccessToken.Value!, newAccessTokenExpiration);
         return Result<RefreshTokenResponse>.Success(response);
@@ -155,7 +155,7 @@ public class AuthService(
             logger.LogInformation("Refresh token revoked for user ID: {UserId}", token.UserId);
         }
 
-        httpContext.Response.Cookies.Delete("refreshToken");
+        httpContextAccessor.HttpContext.Response.Cookies.Delete("refreshToken");
         // Clean up old tokens
         await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
         return Result<bool>.Success(true);

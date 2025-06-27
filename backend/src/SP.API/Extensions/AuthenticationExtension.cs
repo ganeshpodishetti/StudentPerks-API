@@ -60,6 +60,18 @@ public static class AuthenticationExtension
 
                     options.Events = new JwtBearerEvents
                     {
+                        OnMessageReceived = context =>
+                        {
+                            // Support both Authorization header and cookie
+                            var token = context.Request.Headers["Authorization"]
+                                               .FirstOrDefault()?.Split(" ").Last();
+
+                            if (string.IsNullOrEmpty(token)) token = context.Request.Cookies["accessToken"];
+
+                            if (!string.IsNullOrEmpty(token)) context.Token = token;
+
+                            return Task.CompletedTask;
+                        },
                         OnAuthenticationFailed = OnAuthenticationFailed,
                         OnChallenge = OnChallenge
                     };
