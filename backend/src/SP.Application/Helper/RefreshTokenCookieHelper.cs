@@ -11,9 +11,8 @@ public static class RefreshTokenCookieHelper
             HttpOnly = true,
             Secure = true, // Keep true for production
             Expires = expiration,
-            SameSite = SameSiteMode.None, // Changed from Strict to None for cross-origin
-            Path = "/",
-            Domain = null // Let browser determine domain
+            SameSite = SameSiteMode.Strict, // Changed from Strict to None for cross-origin
+            Path = "/"
         };
     }
 }

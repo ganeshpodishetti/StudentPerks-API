@@ -19,3 +19,8 @@ public record CurrentUserResponse(
     string? FirstName,
     string? LastName
 );
+
+public record RefreshTokenResponse(
+    string AccessToken,
+    DateTime AccessTokenExpirationInMinutes
+);

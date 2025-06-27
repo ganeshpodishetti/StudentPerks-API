@@ -1,7 +1,5 @@
-using FluentValidation;
 using SP.API.Contracts;
 using SP.Application.Contracts;
-using SP.Application.Dtos.Auth;
 
 namespace SP.API.Endpoints.Auth;
 
@@ -14,7 +12,6 @@ public class RefreshToken : IEndpoint
 
         route.MapPost("",
             async (IAuth authService,
-                IValidator<RefreshTokenRequest> validator,
                 ILogger<RefreshToken> logger,
                 HttpContext httpContext,
                 CancellationToken cancellationToken) =>
