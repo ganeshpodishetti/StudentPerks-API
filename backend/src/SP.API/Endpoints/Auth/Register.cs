@@ -10,7 +10,7 @@ public class Register : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("auth/register")
+        var route = endpoints.MapGroup("/api/auth/register")
                              .WithTags("Auth");
 
         route.MapPost("",

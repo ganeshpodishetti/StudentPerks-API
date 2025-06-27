@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -48,7 +47,6 @@ public class AuthService(
                                   .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken)
                    ?? throw new InvalidOperationException("Invalid email or password.");
 
-        // Add this check in LoginAsync after retrieving the user
         if (user is { LockoutEnabled: true, LockoutEnd: not null } && user.LockoutEnd.Value > DateTime.UtcNow)
             throw new InvalidOperationException("Account is temporarily locked. Please try again later.");
 
@@ -58,37 +56,24 @@ public class AuthService(
 
         var accessToken = await jwtHelper.GenerateJwtToken(user);
         var refreshToken = refreshTokenHelper.GenerateRefreshToken();
+        var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
+        var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
 
-        var refreshTokenEntity = new RefreshToken
-        {
-            Token = refreshToken,
-            ExpirationDate = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays),
-            IsRevoked = false,
-            UserId = user.Id
-        };
+        var refreshTokenEntity = AuthMappingExtension.CreateRefreshTokenEntity(refreshToken, user.Id);
 
         await dbContext.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("User {UserName} logged in successfully and refresh token generated.", user.UserName);
 
-        // var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
-        var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
+        var cookieOptions = RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(refreshTokenExpiration);
+
+        // For development, you might want to conditionally set Secure to false
+        //if (httpContextAccessor.HttpContext?.Request.IsHttps == false) cookieOptions.Secure = false;
 
         // Set the refresh token as an HTTP-only cookie
-        httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            Expires = refreshTokenExpiration,
-            SameSite = SameSiteMode.Strict,
-            Path = "/"
-        });
+        httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
 
-        return new LoginResponse(user.Id,
-            user.FirstName,
-            user.LastName,
-            user.Email!,
-            accessToken);
+        return user.ToLoginDto(accessToken, accessTokenExpiration);
     }
 
     public async Task<RefreshTokenResponse> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
@@ -103,43 +88,30 @@ public class AuthService(
         var newAccessToken = await jwtHelper.GenerateJwtToken(existingUser);
         var newRefreshToken = refreshTokenHelper.GenerateRefreshToken();
 
-        var refreshTokenEntity = new RefreshToken
-        {
-            Token = newRefreshToken,
-            ExpirationDate = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays),
-            IsRevoked = false,
-            UserId = existingUser.Id
-        };
-
-        await dbContext.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
+        var newRefreshTokenEntity = AuthMappingExtension.CreateRefreshTokenEntity(newRefreshToken, existingUser.Id);
+        await dbContext.RefreshTokens.AddAsync(newRefreshTokenEntity, cancellationToken);
 
         logger.LogInformation("Cleaning up old revoked refresh tokens for user {UserName}", existingUser.UserName);
         await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("New refresh token generated and saved for user {UserName}", existingUser.UserName);
 
-        var newAccessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes)
-                                               .ToString(CultureInfo.InvariantCulture);
+        var newAccessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
+
+        var cookieOptions =
+            RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(newRefreshTokenEntity.ExpirationDate);
 
         // Set the new refresh token in the cookie
-        httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            Expires = refreshTokenEntity.ExpirationDate,
-            SameSite = SameSiteMode.Strict,
-            Path = "/"
-        });
+        httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
 
-        return new RefreshTokenResponse(newAccessToken,
-            newAccessTokenExpiration);
+        return AuthMappingExtension.ToRefreshTokenDto(newAccessToken, newAccessTokenExpiration);
     }
 
     public async Task<CurrentUserResponse?> GetCurrentUserAsync(string refreshToken,
         CancellationToken cancellationToken)
     {
         var (user, _) = await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
-        return new CurrentUserResponse(user.Id, user.Email!);
+        return user.ToCurrentUserDto();
     }
 
     public async Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
@@ -169,13 +141,7 @@ public class AuthService(
         }
 
         // Clear the refresh token cookie
-        httpContextAccessor.HttpContext?.Response.Cookies.Delete("refreshToken", new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Path = "/"
-        });
+        httpContextAccessor.HttpContext?.Response.Cookies.Delete("refreshToken");
 
         // Clean up old tokens
         await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);

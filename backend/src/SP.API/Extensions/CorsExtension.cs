@@ -4,17 +4,17 @@ public static class CorsExtension
 {
     public static void AddCors(this WebApplicationBuilder builder)
     {
+        var frontendUrl = builder.Configuration.GetValue<string>("Frontend:Url") ?? string.Empty;
+
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowAll", corsPolicy =>
+            options.AddPolicy("AllowFrontend", corsPolicy =>
                 corsPolicy
-                    .WithOrigins("http://localhost:5173",
-                        "https://localhost:5173",
-                        "http://localhost:5254",
-                        "https://localhost:5254")
+                    .WithOrigins(frontendUrl)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowCredentials());
+                    .AllowCredentials() // Required for cookies
+                    .SetIsOriginAllowed(_ => true)); // For development only
         });
     }
 }

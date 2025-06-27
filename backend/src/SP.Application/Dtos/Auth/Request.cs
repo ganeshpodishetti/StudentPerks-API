@@ -18,5 +18,5 @@ public record RefreshTokenRequest(
 
 public record RefreshTokenResponse(
     string AccessToken,
-    string AccessTokenExpirationInMinutes
+    DateTime AccessTokenExpirationInMinutes
 );

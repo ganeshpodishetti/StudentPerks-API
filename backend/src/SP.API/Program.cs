@@ -29,7 +29,7 @@ try
         options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcDateTimeConverter());
         options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcNullableDateTimeConverter());
     });
-
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
     builder.Services.AddHostedService<DatabaseInitializer>();
@@ -76,7 +76,7 @@ try
         app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
     }
 
-    app.UseCors("AllowAll");
+    app.UseCors("AllowFrontend");
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();

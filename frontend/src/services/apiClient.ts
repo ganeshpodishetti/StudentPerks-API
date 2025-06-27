@@ -28,6 +28,7 @@ export const apiClient = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'credential': 'include', // Ensure credentials are sent with requests
   },
 });
 

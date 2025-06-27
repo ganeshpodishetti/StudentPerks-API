@@ -12,17 +12,11 @@ public class AddCategory : IEndpoint
     {
         var route = endpoints.MapGroup("/api/categories")
                              .WithTags("Categories")
-                             .WithSummary("Add a new category")
-                             .WithDescription(
-                                 "Creates a new category in the system. The request body must contain the category details.")
-                             .ProducesProblem(StatusCodes.Status201Created)
-                             .ProducesValidationProblem()
-                             .WithName("AddCategory")
                              .RequireAuthorization();
 
         route.MapPost("",
             async (ICategory categoryService,
-                [FromBody]CreateCategoryRequest request,
+                [FromBody] CreateCategoryRequest request,
                 IValidator<CreateCategoryRequest> validator,
                 ILogger<AddCategory> logger,
                 CancellationToken cancellationToken) =>

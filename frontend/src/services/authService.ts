@@ -53,6 +53,7 @@ const authApi = axios.create({
   withCredentials: true, // Important for HTTP-only cookies
   headers: {
     'Content-Type': 'application/json',
+    'credential': 'include', // Ensure credentials are sent with requests
   },
 });
 
@@ -75,7 +76,7 @@ export const authService = {
   },
 
   async login(loginData: LoginRequest): Promise<LoginResponse> {
-    const response = await authApi.post('/auth/login', loginData);
+    const response = await authApi.post('/api/auth/login', loginData);
     const responseData = response.data;
     
     if (responseData.accessToken) {
@@ -97,14 +98,14 @@ export const authService = {
   },
 
   async register(registerData: RegisterRequest) {
-    const response = await authApi.post('/auth/register', registerData);
+    const response = await authApi.post('/api/auth/register', registerData);
     return response.data;
   },
 
   async refreshToken(): Promise<string> {
     try {
       console.log('AuthService: Attempting to refresh access token...');
-      const response = await authApi.post('/auth/refresh-token');
+      const response = await authApi.post('/api/auth/refresh-token');
       const { accessToken } = response.data;
       
       if (accessToken) {
@@ -189,7 +190,7 @@ export const authService = {
   async logout() {
     try {
       console.log('AuthService: Logging out user...');
-      await authApi.post('/auth/logout');
+      await authApi.post('/api/auth/logout');
     } catch (error) {
       console.error('AuthService: Logout error:', error);
     } finally {
