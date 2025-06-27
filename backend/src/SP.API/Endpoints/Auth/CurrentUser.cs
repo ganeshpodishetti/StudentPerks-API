@@ -18,7 +18,9 @@ public class CurrentUser : IEndpoint
                 var refreshToken = httpContext?.Request.Cookies["refreshToken"];
                 if (string.IsNullOrEmpty(refreshToken)) return Results.Unauthorized();
                 var currentUser = await authService.GetCurrentUserAsync(refreshToken, cancellationToken);
-                return currentUser is null ? Results.Unauthorized() : Results.Ok(currentUser);
+                return !currentUser.IsSuccess
+                    ? Results.BadRequest(new { errors = currentUser.Errors })
+                    : Results.Ok(currentUser.Value);
             });
     }
 }
