@@ -29,8 +29,9 @@ public class Register : IEndpoint
                 }
 
                 var result = await authService.RegisterAsync(request, cancellationToken);
+                if (!result.IsSuccess) return Results.BadRequest(new { errors = result.Errors });
                 logger.LogInformation("User registered successfully: {Email}", request.Email);
-                return Results.Ok(result);
+                return Results.Ok(result.Value);
             });
     }
 }

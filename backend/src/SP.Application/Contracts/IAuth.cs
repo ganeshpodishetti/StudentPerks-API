@@ -1,24 +1,25 @@
 using SP.Application.Dtos.Auth;
+using SP.Application.ErrorHandler;
 
 namespace SP.Application.Contracts;
 
 public interface IAuth
 {
-    Task<RegisterResponse> RegisterAsync(RegisterRequest request,
+    Task<Result<RegisterResponse>> RegisterAsync(RegisterRequest request,
         CancellationToken cancellationToken = default);
 
-    Task<LoginResponse> LoginAsync(LoginRequest request,
+    Task<Result<LoginResponse>> LoginAsync(LoginRequest request,
         CancellationToken cancellationToken = default);
 
-    Task<RefreshTokenResponse> RefreshTokenAsync(string refreshToken,
+    Task<Result<RefreshTokenResponse>> RefreshTokenAsync(string refreshToken,
         CancellationToken cancellationToken = default);
 
-    Task<bool> LogoutAsync(string refreshToken,
+    Task<Result<bool>> LogoutAsync(string refreshToken,
         CancellationToken cancellationToken = default);
 
-    Task<CurrentUserResponse?> GetCurrentUserAsync(string refreshToken,
+    Task<Result<CurrentUserResponse?>> GetCurrentUserAsync(string refreshToken,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ValidateRefreshTokenAsync(string refreshToken,
+    Task<Result<bool>> ValidateRefreshTokenAsync(string refreshToken,
         CancellationToken cancellationToken = default);
 }

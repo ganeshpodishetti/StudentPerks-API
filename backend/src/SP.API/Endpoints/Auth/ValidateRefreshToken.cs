@@ -17,9 +17,11 @@ public class ValidateRefreshToken : IEndpoint
             {
                 var refreshToken = httpContext?.Request.Cookies["refreshToken"];
                 if (string.IsNullOrEmpty(refreshToken))
-                    return Results.Problem("Refresh token is missing or invalid", statusCode: 400);
+                    return Results.BadRequest("Refresh token is missing or invalid");
                 var isValid = await authService.ValidateRefreshTokenAsync(refreshToken, cancellationToken);
-                return isValid ? Results.Ok() : Results.Unauthorized();
+                return isValid.IsSuccess
+                    ? Results.Ok(new { message = "Refresh token validated successfully." })
+                    : Results.Unauthorized();
             });
     }
 }

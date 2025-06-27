@@ -28,7 +28,14 @@ public class RefreshToken : IEndpoint
                 }
 
                 var result = await authService.RefreshTokenAsync(refreshToken, cancellationToken);
-                return Results.Ok(result);
+                if (!result.IsSuccess)
+                {
+                    logger.LogWarning("Token refresh failed: {Error}", result.Error);
+                    return Results.BadRequest(new { error = result.Error });
+                }
+
+                logger.LogInformation("Token refreshed successfully");
+                return Results.Ok(result.Value);
             });
     }
 }

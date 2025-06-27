@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Auth;
+using SP.Application.ErrorHandler;
 using SP.Application.Helper;
 using SP.Application.Mapping;
 using SP.Domain.Entities;
@@ -24,35 +25,36 @@ public class AuthService(
     ILogger<AuthService> logger)
     : IAuth
 {
-    public async Task<RegisterResponse> RegisterAsync(RegisterRequest request,
+    public async Task<Result<RegisterResponse>> RegisterAsync(RegisterRequest request,
         CancellationToken cancellationToken)
     {
         var existingUser = await userManager.FindByEmailAsync(request.Email);
 
         if (existingUser is not null)
-            throw new InvalidOperationException("Email already exists.");
+            return Result<RegisterResponse>.Failure(CustomErrors.EmailAlreadyExists);
 
         var user = request.ToEntity();
-
         var userCreated = await userManager.CreateAsync(user, request.Password);
-        if (!userCreated.Succeeded)
-            throw new InvalidOperationException(
-                $"User creation failed: {string.Join(", ", userCreated.Errors.Select(e => e.Description))}");
-        return user.ToDto();
+        if (userCreated.Succeeded) return Result<RegisterResponse>.Success(user.ToDto());
+        var errors = userCreated.Errors.Select(e => e.Description).ToList();
+        return Result<RegisterResponse>.Failure(errors);
     }
 
-    public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
+    public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
-                                  .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken)
-                   ?? throw new InvalidOperationException("Invalid email or password.");
-
-        if (user is { LockoutEnabled: true, LockoutEnd: not null } && user.LockoutEnd.Value > DateTime.UtcNow)
-            throw new InvalidOperationException("Account is temporarily locked. Please try again later.");
+                                  .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+        switch (user)
+        {
+            case null:
+                return Result<LoginResponse>.Failure(CustomErrors.InvalidCredentials);
+            case { LockoutEnabled: true, LockoutEnd: not null } when user.LockoutEnd.Value > DateTime.UtcNow:
+                return Result<LoginResponse>.Failure(CustomErrors.AccountLocked);
+        }
 
         var isPasswordValid = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
-        if (!isPasswordValid.Succeeded) throw new InvalidOperationException("Invalid email or password.");
+        if (!isPasswordValid.Succeeded) return Result<LoginResponse>.Failure(CustomErrors.InvalidCredentials);
 
         var accessToken = await jwtHelper.GenerateJwtToken(user);
         var refreshToken = refreshTokenHelper.GenerateRefreshToken();
@@ -73,13 +75,20 @@ public class AuthService(
         // Set the refresh token as an HTTP-only cookie
         httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
 
-        return user.ToLoginDto(accessToken, accessTokenExpiration);
+        var response = user.ToLoginDto(accessToken.Value!, accessTokenExpiration);
+        return Result<LoginResponse>.Success(response);
     }
 
-    public async Task<RefreshTokenResponse> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task<Result<RefreshTokenResponse>> RefreshTokenAsync(string refreshToken,
+        CancellationToken cancellationToken)
     {
-        var (existingUser, oldRefreshToken) =
+        var validationResult =
             await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
+
+        // Check if validation was successful
+        if (!validationResult.IsSuccess) return Result<RefreshTokenResponse>.Failure(validationResult.Error!);
+
+        var (existingUser, oldRefreshToken) = validationResult.Value;
 
         oldRefreshToken.IsRevoked = true;
         oldRefreshToken.LastModifiedAt = DateTime.UtcNow;
@@ -104,40 +113,46 @@ public class AuthService(
         // Set the new refresh token in the cookie
         httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
 
-        return AuthMappingExtension.ToRefreshTokenDto(newAccessToken, newAccessTokenExpiration);
+        var response = AuthMappingExtension.ToRefreshTokenDto(newAccessToken.Value!, newAccessTokenExpiration);
+        return Result<RefreshTokenResponse>.Success(response);
     }
 
-    public async Task<CurrentUserResponse?> GetCurrentUserAsync(string refreshToken,
+    public async Task<Result<CurrentUserResponse?>> GetCurrentUserAsync(string refreshToken,
         CancellationToken cancellationToken)
     {
-        var (user, _) = await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
-        return user.ToCurrentUserDto();
+        var validationResult = await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
+
+        if (!validationResult.IsSuccess) return Result<CurrentUserResponse?>.Failure(validationResult.Error!);
+
+        var (user, _) = validationResult.Value;
+        return Result<CurrentUserResponse?>.Success(user.ToCurrentUserDto());
     }
 
-    public async Task<bool> ValidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task<Result<bool>> ValidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
-        return true;
+        var validationResult = await refreshTokenHelper.ValidateRefreshToken(refreshToken, cancellationToken);
+
+        return !validationResult.IsSuccess
+            ? Result<bool>.Failure(validationResult.Error!)
+            : Result<bool>.Success(true);
     }
 
-    public async Task<bool> LogoutAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task<Result<bool>> LogoutAsync(string refreshToken, CancellationToken cancellationToken)
     {
         // If there's a refresh token, revoke it in the database
         if (!string.IsNullOrEmpty(refreshToken))
         {
             var token = await dbContext.RefreshTokens
                                        .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
+            if (token is null) return Result<bool>.Failure(CustomErrors.InvalidToken);
 
-            if (token != null)
-            {
-                // Mark the token as revoked
-                token.IsRevoked = true;
-                token.LastModifiedAt = DateTime.UtcNow;
-                dbContext.RefreshTokens.Update(token);
-                await dbContext.SaveChangesAsync(cancellationToken);
+            // Mark the token as revoked
+            token.IsRevoked = true;
+            token.LastModifiedAt = DateTime.UtcNow;
+            dbContext.RefreshTokens.Update(token);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-                logger.LogInformation("Refresh token revoked for user ID: {UserId}", token.UserId);
-            }
+            logger.LogInformation("Refresh token revoked for user ID: {UserId}", token.UserId);
         }
 
         // Clear the refresh token cookie
@@ -145,6 +160,6 @@ public class AuthService(
 
         // Clean up old tokens
         await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
-        return true;
+        return Result<bool>.Success(true);
     }
 }

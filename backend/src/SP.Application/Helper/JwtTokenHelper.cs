@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SP.Application.ErrorHandler;
 using SP.Domain.Entities;
 using SP.Domain.Options;
 
@@ -12,7 +13,7 @@ namespace SP.Application.Helper;
 
 public interface IJwtHelper
 {
-    Task<string> GenerateJwtToken(User entity);
+    Task<Result<string>> GenerateJwtToken(User entity);
 }
 
 public class JwtTokenHelper(
@@ -21,7 +22,7 @@ public class JwtTokenHelper(
     UserManager<User> userManager)
     : IJwtHelper
 {
-    public async Task<string> GenerateJwtToken(User entity)
+    public async Task<Result<string>> GenerateJwtToken(User entity)
     {
         logger.LogInformation("Generate JWT Token for user {EntityType}", entity.UserName);
 
@@ -29,7 +30,7 @@ public class JwtTokenHelper(
         if (string.IsNullOrEmpty(jwtConfig.Key))
         {
             logger.LogWarning("JWT key is not set. Token generation may fail.");
-            throw new ArgumentException("JWT key is not set.");
+            return Result<string>.Failure(CustomErrors.JwtTokenNotSet);
         }
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key));
@@ -37,14 +38,9 @@ public class JwtTokenHelper(
         var claims = await GetClaims(entity);
         var jwtSecurityToken = CreateJwtSecurityToken(jwtConfig, credentials, claims);
 
-        if (jwtSecurityToken is null)
-        {
-            logger.LogError("Failed to create JWT Security Token for user {EntityType}", entity.UserName);
-            throw new InvalidOperationException("Failed to create JWT Security Token.");
-        }
-
         logger.LogInformation("JWT Token generated successfully for user {EntityType}", entity.UserName);
-        return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        return Result<string>.Success(token);
     }
 
     private async Task<List<Claim>> GetClaims(User entity)

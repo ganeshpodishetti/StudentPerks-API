@@ -29,7 +29,7 @@ try
         options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcDateTimeConverter());
         options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcNullableDateTimeConverter());
     });
-    builder.Services.AddHttpContextAccessor();
+
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
     builder.Services.AddHostedService<DatabaseInitializer>();
@@ -52,9 +52,20 @@ try
     var app = builder.Build();
     Log.Information("Application Started up");
 
-    app.UseDeveloperExceptionPage();
-    app.UseExceptionHandler();
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+        app.MapOpenApi();
+        app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
+    }
+    else
+    {
+        app.UseExceptionHandler(_ => { });
+        app.UseHsts();
+    }
+
     app.UseStatusCodePages();
+    app.UseHttpsRedirection();
     app.MapHealthChecks("/healthz", new HealthCheckOptions
     {
         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
@@ -69,13 +80,6 @@ try
         options.MessageTemplate =
             "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
     });
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.MapOpenApi();
-        app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
-    }
-
     app.UseCors("AllowFrontend");
     app.UseRouting();
     app.UseAuthentication();

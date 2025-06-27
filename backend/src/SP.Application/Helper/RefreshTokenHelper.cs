@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SP.Application.ErrorHandler;
 using SP.Domain.Entities;
 using SP.Infrastructure.Context;
 
@@ -11,7 +12,7 @@ public interface IRefreshTokenHelper
 {
     string GenerateRefreshToken();
 
-    Task<(User User, RefreshToken Token)>
+    Task<Result<(User User, RefreshToken Token)>>
         ValidateRefreshToken(string refreshToken, CancellationToken cancellationToken);
 }
 
@@ -30,35 +31,55 @@ public class RefreshTokenHelper(
         return Convert.ToBase64String(randomNumber);
     }
 
-    public async Task<(User User, RefreshToken Token)> ValidateRefreshToken(string refreshToken,
+    public async Task<Result<(User User, RefreshToken Token)>> ValidateRefreshToken(string refreshToken,
         CancellationToken cancellationToken)
     {
-        // Find the token in the database
-        var tokenEntity = await dbContext.RefreshTokens
-                                         .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
-
-        logger.LogInformation("Validating refresh token for user {UserId}", tokenEntity?.UserId);
-        if (tokenEntity == null ||
-            tokenEntity.IsRevoked ||
-            tokenEntity.ExpirationDate <= DateTime.UtcNow)
+        try
         {
-            logger.LogWarning("Refresh token validation failed for user {UserId}", tokenEntity?.UserId);
-            throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+            // Use a single query with joins for better performance
+            var result = await dbContext.RefreshTokens
+                                        .Include(rt => rt.User)
+                                        .Where(rt => rt.Token == refreshToken)
+                                        .Select(rt => new { Token = rt, rt.User })
+                                        .FirstOrDefaultAsync(cancellationToken);
+
+            if (result is null)
+            {
+                logger.LogWarning("Refresh token validation failed - token not found");
+                return Result<(User User, RefreshToken Token)>.Failure(CustomErrors.InvalidRefreshToken);
+            }
+
+            var tokenEntity = result.Token;
+            var user = result.User;
+
+            // Validate token
+            if (tokenEntity.IsRevoked || tokenEntity.ExpirationDate <= DateTime.UtcNow)
+            {
+                logger.LogWarning("Refresh token validation failed for user {UserId} - token revoked or expired",
+                    tokenEntity.UserId);
+                return Result<(User User, RefreshToken Token)>.Failure(CustomErrors.InvalidRefreshToken);
+            }
+
+            if (IsUserLockedOut(user))
+            {
+                logger.LogWarning("Refresh token validation failed for user {UserId} - account locked",
+                    user.Id);
+                return Result<(User User, RefreshToken Token)>.Failure(CustomErrors.AccountLocked);
+            }
+
+            logger.LogInformation("Refresh token validated successfully for user {UserId}", user.Id);
+            return Result<(User User, RefreshToken Token)>.Success((user, tokenEntity));
         }
-
-        // Get the user associated with this token
-        var user = await dbContext.Users
-                                  .FirstOrDefaultAsync(u => u.Id == tokenEntity.UserId, cancellationToken);
-
-        // Ensure user exists and is not locked
-        if (user == null || (user is { LockoutEnabled: true, LockoutEnd: not null } &&
-                             user.LockoutEnd.Value > DateTime.UtcNow))
+        catch (Exception ex)
         {
-            logger.LogWarning("User not found or account is locked for user {UserId}", tokenEntity.UserId);
-            throw new UnauthorizedAccessException("User not found or account is temporarily locked.");
+            logger.LogError(ex, "Error occurred during refresh token validation");
+            return Result<(User User, RefreshToken Token)>.Failure("An error occurred during token validation");
         }
+    }
 
-        logger.LogInformation("Refresh token validated successfully for user {UserName}", user.UserName);
-        return (user, tokenEntity);
+    private static bool IsUserLockedOut(User user)
+    {
+        return user is { LockoutEnabled: true, LockoutEnd: not null } &&
+               user.LockoutEnd.Value > DateTime.UtcNow;
     }
 }

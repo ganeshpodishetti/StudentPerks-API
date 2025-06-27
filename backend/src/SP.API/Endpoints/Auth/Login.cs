@@ -28,8 +28,9 @@ public class Login : IEndpoint
                 }
 
                 var result = await authService.LoginAsync(request, cancellationToken);
-                logger.LogInformation("User logged in successfully: {Email}", request.Email);
-                return Results.Ok(result);
+                if (result.IsSuccess) return Results.Ok(result.Value);
+                logger.LogWarning("Login failed for user: {Email}", request.Email);
+                return Results.BadRequest(new { errors = result.Errors });
             });
     }
 }

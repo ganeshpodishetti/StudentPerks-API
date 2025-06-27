@@ -1,6 +1,6 @@
 namespace SP.Application.Helper;
 
-public class ConvertToBase64Helper
+public static class ConvertToBase64Helper
 {
     public static string? ConvertImageToBase64(byte[]? imageData, string? contentType)
     {
