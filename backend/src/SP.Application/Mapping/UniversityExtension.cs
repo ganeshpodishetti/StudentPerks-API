@@ -16,7 +16,8 @@ public static class UniversityExtension
             university.Country,
             university.State,
             university.City,
-            university.ImageUrl);
+            university.ImageUrl,
+            university.IsActive);
     }
 
     public static CreateUniversityResponse ToCreateResponse(

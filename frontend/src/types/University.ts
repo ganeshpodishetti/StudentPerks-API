@@ -41,5 +41,6 @@ export interface UniversityResponse {
   country?: string;
   state?: string;
   city?: string;
-  imageUrl?: string;
+    imageUrl?: string;
+    isActive?: boolean;
 }

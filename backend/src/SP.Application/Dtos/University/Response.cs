@@ -7,7 +7,8 @@ public record UniversityResponse(
     string? Country,
     string? State,
     string? City,
-    string? ImageUrl
+    string? ImageUrl,
+    bool IsActive
 );
 
 public record CreateUniversityResponse(
