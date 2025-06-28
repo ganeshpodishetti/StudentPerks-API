@@ -11,8 +11,8 @@ public class EditUniversity : IEndpoint
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/universities")
-                             .WithTags("Universities");
-        //.RequireAuthorization();
+                             .WithTags("Universities")
+                             .RequireAuthorization();
 
         group.MapPut("/{id}",
             async (IUniversity service,

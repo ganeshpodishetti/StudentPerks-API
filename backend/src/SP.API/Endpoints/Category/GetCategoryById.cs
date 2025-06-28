@@ -8,7 +8,9 @@ public class GetCategoryById : IEndpoint
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var route = endpoints.MapGroup("/api/categories").WithTags("Categories");
+        var route = endpoints.MapGroup("/api/categories")
+                             .WithTags("Categories")
+                             .RequireAuthorization();
 
         route.MapGet("/{id:guid}",
             async ([FromRoute] Guid id,
