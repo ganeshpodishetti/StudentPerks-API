@@ -1,14 +1,15 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { University, fetchUniversities } from '../services/universityService';
 
 const UniversitiesPage: React.FC = () => {
   const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedUniversity, setSelectedUniversity] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadUniversities = async () => {
@@ -34,7 +35,7 @@ const UniversitiesPage: React.FC = () => {
   }, [toast]);
 
   const handleUniversitySelect = (universityId: string) => {
-    setSelectedUniversity(universityId);
+    navigate(`/universities/${universityId}/deals`);
   };
 
   if (loading) {
@@ -89,11 +90,7 @@ const UniversitiesPage: React.FC = () => {
           {universities.map((university) => (
             <div
               key={university.id}
-              className={`border rounded-lg p-6 cursor-pointer transition-all duration-200 hover:shadow-lg ${
-                selectedUniversity === university.id
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+              className="border rounded-lg p-6 cursor-pointer transition-all duration-200 hover:shadow-lg border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
               onClick={() => handleUniversitySelect(university.id)}
             >
               <div className="flex items-center space-x-4">

@@ -20,6 +20,7 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
 const StoresPage = lazy(() => import('./pages/StoresPage'));
 const UniversitiesPage = lazy(() => import('./pages/UniversitiesPage'));
+const UniversityDealsPage = lazy(() => import('./pages/UniversityDealsPage'));
 
 // Loading spinner component
 const LoadingSpinner = () => (
@@ -113,6 +114,7 @@ const AppContent = () => {
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/stores" element={<StoresPage />} />
               <Route path="/universities" element={<UniversitiesPage />} />
+              <Route path="/universities/:universityId/deals" element={<UniversityDealsPage />} />
             </Routes>
           </Suspense>
         </div>
