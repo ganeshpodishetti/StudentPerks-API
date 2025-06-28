@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 interface FormData {
   name: string;
   description: string;
+  image?: File | null;
 }
 
 interface CategoryFormModalProps {
@@ -22,6 +23,7 @@ export default function CategoryFormModal({ isOpen, onClose, onSave, category }:
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
+    image: null,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -30,14 +32,16 @@ export default function CategoryFormModal({ isOpen, onClose, onSave, category }:
     if (isOpen) {
       if (category) {
         setFormData({
-          name: category.name,
+          name: category.name || '',
           description: category.description || '',
+          image: null,
         });
       } else {
         // Reset form for new category
         setFormData({
           name: '',
           description: '',
+          image: null,
         });
       }
     }
@@ -51,6 +55,14 @@ export default function CategoryFormModal({ isOpen, onClose, onSave, category }:
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData(prev => ({
+      ...prev,
+      image: file
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -60,6 +72,7 @@ export default function CategoryFormModal({ isOpen, onClose, onSave, category }:
       const categoryData: CreateCategoryRequest = {
         name: formData.name,
         ...(formData.description && { description: formData.description }),
+        ...(formData.image && { image: formData.image }),
       };
 
       await onSave(categoryData);
@@ -104,6 +117,22 @@ export default function CategoryFormModal({ isOpen, onClose, onSave, category }:
               placeholder="Enter category description"
               rows={3}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="image">Category Image</Label>
+            <Input
+              id="image"
+              name="image"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            {formData.image && (
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                Selected: {formData.image.name}
+              </p>
+            )}
           </div>
 
           <DialogFooter>
