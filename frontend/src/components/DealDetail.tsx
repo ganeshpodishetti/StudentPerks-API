@@ -1,16 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Calendar, Clock, ExternalLink, Image, MapPin, Tag } from 'lucide-react';
+import { Calendar, Clock, Copy, ExternalLink, Image, Info, MapPin, School, Tag } from 'lucide-react';
 import React, { useState } from 'react';
 import { Deal } from '../types/Deal';
 
@@ -144,25 +144,56 @@ const DealDetail: React.FC<DealDetailProps> = ({ deal, trigger }) => {
           
           <p className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed">{deal.description}</p>
           
-          <div className="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center justify-between mb-2">
+          <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center justify-between mb-3">
               <div>
                 <span className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 font-medium">PROMO CODE</span>
-                <div className="font-mono font-semibold text-base text-neutral-900 dark:text-neutral-100">{deal.promo}</div>
+                <div className="font-mono font-semibold text-lg text-neutral-900 dark:text-neutral-100 mt-1">{deal.promo || 'No code required'}</div>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleCopyPromo}
-                className="text-xs"
-              >
-                Copy
-              </Button>
+              {deal.promo && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCopyPromo}
+                  className="text-xs flex items-center gap-1"
+                >
+                  <Copy className="h-3 w-3" />
+                  Copy
+                </Button>
+              )}
             </div>
             <div className="text-xs text-neutral-400 dark:text-neutral-500">
               Valid until {formatDate(deal.endDate)}
             </div>
           </div>
+          
+          {/* How to Redeem Instructions */}
+          {'howToRedeem' in deal && (deal as any).howToRedeem && (
+            <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-2">
+                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">How to Redeem</h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">{(deal as any).howToRedeem}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* University Specific Info */}
+          {'isUniversitySpecific' in deal && (deal as any).isUniversitySpecific && (
+            <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-2">
+                <School className="h-4 w-4 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">University Exclusive</h4>
+                  <p className="text-sm text-purple-700 dark:text-purple-300">
+                    This deal is exclusive to {'universityName' in deal && (deal as any).universityName ? (deal as any).universityName : 'specific universities'}.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         
         <DialogFooter className="pt-4">

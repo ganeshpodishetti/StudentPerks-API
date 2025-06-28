@@ -7,9 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { categoryService } from '@/services/categoryService';
-import { CreateDealRequest } from '@/services/dealService';
 import { storeService } from '@/services/storeService';
-import { Deal, RedeemType } from '@/types/Deal';
+import { CreateDealRequest, Deal, RedeemType } from '@/types/Deal';
 import { useEffect, useState } from 'react';
 
 // Form data interface that allows optional fields to be empty strings
@@ -20,12 +19,15 @@ interface FormData {
   image?: File | null;
   promo?: string;
   isActive: boolean;
-  url?: string;
+  url: string;
   redeemType: RedeemType;
+  howToRedeem?: string;
   startDate?: string;
   endDate?: string;
   categoryName: string;
   storeName: string;
+  universityName?: string;
+  isUniversitySpecific?: boolean;
 }
 
 // Helper function to format date for backend as UTC ISO string
@@ -70,10 +72,13 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
     isActive: true,
     url: '',
     redeemType: 'Online',
+    howToRedeem: '',
     startDate: '',
     endDate: '',
     categoryName: '',
     storeName: '',
+    universityName: '',
+    isUniversitySpecific: false,
   });
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -95,10 +100,13 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           isActive: deal.isActive,
           url: deal.url || '',
           redeemType: deal.redeemType || 'Online',
+          howToRedeem: (deal as any).howToRedeem || '',
           startDate: formatDateForInput(deal.startDate || '') || '',
           endDate: formatDateForInput(deal.endDate || '') || '',
           categoryName: deal.categoryName,
           storeName: deal.storeName,
+          universityName: (deal as any).universityName || '',
+          isUniversitySpecific: (deal as any).isUniversitySpecific || false,
         });
       } else {
         // Reset form for new deal
@@ -111,10 +119,13 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
           isActive: true,
           url: '',
           redeemType: 'Online',
+          howToRedeem: '',
           startDate: '',
           endDate: '',
           categoryName: '',
           storeName: '',
+          universityName: '',
+          isUniversitySpecific: false,
         });
       }
     }
@@ -181,7 +192,9 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
         description: formData.description,
         discount: formData.discount,
         isActive: formData.isActive,
+        url: formData.url,
         redeemType: formData.redeemType,
+        isUniversitySpecific: formData.isUniversitySpecific || false,
         categoryName: formData.categoryName,
         storeName: formData.storeName,
       };
@@ -190,6 +203,18 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
       if (formData.image) {
         dealData.image = formData.image;
         console.log('Adding image file:', formData.image.name, formData.image.type, formData.image.size);
+      }
+
+      if (formData.promo?.trim()) {
+        dealData.promo = formData.promo.trim();
+      }
+
+      if (formData.howToRedeem?.trim()) {
+        dealData.howToRedeem = formData.howToRedeem.trim();
+      }
+
+      if (formData.universityName?.trim()) {
+        dealData.universityName = formData.universityName.trim();
       }
       
       if (formData.promo?.trim()) {
@@ -215,6 +240,8 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
       }
       
       console.log('Sending deal data:', dealData);
+      console.log('University specific flag:', dealData.isUniversitySpecific);
+      console.log('University name:', dealData.universityName);
       
       await onSave(dealData);
       onClose();
@@ -276,6 +303,21 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
               placeholder="Deal description"
               rows={3}
             />
+          </div>
+
+          <div>
+            <Label htmlFor="howToRedeem">How to Redeem (Optional)</Label>
+            <Textarea
+              id="howToRedeem"
+              name="howToRedeem"
+              value={formData.howToRedeem || ''}
+              onChange={handleInputChange}
+              placeholder="Instructions on how to redeem this deal..."
+              rows={2}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Provide step-by-step instructions for redeeming this deal
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -394,13 +436,38 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isActive"
-              checked={formData.isActive}
-              onCheckedChange={handleSwitchChange}
+          <div>
+            <Label htmlFor="universityName">University (Optional)</Label>
+            <Input
+              id="universityName"
+              name="universityName"
+              value={formData.universityName || ''}
+              onChange={handleInputChange}
+              placeholder="e.g., Harvard University"
             />
-            <Label htmlFor="isActive">Active Deal</Label>
+            <p className="text-xs text-gray-500 mt-1">
+              Specify if this deal is exclusive to a particular university
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isUniversitySpecific"
+                checked={formData.isUniversitySpecific || false}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isUniversitySpecific: checked }))}
+              />
+              <Label htmlFor="isUniversitySpecific">University Exclusive Deal</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={handleSwitchChange}
+              />
+              <Label htmlFor="isActive">Active Deal</Label>
+            </div>
           </div>
 
           <DialogFooter>

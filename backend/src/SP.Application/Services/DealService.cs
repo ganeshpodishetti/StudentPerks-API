@@ -164,12 +164,12 @@ public class DealService(
             return false;
         }
 
-        if (existingUniversity is null)
-        {
-            logger.LogWarning("University {UniversityName} not found for deal update",
-                updateDealRequest.UniversityName);
-            return false;
-        }
+        // if (existingUniversity is null)
+        // {
+        //     logger.LogWarning("University {UniversityName} not found for deal update",
+        //         updateDealRequest.UniversityName);
+        //     return false;
+        // }
 
         logger.LogInformation("Updating deal with ID {DealId}", dealId);
         updateDealRequest.ToEntity(deal, existingCategory, existingStore, existingUniversity, fileService);
