@@ -8,6 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Lazy load admin components
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminDealsPage = lazy(() => import('./pages/AdminDealsPage'));
 const AdminStoresPage = lazy(() => import('./pages/AdminStoresPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/AdminCategoriesPage'));
 const AdminUniversitiesPage = lazy(() => import('./pages/AdminUniversitiesPage'));
@@ -63,6 +64,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/deals" 
+              element={
+                <ProtectedRoute>
+                  <AdminDealsPage />
                 </ProtectedRoute>
               } 
             />

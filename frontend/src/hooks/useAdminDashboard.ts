@@ -1,26 +1,14 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useErrorHandler } from '@/contexts/ErrorContext';
-import {
-  useCreateDealMutation,
-  useDealsQuery,
-  useDeleteDealMutation,
-  useUpdateDealMutation
-} from '@/hooks/queries/useDealsQuery';
+import { useDealsQuery } from '@/hooks/queries/useDealsQuery';
 import { authService } from '@/services/authService';
-import { Deal } from '@/types/Deal';
-import { useState } from 'react';
 
 export const useAdminDashboard = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const { user, logout } = useAuth();
   const { showError, showSuccess } = useErrorHandler();
 
   // React Query hooks
   const { data: deals = [], isLoading } = useDealsQuery();
-  const createDealMutation = useCreateDealMutation();
-  const updateDealMutation = useUpdateDealMutation();
-  const deleteDealMutation = useDeleteDealMutation();
 
   // Debug function to check authentication state
   const debugAuth = () => {
@@ -68,41 +56,6 @@ export const useAdminDashboard = () => {
     }
   };
 
-  const handleCreateDeal = () => {
-    setEditingDeal(null);
-    setIsModalOpen(true);
-  };
-
-  const handleEditDeal = (deal: Deal) => {
-    setEditingDeal(deal);
-    setIsModalOpen(true);
-  };
-
-  const handleDeleteDeal = async (dealId: string) => {
-    if (!window.confirm('Are you sure you want to delete this deal?')) {
-      return;
-    }
-
-    deleteDealMutation.mutate(dealId);
-  };
-
-  const handleSaveDeal = async (dealData: any) => {
-    try {
-      if (editingDeal) {
-        await updateDealMutation.mutateAsync({ 
-          id: editingDeal.id, 
-          data: dealData 
-        });
-      } else {
-        await createDealMutation.mutateAsync(dealData);
-      }
-      closeModal();
-    } catch (error) {
-      // Error handling is done in the mutation hooks
-      console.error('Error saving deal:', error);
-    }
-  };
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -111,26 +64,12 @@ export const useAdminDashboard = () => {
     }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingDeal(null);
-  };
-
   return {
     deals,
-    isLoading: isLoading || createDealMutation.isPending || updateDealMutation.isPending,
-    isModalOpen,
-    editingDeal,
+    isLoading,
     user,
-    handleCreateDeal,
-    handleEditDeal,
-    handleDeleteDeal,
-    handleSaveDeal,
     handleLogout,
     debugAuth,
-    testConnectivity,
-    closeModal,
-    isDeleting: deleteDealMutation.isPending,
-    isSaving: createDealMutation.isPending || updateDealMutation.isPending,
+    testConnectivity
   };
 };

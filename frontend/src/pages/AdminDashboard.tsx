@@ -1,8 +1,7 @@
-import DealFormModal from '@/components/DealFormModal';
-import AdminDealsList from '@/components/admin/AdminDealsList';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminLoadingSpinner from '@/components/admin/AdminLoadingSpinner';
 import AdminNavigation from '@/components/admin/AdminNavigation';
+import AdminOverview from '@/components/admin/AdminOverview';
 import AdminStats from '@/components/admin/AdminStats';
 import { AdminLayout } from '@/components/admin/shared/AdminLayout';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
@@ -11,17 +10,10 @@ export default function AdminDashboard() {
   const {
     deals,
     isLoading,
-    isModalOpen,
-    editingDeal,
     user,
-    handleCreateDeal,
-    handleEditDeal,
-    handleDeleteDeal,
-    handleSaveDeal,
     handleLogout,
     debugAuth,
-    testConnectivity,
-    closeModal
+    testConnectivity
   } = useAdminDashboard();
 
   if (isLoading) {
@@ -34,7 +26,6 @@ export default function AdminDashboard() {
     >
       <AdminHeader 
         user={user}
-        onCreateDeal={handleCreateDeal}
         onLogout={handleLogout}
         onDebugAuth={debugAuth}
         onTestConnectivity={testConnectivity}
@@ -43,19 +34,8 @@ export default function AdminDashboard() {
 
       <div className="grid gap-3 sm:gap-4 md:gap-6">
         <AdminStats deals={deals} />
-        <AdminDealsList 
-          deals={deals}
-          onEditDeal={handleEditDeal}
-          onDeleteDeal={handleDeleteDeal}
-        />
+        <AdminOverview deals={deals} />
       </div>
-
-      <DealFormModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onSave={handleSaveDeal}
-        deal={editingDeal}
-      />
     </AdminLayout>
   );
 }

@@ -6,7 +6,7 @@ interface AdminHeaderProps {
   user: {
     firstName?: string;
   } | null;
-  onCreateDeal: () => void;
+  onCreateDeal?: () => void;
   onLogout: () => void;
   onDebugAuth: () => void;
   onTestConnectivity: () => void;
@@ -49,15 +49,18 @@ export default function AdminHeader({
             size="sm"
           >
             Test API
-          </Button>          <Button 
-            onClick={onCreateDeal}
-            className="flex items-center gap-2 flex-1 sm:flex-none"
-            size="sm"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden xs:inline">{createButtonText}</span>
-            <span className="xs:hidden">Create</span>
           </Button>
+          {onCreateDeal && (
+            <Button 
+              onClick={onCreateDeal}
+              className="flex items-center gap-2 flex-1 sm:flex-none"
+              size="sm"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden xs:inline">{createButtonText}</span>
+              <span className="xs:hidden">Create</span>
+            </Button>
+          )}
         </div>
         <Button 
           variant="outline" 
