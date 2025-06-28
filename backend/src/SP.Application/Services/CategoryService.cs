@@ -7,7 +7,10 @@ using SP.Infrastructure.Context;
 
 namespace SP.Application.Services;
 
-public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> logger)
+public class CategoryService(
+    SpDbContext spDbContext,
+    ILogger<CategoryService> logger,
+    IFileService fileService)
     : ICategory
 {
     public async Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync(CancellationToken ct)
@@ -48,7 +51,7 @@ public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> l
         }
 
         logger.LogInformation("Updating category with ID {CategoryId}", categoryId);
-        updateCategoryRequest.ToEntity(category);
+        await updateCategoryRequest.ToEntity(category, fileService);
         spDbContext.Categories.Update(category);
         await spDbContext.SaveChangesAsync(ct);
         logger.LogInformation("Category with ID {CategoryId} updated successfully", categoryId);
@@ -72,7 +75,7 @@ public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> l
         return true;
     }
 
-    public async Task<CategoryResponse> CreateCategoryAsync(CreateCategoryRequest createCategoryRequest,
+    public async Task<CreateCategoryResponse> CreateCategoryAsync(CreateCategoryRequest createCategoryRequest,
         CancellationToken cancellationToken)
     {
         var existingCategory = await spDbContext.Categories
@@ -84,14 +87,14 @@ public class CategoryService(SpDbContext spDbContext, ILogger<CategoryService> l
         {
             logger.LogInformation("Category with name {CategoryName} already exists, returning existing category",
                 existingCategory.Name);
-            return existingCategory.ToDto();
+            return existingCategory.ToCreateDto();
         }
 
         logger.LogInformation("Creating new category with name {CategoryName}", createCategoryRequest.Name);
-        var category = createCategoryRequest.ToEntity();
+        var category = await createCategoryRequest.ToEntity(fileService);
         await spDbContext.Categories.AddAsync(category, cancellationToken);
         await spDbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Category with name {CategoryName} added successfully", category.Name);
-        return category.ToDto();
+        return category.ToCreateDto();
     }
 }

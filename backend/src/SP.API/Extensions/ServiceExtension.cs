@@ -14,5 +14,7 @@ public static class ServiceExtension
         services.AddScoped<IAuth, AuthService>();
         services.AddScoped<IJwtHelper, JwtTokenHelper>();
         services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
+        services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IUniversity, UniversityService>();
     }
 }

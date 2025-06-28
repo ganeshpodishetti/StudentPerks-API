@@ -68,7 +68,7 @@ public class StoreService(SpDbContext spDbContext, ILogger<StoreService> logger)
         return true;
     }
 
-    public async Task<StoreResponse> CreateStoreAsync(CreateStoreRequest createStoreRequest,
+    public async Task<CreateStoreResponse> CreateStoreAsync(CreateStoreRequest createStoreRequest,
         CancellationToken cancellationToken)
     {
         var existingStore = await spDbContext.Stores.SingleOrDefaultAsync(
@@ -79,7 +79,7 @@ public class StoreService(SpDbContext spDbContext, ILogger<StoreService> logger)
         {
             logger.LogInformation("Store with name {StoreName} already exists, returning existing store.",
                 createStoreRequest.Name);
-            return existingStore.ToDto();
+            return existingStore.ToCreateDto();
         }
 
         logger.LogInformation("Creating a new store with name {StoreName}", createStoreRequest.Name);
@@ -87,6 +87,6 @@ public class StoreService(SpDbContext spDbContext, ILogger<StoreService> logger)
         await spDbContext.Stores.AddAsync(store, cancellationToken);
         await spDbContext.SaveChangesAsync(cancellationToken);
         logger.LogInformation("Store with ID {StoreId} created successfully", store.Id);
-        return store.ToDto();
+        return store.ToCreateDto();
     }
 }

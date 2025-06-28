@@ -14,5 +14,8 @@ public static class OptionsExtension
 
         builder.Services.Configure<RolesOptions>(
             builder.Configuration.GetSection(RolesOptions.Identity));
+
+        builder.Services.Configure<ImageKitOptions>(
+            builder.Configuration.GetSection(ImageKitOptions.ImageKit));
     }
 }

@@ -12,6 +12,6 @@ public interface ICategory
 
     Task<bool> DeleteCategoryAsync(Guid categoryId, CancellationToken cancellationToken);
 
-    Task<CategoryResponse> CreateCategoryAsync(CreateCategoryRequest createCategoryRequest,
+    Task<CreateCategoryResponse> CreateCategoryAsync(CreateCategoryRequest createCategoryRequest,
         CancellationToken cancellationToken);
 }

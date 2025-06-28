@@ -3,7 +3,7 @@ using SP.Domain.Entities;
 
 namespace SP.Application.Mapping;
 
-public static class StoreMappingExtension
+public static class StoreExtension
 {
     public static StoreResponse ToDto(this Store store)
     {
@@ -12,6 +12,12 @@ public static class StoreMappingExtension
             store.Name,
             store.Description,
             store.Website);
+    }
+
+    public static CreateStoreResponse ToCreateDto(this Store store)
+    {
+        return new CreateStoreResponse(
+            store.Id);
     }
 
     public static Store ToEntity(this CreateStoreRequest request)

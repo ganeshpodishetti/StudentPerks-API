@@ -5,3 +5,6 @@ public record StoreResponse(
     string? Name,
     string? Description,
     string? Website);
+
+public record CreateStoreResponse(
+    Guid Id);

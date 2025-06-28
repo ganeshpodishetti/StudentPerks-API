@@ -16,12 +16,26 @@ public class EditCategory : IEndpoint
 
         route.MapPut("/{id:guid}",
             async ([FromRoute] Guid id,
-                [FromBody] UpdateCategoryRequest updateCategory,
+                HttpRequest request,
                 ICategory categoryService,
                 IValidator<UpdateCategoryRequest> validator,
                 ILogger<EditCategory> logger,
                 CancellationToken cancellationToken) =>
             {
+                if (id == Guid.Empty)
+                {
+                    logger.LogWarning("Attempted to update a category with an empty ID.");
+                    return Results.BadRequest(new { message = "Category ID cannot be empty" });
+                }
+
+                var form = await request.ReadFormAsync(cancellationToken);
+                var updateCategory = new UpdateCategoryRequest(
+                    form["name"].ToString(),
+                    string.IsNullOrEmpty(form["description"].ToString())
+                        ? null
+                        : form["description"].ToString(),
+                    form.Files.GetFile("image")
+                );
                 var validationResult = await validator.ValidateAsync(updateCategory, cancellationToken);
                 if (!validationResult.IsValid)
                 {

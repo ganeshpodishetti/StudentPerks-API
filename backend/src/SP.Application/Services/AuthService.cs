@@ -61,7 +61,7 @@ public class AuthService(
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
         var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
 
-        var refreshTokenEntity = AuthMappingExtension.CreateRefreshTokenEntity(refreshToken, user.Id);
+        var refreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(refreshToken, user.Id);
 
         await dbContext.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -97,7 +97,7 @@ public class AuthService(
         var newAccessToken = await jwtHelper.GenerateJwtToken(existingUser);
         var newRefreshToken = refreshTokenHelper.GenerateRefreshToken();
 
-        var newRefreshTokenEntity = AuthMappingExtension.CreateRefreshTokenEntity(newRefreshToken, existingUser.Id);
+        var newRefreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(newRefreshToken, existingUser.Id);
         await dbContext.RefreshTokens.AddAsync(newRefreshTokenEntity, cancellationToken);
 
         logger.LogInformation("Cleaning up old revoked refresh tokens for user {UserName}", existingUser.UserName);
@@ -113,7 +113,7 @@ public class AuthService(
         // Set the new refresh token in the cookie
         httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
 
-        var response = AuthMappingExtension.ToRefreshTokenDto(newAccessToken.Value!, newAccessTokenExpiration);
+        var response = AuthExtension.ToRefreshTokenDto(newAccessToken.Value!, newAccessTokenExpiration);
         return Result<RefreshTokenResponse>.Success(response);
     }
 

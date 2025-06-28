@@ -16,12 +16,12 @@ public class EditStore : IEndpoint
 
         route.MapPut("/{id:guid}",
             async (IStore storeService, [FromRoute] Guid id,
-                [FromBody] UpdateStoreRequest request,
+                [FromBody] UpdateStoreRequest updateStore,
                 IValidator<UpdateStoreRequest> validator,
                 ILogger<EditStore> logger,
                 CancellationToken cancellationToken) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+                var validationResult = await validator.ValidateAsync(updateStore, cancellationToken);
                 if (!validationResult.IsValid)
                 {
                     logger.LogWarning("Validation failed for store update: {Errors}", validationResult.Errors);
@@ -34,7 +34,7 @@ public class EditStore : IEndpoint
                     return Results.BadRequest(new { message = "Store ID cannot be empty" });
                 }
 
-                var store = await storeService.UpdateStoreAsync(id, request, cancellationToken);
+                var store = await storeService.UpdateStoreAsync(id, updateStore, cancellationToken);
                 return store
                     ? Results.Ok(new { message = "Store updated successfully" })
                     : Results.NotFound(new { message = "Store with ID not found" });

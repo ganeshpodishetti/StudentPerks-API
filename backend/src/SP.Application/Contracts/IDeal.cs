@@ -12,8 +12,14 @@ public interface IDeal
     Task<IEnumerable<GetDealsByStoreResponse>?> GetDealsByStoreAsync(string storeName,
         CancellationToken cancellationToken);
 
+    Task<IEnumerable<GetDealsByUniversityResponse>?> GetDealsByUniversityAsync(string universityName,
+        CancellationToken cancellationToken);
+
     Task<IEnumerable<GetDealResponse>> GetAllDealsAsync(CancellationToken cancellationToken);
-    Task<bool> CreateDealAsync(CreateDealRequest createDealRequest, CancellationToken cancellationToken);
-    Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealDto, CancellationToken cancellationToken);
+    Task<DealResponse> CreateDealAsync(CreateDealRequest createDealRequest, CancellationToken cancellationToken);
+
+    Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealDto,
+        CancellationToken cancellationToken);
+
     Task<bool> DeleteDealAsync(Guid dealId, CancellationToken cancellationToken);
 }

@@ -5,24 +5,27 @@ public record GetDealResponse(
     string Title,
     string Description,
     string Discount,
-    string? ImageUrl,
     string? Promo,
+    string? ImageUrl,
     bool IsActive,
     string Url,
     string RedeemType,
     string? HowToRedeem,
     DateTime? StartDate,
     DateTime? EndDate,
+    bool IsUniversitySpecific,
     string CategoryName,
-    string StoreName);
+    string StoreName,
+    string UniversityName);
 
 public record GetDealsByCategoryResponse(
     Guid Id,
     string Title,
     string Description,
     string Discount,
-    string? ImageUrl,
     string? Promo,
+    string? DealImageUrl,
+    string? CategoryImageUrl,
     bool IsActive,
     string Url,
     string RedeemType,
@@ -36,8 +39,8 @@ public record GetDealsByStoreResponse(
     string Title,
     string Description,
     string Discount,
-    string? ImageUrl,
     string? Promo,
+    string? ImageUrl,
     bool IsActive,
     string Url,
     string RedeemType,
@@ -45,3 +48,22 @@ public record GetDealsByStoreResponse(
     DateTime? StartDate,
     DateTime? EndDate,
     string StoreName);
+
+public record GetDealsByUniversityResponse(
+    Guid Id,
+    string Title,
+    string Description,
+    string Discount,
+    string? Promo,
+    string? DealImageUrl,
+    string? UniversityImageUrl,
+    bool IsActive,
+    string Url,
+    string RedeemType,
+    string? HowToRedeem,
+    DateTime? StartDate,
+    DateTime? EndDate,
+    string UniversityName);
+
+public record DealResponse(
+    Guid Id);
