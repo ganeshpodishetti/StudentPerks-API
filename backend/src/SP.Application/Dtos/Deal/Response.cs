@@ -16,7 +16,7 @@ public record GetDealResponse(
     bool IsUniversitySpecific,
     string CategoryName,
     string StoreName,
-    string UniversityName);
+    string? UniversityName);
 
 public record GetDealsByCategoryResponse(
     Guid Id,
