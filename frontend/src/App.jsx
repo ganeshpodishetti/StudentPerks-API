@@ -10,6 +10,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminStoresPage = lazy(() => import('./pages/AdminStoresPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/AdminCategoriesPage'));
+const AdminUniversitiesPage = lazy(() => import('./pages/AdminUniversitiesPage'));
 
 // Lazy load auth components
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -18,6 +19,7 @@ const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 // Lazy load other pages
 const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
 const StoresPage = lazy(() => import('./pages/StoresPage'));
+const UniversitiesPage = lazy(() => import('./pages/UniversitiesPage'));
 
 // Loading spinner component
 const LoadingSpinner = () => (
@@ -79,6 +81,14 @@ const AppContent = () => {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/admin/universities" 
+              element={
+                <ProtectedRoute>
+                  <AdminUniversitiesPage />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </Suspense>
         <Toaster />
@@ -102,6 +112,7 @@ const AppContent = () => {
               />
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/stores" element={<StoresPage />} />
+              <Route path="/universities" element={<UniversitiesPage />} />
             </Routes>
           </Suspense>
         </div>
