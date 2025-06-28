@@ -71,15 +71,6 @@ const Navigation: React.FC<NavigationProps> = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6 lg:space-x-8">
             <Link 
-              to="/" 
-              className={`text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors ${
-                location.pathname === '/' ? 'text-black dark:text-white border-b-2 border-black dark:border-white pb-1' : ''
-              }`}
-            >
-              Home
-            </Link>
-            
-            <Link 
               to="/categories" 
               className={`flex items-center text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors focus:outline-none ${
                 location.pathname === '/categories' ? 'text-black dark:text-white border-b-2 border-black dark:border-white pb-1' : ''
@@ -140,18 +131,6 @@ const Navigation: React.FC<NavigationProps> = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
-              <Link 
-                to="/" 
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  location.pathname === '/' 
-                    ? 'bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white' 
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
-                }`}
-                onClick={closeMobileMenu}
-              >
-                Home
-              </Link>
-              
               <Link 
                 to="/categories" 
                 className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
