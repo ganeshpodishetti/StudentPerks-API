@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Calendar, Clock, ExternalLink, Image, MapPin, Percent, School } from 'lucide-react';
+import { Calendar, Clock, ExternalLink, Image, MapPin, School } from 'lucide-react';
 import React, { memo, useState } from 'react';
 import { Deal } from '../types/Deal';
 import DealDetail from './DealDetail';
@@ -55,8 +55,10 @@ const DealCard: React.FC<DealCardProps> = memo(({ deal, showUniversityInfo = fal
             </Badge>
           )}
           {deal.discount && (
-            <Badge variant="default" className="text-xs px-2 py-1 bg-green-600 hover:bg-green-700">
-              <Percent className="h-3 w-3 mr-1" />
+            <Badge 
+              variant="default" 
+              className="text-xs px-2 py-1 bg-green-600 hover:bg-green-700 text-white dark:bg-[#262626] dark:hover:bg-[#1a1a1a]"
+            >
               {deal.discount}
             </Badge>
           )}
@@ -97,7 +99,7 @@ const DealCard: React.FC<DealCardProps> = memo(({ deal, showUniversityInfo = fal
         
         {/* Deal Info */}
         <div className="flex-1 min-w-0">
-          <h3 className={`${compact ? 'text-base' : 'text-lg'} font-semibold text-neutral-900 dark:text-neutral-100 mb-2 leading-tight`}>
+          <h3 className={`${compact ? 'text-base' : 'text-lg'} font-semibold text-neutral-900 dark:text-neutral-300 mb-2 leading-tight`}>
             {deal.title}
           </h3>
           {deal.promo && (

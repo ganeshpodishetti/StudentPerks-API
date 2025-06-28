@@ -149,7 +149,7 @@ const DealStats: React.FC<DealStatsProps> = ({
           </Badge>
         )}
         {activeDeals > 0 && (
-          <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-200">
+          <Badge variant="outline" className="flex items-center gap-1 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800">
             <Calendar className="h-3 w-3" />
             {Math.round((activeDeals / totalDeals) * 100)}% Active
           </Badge>

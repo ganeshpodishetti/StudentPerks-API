@@ -101,11 +101,11 @@ const DealDetail: React.FC<DealDetailProps> = ({ deal, trigger }) => {
               </Badge>
               <span className="text-xs text-neutral-500 dark:text-neutral-400">{deal.storeName}</span>
             </div>
-            <Badge variant="default" className="bg-black hover:bg-black/90 dark:bg-white dark:text-black text-xs">
+            <Badge variant="default" className="bg-green-600 hover:bg-green-700 dark:bg-[#262626] dark:hover:bg-[#1a1a1a] text-white text-xs">
               {deal.discount}
             </Badge>
           </div>
-          <DialogTitle className="text-lg font-semibold leading-tight">{deal.title}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold leading-tight text-neutral-900 dark:text-neutral-300">{deal.title}</DialogTitle>
           <DialogDescription className="flex items-center text-amber-600 dark:text-amber-400 text-sm">
             <Clock className="h-3.5 w-3.5 mr-1" />
             {daysRemaining > 0 ? `${daysRemaining} days remaining` : 'Offer expired'}
