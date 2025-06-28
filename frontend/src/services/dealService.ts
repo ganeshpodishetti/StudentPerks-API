@@ -48,6 +48,18 @@ export const dealService = {
     }
   },
 
+  async getDealsByUniversity(universityName: string): Promise<Deal[]> {
+    try {
+      console.log('Fetching deals for university:', universityName);
+      const response = await publicApiClient.get(`/api/deals/university?name=${encodeURIComponent(universityName)}`);
+      console.log('University deals response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching deals by university:', error);
+      throw error;
+    }
+  },
+
   // Admin endpoints - authentication required
   async createDeal(dealData: CreateDealRequest): Promise<Deal> {
     try {

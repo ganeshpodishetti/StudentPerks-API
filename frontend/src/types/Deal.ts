@@ -11,10 +11,13 @@ export interface Deal {
   isActive: boolean;
   url: string;
   redeemType: RedeemType;
+  howToRedeem?: string;
   startDate?: string;
   endDate?: string;
   categoryName: string;
   storeName: string;
+  universityName?: string;
+  universityImageUrl?: string;
 }
 
 // Request types for creating and updating deals

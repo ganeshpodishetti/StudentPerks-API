@@ -12,6 +12,7 @@ export const dealKeys = {
   detail: (id: string) => [...dealKeys.details(), id] as const,
   byCategory: (category: string) => [...dealKeys.all, 'category', category] as const,
   byStore: (store: string) => [...dealKeys.all, 'store', store] as const,
+  byUniversity: (university: string) => [...dealKeys.all, 'university', university] as const,
 };
 
 // Fetch all deals
@@ -59,6 +60,21 @@ export const useDealsByStoreQuery = (storeName: string) => {
     queryKey: dealKeys.byStore(storeName),
     queryFn: () => dealService.getDealsByStore(storeName),
     enabled: !!storeName && storeName !== 'All',
+    staleTime: 5 * 60 * 1000,
+    meta: {
+      onError: handleApiError,
+    },
+  });
+};
+
+// Fetch deals by university
+export const useDealsByUniversityQuery = (universityName: string) => {
+  const { handleApiError } = useErrorHandler();
+  
+  return useQuery({
+    queryKey: dealKeys.byUniversity(universityName),
+    queryFn: () => dealService.getDealsByUniversity(universityName),
+    enabled: !!universityName && universityName !== 'All',
     staleTime: 5 * 60 * 1000,
     meta: {
       onError: handleApiError,
