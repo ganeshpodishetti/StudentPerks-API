@@ -1,4 +1,4 @@
-import { Menu, Store, Tag, X } from 'lucide-react';
+import { GraduationCap, Menu, Store, Tag, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
@@ -98,6 +98,16 @@ const Navigation: React.FC<NavigationProps> = () => {
               <Store className="mr-1.5 h-3.5 w-3.5" />
               Stores
             </Link>
+            
+            <Link 
+              to="/universities" 
+              className={`flex items-center text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white font-medium text-sm transition-colors focus:outline-none ${
+                location.pathname === '/universities' ? 'text-black dark:text-white border-b-2 border-black dark:border-white pb-1' : ''
+              }`}
+            >
+              <GraduationCap className="mr-1.5 h-3.5 w-3.5" />
+              Universities
+            </Link>
           </nav>
 
           {/* Desktop Theme Toggle and Auth */}
@@ -166,6 +176,19 @@ const Navigation: React.FC<NavigationProps> = () => {
               >
                 <Store className="mr-2 h-4 w-4" />
                 Stores
+              </Link>
+              
+              <Link 
+                to="/universities" 
+                className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                  location.pathname === '/universities' 
+                    ? 'bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white' 
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
+                }`}
+                onClick={closeMobileMenu}
+              >
+                <GraduationCap className="mr-2 h-4 w-4" />
+                Universities
               </Link>
               
               {/* Mobile Auth Links */}

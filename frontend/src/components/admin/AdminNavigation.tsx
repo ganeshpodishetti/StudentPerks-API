@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, Tag } from 'lucide-react';
+import { GraduationCap, LayoutDashboard, Store, Tag } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function AdminNavigation() {
@@ -19,6 +19,11 @@ export default function AdminNavigation() {
       path: '/admin/categories',
       label: 'Categories',
       icon: Tag,
+    },
+    {
+      path: '/admin/universities',
+      label: 'Universities',
+      icon: GraduationCap,
     },
   ];
 
