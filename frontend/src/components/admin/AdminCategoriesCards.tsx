@@ -16,13 +16,28 @@ export default function AdminCategoriesCards({ categories, onEditCategory, onDel
         <Card key={category.id} className="p-3">
           <CardContent className="p-0 space-y-2">
             <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 text-sm">{category.name}</h3>
-                {category.description && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">
-                    {category.description}
-                  </p>
-                )}
+              <div className="flex items-start gap-3 flex-1">
+                <div className="flex-shrink-0">
+                  {category.imageUrl ? (
+                    <img 
+                      src={category.imageUrl} 
+                      alt={category.name || 'Category'} 
+                      className="w-10 h-10 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-md bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
+                      <span className="text-xs text-neutral-500">No image</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-neutral-900 dark:text-neutral-100 text-sm">{category.name}</h3>
+                  {category.description && (
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">
+                      {category.description}
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-1 ml-2">
                 <Button

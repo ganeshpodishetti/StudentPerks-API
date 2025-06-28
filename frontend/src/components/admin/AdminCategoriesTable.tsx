@@ -14,6 +14,7 @@ export default function AdminCategoriesTable({ categories, onEditCategory, onDel
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-neutral-200 dark:border-neutral-700">
+            <th className="text-left p-2 sm:p-3 md:p-4 font-medium text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">Image</th>
             <th className="text-left p-2 sm:p-3 md:p-4 font-medium text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">Name</th>
             <th className="text-left p-2 sm:p-3 md:p-4 font-medium text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">Description</th>
             <th className="text-left p-2 sm:p-3 md:p-4 font-medium text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">Actions</th>
@@ -22,6 +23,21 @@ export default function AdminCategoriesTable({ categories, onEditCategory, onDel
         <tbody>
           {categories.map((category) => (
             <tr key={category.id} className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+              <td className="p-2 sm:p-3 md:p-4">
+                <div className="flex items-center">
+                  {category.imageUrl ? (
+                    <img 
+                      src={category.imageUrl} 
+                      alt={category.name || 'Category'} 
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
+                      <span className="text-xs text-neutral-500">No image</span>
+                    </div>
+                  )}
+                </div>
+              </td>
               <td className="p-2 sm:p-3 md:p-4">
                 <div className="font-medium text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">{category.name}</div>
               </td>

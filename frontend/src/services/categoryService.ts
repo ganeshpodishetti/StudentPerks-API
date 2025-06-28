@@ -4,16 +4,27 @@ import apiClient, { publicApiClient } from './apiClient';
 // Define response types
 export interface Category {
   id: string;
-  name: string;
+  name?: string;
   description?: string;
+  imageUrl?: string;
 }
 
 export interface CreateCategoryRequest {
   name: string;
   description?: string;
+  image?: File;
 }
 
-export interface UpdateCategoryRequest extends CreateCategoryRequest {}
+export interface UpdateCategoryRequest {
+  name: string;
+  description?: string;
+  image?: File;
+}
+
+export interface CreateCategoryResponse {
+  id: string;
+  imageUrl?: string;
+}
 
 export const categoryService = {
   // Public endpoints - no authentication required
@@ -38,18 +49,28 @@ export const categoryService = {
   },
 
   // Admin endpoints - authentication required
-  async createCategory(categoryData: CreateCategoryRequest): Promise<Category> {
+  async createCategory(categoryData: CreateCategoryRequest): Promise<CreateCategoryResponse> {
     try {
       console.log('Creating category with data:', categoryData);
       
-      // Clean up the data to remove undefined values
-      const cleanCategoryData = Object.fromEntries(
-        Object.entries(categoryData).filter(([_, value]) => value !== undefined)
-      );
+      const formData = new FormData();
+      formData.append('name', categoryData.name);
       
-      console.log('Cleaned category data:', cleanCategoryData);
+      if (categoryData.description) {
+        formData.append('description', categoryData.description);
+      }
       
-      const response = await apiClient.post('/api/categories', cleanCategoryData);
+      if (categoryData.image) {
+        formData.append('image', categoryData.image);
+      }
+      
+      console.log('FormData prepared for category creation');
+      
+      const response = await apiClient.post('/api/categories', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       console.log('Category created successfully:', response.data);
       return response.data;
     } catch (error) {
@@ -62,14 +83,24 @@ export const categoryService = {
     try {
       console.log('Updating category:', id, 'with data:', categoryData);
       
-      // Clean up the data to remove undefined values
-      const cleanCategoryData = Object.fromEntries(
-        Object.entries(categoryData).filter(([_, value]) => value !== undefined)
-      );
+      const formData = new FormData();
+      formData.append('name', categoryData.name);
       
-      console.log('Cleaned category data for update:', cleanCategoryData);
+      if (categoryData.description) {
+        formData.append('description', categoryData.description);
+      }
       
-      const response = await apiClient.put(`/api/categories/${id}`, cleanCategoryData);
+      if (categoryData.image) {
+        formData.append('image', categoryData.image);
+      }
+      
+      console.log('FormData prepared for category update');
+      
+      const response = await apiClient.put(`/api/categories/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       console.log('Category updated successfully:', response.data);
       return response.data;
     } catch (error) {
