@@ -9,8 +9,8 @@ public class DeleteCategory : IEndpoint
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         var route = endpoints.MapGroup("/api/categories")
-                             .WithTags("Categories");
-        //.RequireAuthorization();
+                             .WithTags("Categories")
+                             .RequireAuthorization();
 
         route.MapDelete("/{id:guid}",
             async ([FromRoute] Guid id,

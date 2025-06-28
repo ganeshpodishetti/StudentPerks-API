@@ -10,10 +10,10 @@ public class AddUniversity : IEndpoint
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/universities")
-                             .WithTags("Universities");
-        //.RequireAuthorization();
+                             .WithTags("Universities")
+                             .RequireAuthorization();
 
-        group.MapPost("/",
+        group.MapPost("",
             async (IUniversity service,
                 HttpRequest request,
                 ILogger<AddUniversity> logger,

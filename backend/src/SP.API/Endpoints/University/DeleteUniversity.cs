@@ -9,8 +9,8 @@ public class DeleteUniversity : IEndpoint
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/universities")
-                             .WithTags("Universities");
-        //.RequireAuthorization();
+                             .WithTags("Universities")
+                             .RequireAuthorization();
 
         group.MapDelete("/{id:guid}",
             async (IUniversity service,

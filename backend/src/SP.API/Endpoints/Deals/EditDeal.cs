@@ -11,8 +11,8 @@ public class EditDeal : IEndpoint
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         var route = endpoints.MapGroup("/api/deals")
-                             .WithTags("Deals");
-        //.RequireAuthorization();
+                             .WithTags("Deals")
+                             .RequireAuthorization();
 
         route.MapPut("/{id:guid}",
             async (IDeal dealService,

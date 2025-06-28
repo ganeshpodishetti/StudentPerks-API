@@ -10,8 +10,8 @@ public class AddCategory : IEndpoint
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         var route = endpoints.MapGroup("/api/categories")
-                             .WithTags("Categories");
-        //.RequireAuthorization();
+                             .WithTags("Categories")
+                             .RequireAuthorization();
 
         route.MapPost("",
             async (ICategory categoryService,
