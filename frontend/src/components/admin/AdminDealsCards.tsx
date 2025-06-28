@@ -19,7 +19,7 @@ export default function AdminDealsCards({ deals, onEditDeal, onDeleteDeal }: Adm
               {/* Header with title and actions */}
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0 pr-2">
-                  <h3 className="font-medium text-neutral-900 dark:text-neutral-300 truncate text-sm sm:text-base">
+                  <h3 className="font-medium text-neutral-700 dark:text-neutral-300 truncate text-sm sm:text-base">
                     {deal.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mt-1 overflow-hidden" style={{
@@ -68,7 +68,7 @@ export default function AdminDealsCards({ deals, onEditDeal, onDeleteDeal }: Adm
 
               {/* Status and discount */}
               <div className="flex justify-between items-center">
-                <span className="bg-green-100 text-green-800 dark:bg-[#262626] dark:text-white px-2 py-1 rounded text-xs sm:text-sm">
+                <span className="bg-black text-white dark:bg-white dark:text-black px-2 py-1 rounded text-xs sm:text-sm">
                   {deal.discount}
                 </span>
                 <span className={`px-2 py-1 rounded text-xs sm:text-sm ${
