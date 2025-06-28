@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Store;
@@ -14,19 +15,20 @@ public class CreateStore : IEndpoint
                              .RequireAuthorization();
 
         route.MapPost("",
-            async (IStore storeService, CreateStoreRequest request,
+            async (IStore storeService,
+                [FromBody] CreateStoreRequest storeRequest,
                 IValidator<CreateStoreRequest> validator,
                 ILogger<CreateStore> logger,
                 CancellationToken cancellationToken) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+                var validationResult = await validator.ValidateAsync(storeRequest, cancellationToken);
                 if (!validationResult.IsValid)
                 {
                     logger.LogWarning("Validation failed for store creation: {Errors}", validationResult.Errors);
                     return Results.ValidationProblem(validationResult.ToDictionary());
                 }
 
-                var store = await storeService.CreateStoreAsync(request, cancellationToken);
+                var store = await storeService.CreateStoreAsync(storeRequest, cancellationToken);
                 return Results.Created($"/api/stores/{store.Id}", store);
             });
     }

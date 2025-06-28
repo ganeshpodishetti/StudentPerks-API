@@ -8,7 +8,11 @@ using SP.Infrastructure.Context;
 
 namespace SP.Application.Services;
 
-public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) : IDeal
+public class DealService(
+    SpDbContext spDbContext,
+    IFileService fileService,
+    ILogger<DealService> logger)
+    : IDeal
 {
     public async Task<GetDealResponse?> GetDealByIdAsync(Guid dealId, CancellationToken ct)
     {
@@ -60,6 +64,20 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         return deals;
     }
 
+    public async Task<IEnumerable<GetDealsByUniversityResponse>?> GetDealsByUniversityAsync(string universityName,
+        CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Retrieving all deals for university {UniversityName}", universityName);
+        var deals = await spDbContext.Deals
+                                     .Include(d => d.University)
+                                     .Where(d => d.University!.Name == universityName)
+                                     .Select(d => d.ToUniversityDto())
+                                     .AsNoTracking()
+                                     .ToListAsync(cancellationToken);
+        logger.LogInformation("Retrieved {Count} deals for university {UniversityName}", deals.Count, universityName);
+        return deals;
+    }
+
     public async Task<IEnumerable<GetDealResponse>> GetAllDealsAsync(CancellationToken ct)
     {
         logger.LogInformation("Retrieving all deals from the database");
@@ -73,93 +91,40 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         return deals;
     }
 
-    public async Task<bool> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
+    public async Task<DealResponse> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
     {
-        var existingStore = await spDbContext.Stores
-                                             .FirstOrDefaultAsync(c => c.Name == request.StoreName,
-                                                 ct);
+        var storeTask = spDbContext.Stores.FirstOrDefaultAsync(s => s.Name == request.StoreName, ct);
+        var categoryTask = spDbContext.Categories.FirstOrDefaultAsync(c => c.Name == request.CategoryName, ct);
+        var universityTask = !string.IsNullOrEmpty(request.UniversityName)
+            ? spDbContext.Universities.FirstOrDefaultAsync(u => u.Name == request.UniversityName, ct)
+            : Task.FromResult<University?>(null);
 
-        var existingCategory = await spDbContext.Categories
-                                                .FirstOrDefaultAsync(c => c.Name == request.CategoryName,
-                                                    ct);
+        // Await all tasks concurrently
+        await Task.WhenAll(storeTask, categoryTask, universityTask);
 
-        Category category;
-        if (existingCategory is null)
+        var existingStore = storeTask.Result;
+        var existingCategory = categoryTask.Result;
+        var existingUniversity = universityTask.Result;
+
+        if (existingCategory is null && existingStore is null)
         {
-            category = new Category { Name = request.CategoryName };
-            await spDbContext.Categories.AddAsync(category, ct);
-            logger.LogInformation("Created a new category with name {Name}", category.Name);
-        }
-        else
-        {
-            category = existingCategory;
-            logger.LogInformation("Using existing category with name {Name}", category.Name);
+            logger.LogError("Both category and store are missing for the new deal creation");
+            throw new InvalidOperationException("Both category and store must be provided.");
         }
 
-        Store store;
-        if (existingStore is null)
+        if (request.UniversityName is not null && existingUniversity is null)
         {
-            store = new Store { Name = request.StoreName };
-            await spDbContext.Stores.AddAsync(store, ct);
-            logger.LogInformation("Created a new store with name {Name}", store.Name);
-        }
-        else
-        {
-            store = existingStore;
-            logger.LogInformation("Using existing store with name {Name}", store.Name);
+            logger.LogWarning("University {UniversityName} not found for deal creation", request.UniversityName);
+            throw new InvalidOperationException("University must be provided if specified.");
         }
 
-        logger.LogInformation("Creating a new deal with title {Title}", request.Title);
-        var deal = request.ToEntity(category.Id, store.Id);
+        var deal = await request.ToEntity(existingCategory!.Id, existingStore!.Id, existingUniversity?.Id, fileService);
 
         await spDbContext.Deals.AddAsync(deal, ct);
         await spDbContext.SaveChangesAsync(ct);
 
         logger.LogInformation("Deal with ID {DealId} created successfully", deal.Id);
-        return true;
-    }
-
-    public async Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealRequest, CancellationToken ct)
-    {
-        var deal = await spDbContext.Deals
-                                    .SingleOrDefaultAsync(d => d.Id == dealId,
-                                        ct);
-
-        if (deal is null)
-        {
-            logger.LogWarning("Deal with ID {DealId} not found", dealId);
-            return false;
-        }
-
-        var existingStore = await spDbContext.Stores
-                                             .FirstOrDefaultAsync(c => c.Name == updateDealRequest.StoreName,
-                                                 ct);
-
-        var existingCategory = await spDbContext.Categories
-                                                .FirstOrDefaultAsync(
-                                                    c => c.Name == updateDealRequest.CategoryName,
-                                                    ct);
-
-        if (existingCategory is null || existingStore is null)
-        {
-            logger.LogWarning(
-                "Either category or store not found for deal update. Category: {Category}, Store: {Store}",
-                existingCategory?.Name, existingStore?.Name);
-            return false;
-        }
-
-        logger.LogInformation("Updating deal with ID {DealId}", dealId);
-        updateDealRequest.ToEntity(deal, existingCategory, existingStore);
-        spDbContext.Deals.Update(deal);
-        var rowsAffected = await spDbContext.SaveChangesAsync(ct);
-        if (rowsAffected > 0)
-        {
-            logger.LogInformation("Deal with ID {DealId} updated successfully", dealId);
-            return true;
-        }
-
-        logger.LogWarning("No changes were saved for deal with ID {DealId}", dealId);
-        return false;
+        return deal.ToDealDto();
     }
 
     public async Task<bool> DeleteDealAsync(Guid dealId, CancellationToken ct)
@@ -178,5 +143,59 @@ public class DealService(SpDbContext spDbContext, ILogger<DealService> logger) :
         logger.LogInformation("Deal with ID {DealId} deleted successfully", dealId);
 
         return true;
+    }
+
+    public async Task<bool> UpdateDealAsync(Guid dealId, UpdateDealRequest updateDealRequest,
+        CancellationToken ct)
+    {
+        var deal = await spDbContext.Deals.SingleOrDefaultAsync(d => d.Id == dealId, ct);
+        if (deal == null)
+        {
+            logger.LogWarning("Deal with ID {DealId} not found", dealId);
+            return false;
+        }
+
+        // Fetch related entities concurrently
+        var storeTask = spDbContext.Stores.FirstOrDefaultAsync(s => s.Name == updateDealRequest.StoreName, ct);
+        var categoryTask =
+            spDbContext.Categories.FirstOrDefaultAsync(c => c.Name == updateDealRequest.CategoryName, ct);
+        var universityTask = string.IsNullOrEmpty(updateDealRequest.UniversityName)
+            ? Task.FromResult<University?>(null)
+            : spDbContext.Universities.FirstOrDefaultAsync(u => u.Name == updateDealRequest.UniversityName, ct);
+
+        await Task.WhenAll(storeTask, categoryTask, universityTask);
+
+        var existingStore = storeTask.Result;
+        var existingCategory = categoryTask.Result;
+        var existingUniversity = universityTask.Result;
+
+        if (existingCategory is null || existingStore is null)
+        {
+            logger.LogWarning(
+                "Either category or store not found for deal update. Category: {Category}, Store: {Store}",
+                existingCategory?.Name, existingStore?.Name);
+            return false;
+        }
+
+        if (existingUniversity is null)
+        {
+            logger.LogWarning("University {UniversityName} not found for deal update",
+                updateDealRequest.UniversityName);
+            return false;
+        }
+
+        logger.LogInformation("Updating deal with ID {DealId}", dealId);
+        updateDealRequest.ToEntity(deal, existingCategory, existingStore, existingUniversity, fileService);
+        spDbContext.Deals.Update(deal);
+
+        var rowsAffected = await spDbContext.SaveChangesAsync(ct);
+        if (rowsAffected > 0)
+        {
+            logger.LogInformation("Deal with ID {DealId} updated successfully.", dealId);
+            return true;
+        }
+
+        logger.LogWarning("No changes were saved for deal with ID {DealId}", dealId);
+        return false;
     }
 }

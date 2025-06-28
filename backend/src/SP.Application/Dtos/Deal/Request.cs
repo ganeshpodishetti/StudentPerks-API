@@ -15,7 +15,8 @@ public record CreateDealRequest(
     DateTime? StartDate,
     DateTime? EndDate,
     string CategoryName,
-    string StoreName);
+    string StoreName,
+    string UniversityName);
 
 public record UpdateDealRequest(
     string Title,
@@ -29,5 +30,7 @@ public record UpdateDealRequest(
     string? HowToRedeem,
     DateTime? StartDate,
     DateTime? EndDate,
+    bool? IsUniversitySpecific,
     string CategoryName,
-    string StoreName);
+    string StoreName,
+    string UniversityName);

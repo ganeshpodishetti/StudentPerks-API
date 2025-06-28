@@ -11,5 +11,7 @@ public interface IStore
         CancellationToken cancellationToken);
 
     Task<bool> DeleteStoreAsync(Guid storeId, CancellationToken cancellationToken);
-    Task<StoreResponse> CreateStoreAsync(CreateStoreRequest createStoreRequest, CancellationToken cancellationToken);
+
+    Task<CreateStoreResponse> CreateStoreAsync(CreateStoreRequest createStoreRequest,
+        CancellationToken cancellationToken);
 }

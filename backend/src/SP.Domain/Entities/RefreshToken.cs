@@ -1,6 +1,6 @@
 namespace SP.Domain.Entities;
 
-public class RefreshToken
+public sealed class RefreshToken
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public required string Token { get; set; }

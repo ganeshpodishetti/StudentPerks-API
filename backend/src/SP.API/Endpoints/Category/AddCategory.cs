@@ -1,5 +1,4 @@
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Category;
@@ -11,17 +10,24 @@ public class AddCategory : IEndpoint
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         var route = endpoints.MapGroup("/api/categories")
-                             .WithTags("Categories")
-                             .RequireAuthorization();
+                             .WithTags("Categories");
+        //.RequireAuthorization();
 
         route.MapPost("",
             async (ICategory categoryService,
-                [FromBody] CreateCategoryRequest request,
+                HttpRequest request,
                 IValidator<CreateCategoryRequest> validator,
                 ILogger<AddCategory> logger,
                 CancellationToken cancellationToken) =>
             {
-                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+                var form = await request.ReadFormAsync(cancellationToken);
+                var createCategoryRequest = new CreateCategoryRequest(
+                    form["name"].ToString(),
+                    string.IsNullOrEmpty(form["description"]) ? null : form["description"].ToString(),
+                    form.Files.GetFile("image")
+                );
+
+                var validationResult = await validator.ValidateAsync(createCategoryRequest, cancellationToken);
 
                 if (!validationResult.IsValid)
                 {
@@ -30,7 +36,7 @@ public class AddCategory : IEndpoint
                     return Results.ValidationProblem(validationResult.ToDictionary());
                 }
 
-                var category = await categoryService.CreateCategoryAsync(request, cancellationToken);
+                var category = await categoryService.CreateCategoryAsync(createCategoryRequest, cancellationToken);
                 return Results.Created($"/api/categories/{category.Id}", category);
             });
     }

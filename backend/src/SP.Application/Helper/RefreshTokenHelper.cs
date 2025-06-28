@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SP.Application.ErrorHandler;
@@ -18,7 +17,6 @@ public interface IRefreshTokenHelper
 
 public class RefreshTokenHelper(
     ILogger<RefreshTokenHelper> logger,
-    IHttpContextAccessor httpContextAccessor,
     SpDbContext dbContext)
     : IRefreshTokenHelper
 {

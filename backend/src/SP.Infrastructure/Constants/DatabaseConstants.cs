@@ -7,6 +7,8 @@ public static class DatabaseConstants
     public const string DealsStoreIndexName = "IX_sp_Deals_StoreId";
     public const string CategoriesIndexName = "IX_sp_Categories_Name";
     public const string StoresIndexName = "IX_sp_Stores_Name";
+    public const string UniversityCodeIndex = "IX_sp_University_Code";
+    public const string UniversityNameIndex = "IX_sp_University_Name";
 
     public const string DealsTableName = "Deals";
     public const string CategoriesTableName = "Categories";
@@ -19,6 +21,7 @@ public static class DatabaseConstants
     public const string RoleClaimsTableName = "RoleClaims";
     public const string UserLoginsTableName = "UserLogins";
     public const string UserTokensTableName = "UserTokens";
+    public const string UniversityTableName = "Universities";
 
     // public const string UserClaimsIndexName = $"IX_{DefaultSchema}_UserClaims_UserId";
     // public const string RoleClaimsIndexName = $"IX_{DefaultSchema}_RoleClaims_RoleId";

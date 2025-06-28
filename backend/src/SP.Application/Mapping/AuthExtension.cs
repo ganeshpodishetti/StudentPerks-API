@@ -4,7 +4,7 @@ using SP.Domain.Options;
 
 namespace SP.Application.Mapping;
 
-public static class AuthMappingExtension
+public static class AuthExtension
 {
     public static User ToEntity(this RegisterRequest registerRequest)
     {

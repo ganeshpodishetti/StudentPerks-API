@@ -24,13 +24,7 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
                .IsRequired()
                .HasMaxLength(250);
 
-        builder.Property(x => x.ImageContentType)
-               .HasMaxLength(250);
-
-              builder.Property(x => x.ImageData)
-                     .HasColumnType("varbinary(max)");
-
-              builder.Property(x => x.Url)
+        builder.Property(x => x.Url)
                .IsRequired()
                .HasMaxLength(250);
 
@@ -53,6 +47,11 @@ public class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.HasOne(x => x.Store)
                .WithMany(x => x.Deals)
                .HasForeignKey(x => x.StoreId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.University)
+               .WithMany(x => x.Deals)
+               .HasForeignKey(x => x.UniversityId)
                .OnDelete(DeleteBehavior.Restrict);
 
         // Add indexes
