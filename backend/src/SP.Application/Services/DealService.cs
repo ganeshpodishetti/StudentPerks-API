@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Deal;
 using SP.Application.Mapping;
-using SP.Domain.Entities;
 using SP.Infrastructure.Context;
 
 namespace SP.Application.Services;
@@ -93,18 +92,12 @@ public class DealService(
 
     public async Task<DealResponse> CreateDealAsync(CreateDealRequest request, CancellationToken ct)
     {
-        var storeTask = spDbContext.Stores.FirstOrDefaultAsync(s => s.Name == request.StoreName, ct);
-        var categoryTask = spDbContext.Categories.FirstOrDefaultAsync(c => c.Name == request.CategoryName, ct);
-        var universityTask = !string.IsNullOrEmpty(request.UniversityName)
-            ? spDbContext.Universities.FirstOrDefaultAsync(u => u.Name == request.UniversityName, ct)
-            : Task.FromResult<University?>(null);
-
-        // Await all tasks concurrently
-        await Task.WhenAll(storeTask, categoryTask, universityTask);
-
-        var existingStore = storeTask.Result;
-        var existingCategory = categoryTask.Result;
-        var existingUniversity = universityTask.Result;
+        var existingStore = await spDbContext.Stores.FirstOrDefaultAsync(s => s.Name == request.StoreName, ct);
+        var existingCategory =
+            await spDbContext.Categories.FirstOrDefaultAsync(c => c.Name == request.CategoryName, ct);
+        var existingUniversity = string.IsNullOrEmpty(request.UniversityName)
+            ? null
+            : await spDbContext.Universities.FirstOrDefaultAsync(u => u.Name == request.UniversityName, ct);
 
         if (existingCategory is null && existingStore is null)
         {
@@ -155,19 +148,13 @@ public class DealService(
             return false;
         }
 
-        // Fetch related entities concurrently
-        var storeTask = spDbContext.Stores.FirstOrDefaultAsync(s => s.Name == updateDealRequest.StoreName, ct);
-        var categoryTask =
-            spDbContext.Categories.FirstOrDefaultAsync(c => c.Name == updateDealRequest.CategoryName, ct);
-        var universityTask = string.IsNullOrEmpty(updateDealRequest.UniversityName)
-            ? Task.FromResult<University?>(null)
-            : spDbContext.Universities.FirstOrDefaultAsync(u => u.Name == updateDealRequest.UniversityName, ct);
-
-        await Task.WhenAll(storeTask, categoryTask, universityTask);
-
-        var existingStore = storeTask.Result;
-        var existingCategory = categoryTask.Result;
-        var existingUniversity = universityTask.Result;
+        var existingStore =
+            await spDbContext.Stores.FirstOrDefaultAsync(s => s.Name == updateDealRequest.StoreName, ct);
+        var existingCategory =
+            await spDbContext.Categories.FirstOrDefaultAsync(c => c.Name == updateDealRequest.CategoryName, ct);
+        var existingUniversity = string.IsNullOrEmpty(updateDealRequest.UniversityName)
+            ? null
+            : await spDbContext.Universities.FirstOrDefaultAsync(u => u.Name == updateDealRequest.UniversityName, ct);
 
         if (existingCategory is null || existingStore is null)
         {
