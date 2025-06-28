@@ -1,23 +1,6 @@
 /// <reference types="vite/client" />
-import { Deal, RedeemType } from '../types/Deal';
+import { CreateDealRequest, Deal, UpdateDealRequest } from '../types/Deal';
 import apiClient, { publicApiClient } from './apiClient';
-
-export interface CreateDealRequest {
-  title: string;
-  description: string;
-  discount: string;
-  image?: File | null;
-  promo?: string;
-  isActive: boolean;
-  url?: string;
-  redeemType: RedeemType;
-  startDate?: string;
-  endDate?: string;
-  categoryName: string;
-  storeName: string;
-}
-
-export interface UpdateDealRequest extends CreateDealRequest {}
 
 export const dealService = {
   // Public endpoints - no authentication required
@@ -98,8 +81,22 @@ export const dealService = {
       if (dealData.endDate) {
         formData.append('endDate', dealData.endDate);
       }
+      if (dealData.howToRedeem) {
+        formData.append('howToRedeem', dealData.howToRedeem);
+      }
+      if (dealData.universityName) {
+        formData.append('universityName', dealData.universityName);
+      }
+      if (dealData.isUniversitySpecific !== undefined) {
+        formData.append('isUniversitySpecific', dealData.isUniversitySpecific.toString());
+        console.log('Adding isUniversitySpecific to FormData:', dealData.isUniversitySpecific);
+      }
       
       console.log('Sending FormData to backend');
+      console.log('FormData contents:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value);
+      }
       
       const response = await apiClient.post('/api/deals', formData, {
         headers: {
@@ -145,6 +142,15 @@ export const dealService = {
       }
       if (dealData.endDate) {
         formData.append('endDate', dealData.endDate);
+      }
+      if (dealData.howToRedeem) {
+        formData.append('howToRedeem', dealData.howToRedeem);
+      }
+      if (dealData.universityName) {
+        formData.append('universityName', dealData.universityName);
+      }
+      if (dealData.isUniversitySpecific !== undefined) {
+        formData.append('isUniversitySpecific', dealData.isUniversitySpecific.toString());
       }
       
       console.log('Sending FormData to backend for update');
