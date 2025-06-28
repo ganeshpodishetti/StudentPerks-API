@@ -26,15 +26,15 @@ export default function AdminDealsTable({ deals, onEditDeal, onDeleteDeal }: Adm
           {deals.map((deal) => (
             <tr key={deal.id} className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800">
               <td className="p-2 sm:p-3 md:p-4">
-                <div className="font-medium text-neutral-900 dark:text-neutral-300 text-xs sm:text-sm">{deal.title}</div>
+                <div className="font-medium text-neutral-700 dark:text-neutral-300 text-xs sm:text-sm">{deal.title}</div>
                 <div className="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[120px] sm:max-w-xs">
                   {deal.description}
                 </div>
               </td>
-              <td className="p-2 sm:p-3 md:p-4 text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">{deal.storeName}</td>
-              <td className="p-2 sm:p-3 md:p-4 text-neutral-900 dark:text-neutral-100 text-xs sm:text-sm">{deal.categoryName}</td>
+              <td className="p-2 sm:p-3 md:p-4 text-neutral-700 dark:text-neutral-300 text-xs sm:text-sm">{deal.storeName}</td>
+              <td className="p-2 sm:p-3 md:p-4 text-neutral-700 dark:text-neutral-300 text-xs sm:text-sm">{deal.categoryName}</td>
               <td className="p-2 sm:p-3 md:p-4">
-                <span className="bg-green-100 text-green-800 dark:bg-[#262626] dark:text-white px-1 sm:px-2 py-1 rounded text-xs">
+                <span className="bg-black text-white dark:bg-white dark:text-black px-1 sm:px-2 py-1 rounded text-xs">
                   {deal.discount}
                 </span>
               </td>
