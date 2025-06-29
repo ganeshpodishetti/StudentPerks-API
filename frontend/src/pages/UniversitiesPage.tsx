@@ -71,7 +71,7 @@ const UniversitiesPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="mb-6">
+      <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Universities</h1>
         <p className="text-gray-600 dark:text-gray-400">
           Browse universities and discover exclusive student deals and offers.
@@ -86,44 +86,29 @@ const UniversitiesPage: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex flex-wrap gap-4 justify-center mb-8">
           {universities.map((university) => (
-            <div
+            <button
               key={university.id}
-              className="border rounded-lg p-6 cursor-pointer transition-all duration-200 hover:shadow-lg border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
               onClick={() => handleUniversitySelect(university.id)}
+              className="flex items-center gap-3 px-4 py-1 rounded-full bg-neutral-900/90 dark:bg-neutral-800/90 hover:bg-neutral-900 dark:hover:bg-neutral-900 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 text-white font-semibold text-lg mb-2 shadow-sm border border-neutral-800/40 min-w-[180px] max-w-full"
+              style={{ minHeight: 48 }}
             >
-              <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  {university.imageUrl ? (
-                    <img
-                      src={university.imageUrl}
-                      alt={university.name}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">
-                        {university.name.substring(0, 2).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                    {university.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-mono mb-1">
-                    {university.code}
-                  </p>
-                  {[university.city, university.state, university.country].filter(Boolean).length > 0 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {[university.city, university.state, university.country].filter(Boolean).join(', ')}
-                    </p>
-                  )}
-                </div>
+              <div className="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden">
+                {university.imageUrl ? (
+                  <img
+                    src={university.imageUrl}
+                    alt={university.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-base opacity-60">
+                    {university.name.substring(0, 2).toUpperCase()}
+                  </span>
+                )}
               </div>
-            </div>
+              <span className="truncate max-w-[160px] text-left">{university.name}</span>
+            </button>
           ))}
         </div>
       )}

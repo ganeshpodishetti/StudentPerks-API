@@ -95,27 +95,15 @@ const CategoriesPage: React.FC = () => {
               <p className="text-neutral-500 dark:text-neutral-400">No categories found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+            <div className="flex flex-wrap gap-4 justify-center mb-8">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategorySelect(category.name || '')}
-                  className="flex flex-col items-center p-4 rounded-lg text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 bg-neutral-100 dark:bg-secondary text-neutral-700 dark:text-secondary-foreground hover:bg-neutral-200 dark:hover:bg-secondary/80"
+                  className="px-4 py-1 rounded-full bg-neutral-900 dark:bg-neutral-800/90 hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 text-white font-semibold text-lg mb-2 shadow-sm border border-neutral-800/40 min-w-[120px] max-w-full w-auto truncate"
+                  style={{ minHeight: 48 }}
                 >
-                  <div className="w-12 h-12 mb-2 rounded-full overflow-hidden">
-                    {category.imageUrl ? (
-                      <img 
-                        src={category.imageUrl} 
-                        alt={category.name || 'Category'} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-neutral-300 dark:bg-neutral-600 flex items-center justify-center">
-                        <span className="text-xs text-neutral-500">No image</span>
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-center line-clamp-2">{category.name}</span>
+                  <span className="truncate px-2">{category.name}</span>
                 </button>
               ))}
             </div>

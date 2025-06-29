@@ -95,14 +95,15 @@ const StoresPage: React.FC = () => {
               <p className="text-neutral-500 dark:text-neutral-400">No stores found</p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-3 justify-center mb-8">
+            <div className="flex flex-wrap gap-4 justify-center mb-8">
               {stores.map((store) => (
                 <button
                   key={store.id}
                   onClick={() => handleStoreSelect(store.name)}
-                  className="px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 dark:focus:ring-offset-neutral-950 whitespace-nowrap bg-neutral-100 dark:bg-secondary text-neutral-700 dark:text-secondary-foreground hover:bg-neutral-200 dark:hover:bg-secondary/80"
+                  className="flex py-2 items-center gap-2 px-5 rounded-full bg-neutral-800 dark:bg-neutral-800/90 hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 text-white font-semibold text-lg mb-2 shadow-sm border border-neutral-800/40 min-w-[120px] max-w-full w-auto"
+                  style={{ minHeight: 48 }}
                 >
-                  {store.name}
+                  <span className="truncate px-1">{store.name}</span>
                 </button>
               ))}
             </div>
