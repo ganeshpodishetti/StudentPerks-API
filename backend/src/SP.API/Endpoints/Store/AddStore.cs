@@ -12,7 +12,7 @@ public class CreateStore : IEndpoint
     {
         var route = endpoints.MapGroup("/api/stores")
                              .WithTags("Stores")
-                             .RequireAuthorization();
+                             .RequireAuthorization("AdminOnly");
 
         route.MapPost("",
             async (IStore storeService,

@@ -16,4 +16,5 @@ public static class CustomErrors
     public const string InvalidRefreshToken = "Invalid or expired refresh token";
 
     public const string EmailAlreadyExists = "Email already exists";
+    public const string RegistrationNotAllowed = "Registration is not allowed. Admin already exists.";
 }

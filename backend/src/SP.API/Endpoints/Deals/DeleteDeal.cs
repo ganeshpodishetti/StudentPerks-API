@@ -10,7 +10,7 @@ public class DeleteDeal : IEndpoint
     {
         var route = endpoints.MapGroup("/api/deals")
                              .WithTags("Deals")
-                             .RequireAuthorization();
+                             .RequireAuthorization("AdminOnly");
 
         route.MapDelete("/{id:guid}",
             async (IDeal dealService,

@@ -92,7 +92,7 @@ const UniversitiesPage: React.FC = () => {
               key={university.id}
               onClick={() => handleUniversitySelect(university.id)}
               className="flex items-center gap-3 px-4 py-1 rounded-full bg-neutral-900/90 dark:bg-neutral-800/90 hover:bg-neutral-900 dark:hover:bg-neutral-900 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 text-white font-semibold text-lg mb-2 shadow-sm border border-neutral-800/40 min-w-[180px] max-w-full"
-              style={{ minHeight: 48 }}
+              style={{ minHeight: 42 }}
             >
               <div className="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden">
                 {university.imageUrl ? (

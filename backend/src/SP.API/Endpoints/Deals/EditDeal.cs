@@ -12,7 +12,7 @@ public class EditDeal : IEndpoint
     {
         var route = endpoints.MapGroup("/api/deals")
                              .WithTags("Deals")
-                             .RequireAuthorization();
+                             .RequireAuthorization("AdminOnly");
 
         route.MapPut("/{id:guid}",
             async (IDeal dealService,
