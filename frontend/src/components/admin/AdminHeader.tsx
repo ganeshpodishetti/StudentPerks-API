@@ -8,7 +8,6 @@ interface AdminHeaderProps {
   } | null;
   onCreateDeal?: () => void;
   onLogout: () => void;
-  onDebugAuth: () => void;
   onTestConnectivity: () => void;
   title?: string;
   createButtonText?: string;
@@ -18,7 +17,6 @@ export default function AdminHeader({
   user, 
   onCreateDeal, 
   onLogout, 
-  onDebugAuth, 
   onTestConnectivity,
   title = "Admin Dashboard",
   createButtonText = "Create Deal"
@@ -36,13 +34,6 @@ export default function AdminHeader({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-4">
         <div className="flex items-center justify-between sm:justify-start gap-2 md:gap-4">
           <ThemeToggle />
-          <Button 
-            onClick={onDebugAuth} 
-            variant="secondary"
-            size="sm"
-          >
-            Debug
-          </Button>
           <Button 
             onClick={onTestConnectivity} 
             variant="outline"

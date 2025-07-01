@@ -1,7 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useErrorHandler } from '@/contexts/ErrorContext';
 import { useDealsQuery } from '@/hooks/queries/useDealsQuery';
-import { authService } from '@/services/authService';
 
 export const useAdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -9,17 +8,6 @@ export const useAdminDashboard = () => {
 
   // React Query hooks
   const { data: deals = [], isLoading } = useDealsQuery();
-
-  // Debug function to check authentication state
-  const debugAuth = () => {
-    console.log('=== Authentication Debug Info ===');
-    console.log('User from context:', user);
-    console.log('Is authenticated:', !!user);
-    console.log('LocalStorage user:', localStorage.getItem('user'));
-    console.log('Access token:', authService.getAccessToken());
-    console.log('All cookies:', document.cookie);
-    console.log('================================');
-  };
 
   // Test connectivity function
   const testConnectivity = async () => {
@@ -69,7 +57,6 @@ export const useAdminDashboard = () => {
     isLoading,
     user,
     handleLogout,
-    debugAuth,
     testConnectivity
   };
 };

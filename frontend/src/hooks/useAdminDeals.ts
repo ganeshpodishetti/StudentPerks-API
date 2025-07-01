@@ -21,11 +21,6 @@ export const useAdminDeals = () => {
   const updateDealMutation = useUpdateDealMutation();
   const deleteDealMutation = useDeleteDealMutation();
 
-  // Debug function to check authentication state (removed for security)
-  const debugAuth = () => {
-    // Debug functionality removed for production security
-  };
-
   // Test connectivity function
   const testConnectivity = async () => {
     try {
@@ -125,7 +120,6 @@ export const useAdminDeals = () => {
     handleDeleteDeal,
     handleSaveDeal,
     handleLogout,
-    debugAuth,
     testConnectivity,
     closeModal
   };
