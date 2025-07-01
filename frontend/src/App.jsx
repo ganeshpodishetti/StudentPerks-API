@@ -6,6 +6,14 @@ import DealList from './components/DealList';
 import Navigation from './components/Navigation';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
+// Development utilities
+if (import.meta.env.DEV) {
+  import('./utils/tokenTestUtils');
+}
+
+// Development components
+const AuthDebugger = lazy(() => import('./components/AuthDebugger'));
+
 // Lazy load admin components
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminDealsPage = lazy(() => import('./pages/AdminDealsPage'));
@@ -164,6 +172,13 @@ const AppContent = () => {
       
       {/* Toast notifications */}
       <Toaster />
+      
+      {/* Development auth debugger */}
+      {import.meta.env.DEV && (
+        <Suspense fallback={null}>
+          <AuthDebugger />
+        </Suspense>
+      )}
     </div>
   );
 };

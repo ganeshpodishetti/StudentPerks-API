@@ -1,5 +1,6 @@
 import { getTimeUntilExpiration, isTokenExpired } from '@/lib/tokenUtils';
 import axios from 'axios';
+import { clearGlobalTokenManager, getGlobalTokenManager } from './tokenManager';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -61,6 +62,9 @@ export const authService = {
   setAccessToken(token: string) {
     currentAccessToken = token;
     localStorage.setItem('accessToken', token);
+    
+    // Schedule proactive refresh when token is set
+    this.scheduleProactiveRefresh();
   },
 
   getAccessToken(): string | null {
@@ -73,6 +77,33 @@ export const authService = {
   clearAccessToken() {
     currentAccessToken = null;
     localStorage.removeItem('accessToken');
+    
+    // Clear any scheduled refresh
+    this.clearProactiveRefresh();
+  },
+
+  // Schedule proactive token refresh
+  scheduleProactiveRefresh() {
+    try {
+      const tokenManager = getGlobalTokenManager(
+        async () => {
+          await this.refreshToken();
+        },
+        () => this.getAccessToken()
+      );
+      tokenManager.scheduleProactiveRefresh();
+    } catch (error) {
+      console.warn('AuthService: Failed to schedule proactive refresh:', error);
+    }
+  },
+
+  // Clear proactive refresh timer
+  clearProactiveRefresh() {
+    try {
+      clearGlobalTokenManager();
+    } catch (error) {
+      console.warn('AuthService: Failed to clear proactive refresh:', error);
+    }
   },
 
   async login(loginData: LoginRequest): Promise<LoginResponse> {
@@ -105,6 +136,11 @@ export const authService = {
   async refreshToken(): Promise<string> {
     try {
       console.log('AuthService: Attempting to refresh access token...');
+      
+      // Check if we have cookies (refresh token should be in HTTP-only cookie)
+      const cookies = document.cookie;
+      console.log('AuthService: Available cookies:', cookies ? 'Present' : 'None');
+      
       const response = await authApi.post('/api/auth/refresh-token');
       const { accessToken } = response.data;
       
@@ -117,6 +153,12 @@ export const authService = {
       throw new Error('No access token received from refresh endpoint');
     } catch (error: any) {
       console.error('AuthService: Token refresh failed:', error.response?.data || error.message);
+      console.error('AuthService: Full error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
       
       // Clear the invalid token
       this.clearAccessToken();
@@ -125,6 +167,12 @@ export const authService = {
       if (error.response?.status === 401 || error.response?.status === 403) {
         console.log('AuthService: Refresh token is invalid or expired');
         throw new Error('Refresh token invalid or expired');
+      }
+      
+      // If it's a 400, it's likely a validation error
+      if (error.response?.status === 400) {
+        console.log('AuthService: Bad request - refresh token may be expired or revoked');
+        throw new Error('Refresh token expired or revoked');
       }
       
       throw error;
@@ -161,8 +209,18 @@ export const authService = {
         await this.refreshToken();
         console.log('AuthService: Token refreshed successfully');
         return true;
-      } catch (refreshError) {
-        console.log('AuthService: Refresh failed, user needs to login');
+      } catch (refreshError: any) {
+        console.log('AuthService: Refresh failed during auth check:', refreshError.message);
+        
+        // If refresh failed due to invalid/expired refresh token, clear everything
+        if (refreshError.message?.includes('invalid') || 
+            refreshError.message?.includes('expired') ||
+            refreshError.message?.includes('revoked')) {
+          console.log('AuthService: Clearing invalid tokens and user data');
+          this.clearAccessToken();
+          localStorage.removeItem('user');
+        }
+        
         return false;
       }
     }
@@ -197,6 +255,22 @@ export const authService = {
       this.clearAccessToken();
       localStorage.removeItem('user');
       console.log('AuthService: User logged out successfully');
+    }
+  },
+
+  // Get refresh status information
+  getRefreshStatus() {
+    try {
+      const tokenManager = getGlobalTokenManager();
+      return {
+        isScheduled: tokenManager.isRefreshScheduled(),
+        timeUntilRefresh: tokenManager.getTimeUntilRefresh()
+      };
+    } catch {
+      return {
+        isScheduled: false,
+        timeUntilRefresh: 0
+      };
     }
   }
 };

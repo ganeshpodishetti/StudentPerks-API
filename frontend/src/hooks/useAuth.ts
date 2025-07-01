@@ -8,12 +8,20 @@ export interface UseAuthReturn {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  refreshStatus: {
+    isScheduled: boolean;
+    timeUntilRefresh: number;
+  };
 }
 
 export const useAuth = (): UseAuthReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<any>(null);
+  const [refreshStatus, setRefreshStatus] = useState({
+    isScheduled: false,
+    timeUntilRefresh: 0
+  });
 
   // Check authentication status on mount and periodically
   const checkAuth = async () => {
@@ -41,9 +49,15 @@ export const useAuth = (): UseAuthReturn => {
   const login = async (email: string, password: string): Promise<void> => {
     try {
       setIsLoading(true);
-      const response = await authService.login({ email, password });
+      await authService.login({ email, password });
       setIsAuthenticated(true);
-      setUser(response.user);
+      
+      // Get user data from localStorage since login stores it there
+      const userData = authService.getUser();
+      setUser(userData);
+      
+      // Update refresh status after successful login
+      updateRefreshStatus();
     } catch (error) {
       setIsAuthenticated(false);
       setUser(null);
@@ -63,8 +77,15 @@ export const useAuth = (): UseAuthReturn => {
     } finally {
       setIsAuthenticated(false);
       setUser(null);
+      setRefreshStatus({ isScheduled: false, timeUntilRefresh: 0 });
       setIsLoading(false);
     }
+  };
+
+  // Update refresh status
+  const updateRefreshStatus = () => {
+    const status = authService.getRefreshStatus();
+    setRefreshStatus(status);
   };
 
   // Check auth status on component mount
@@ -72,45 +93,31 @@ export const useAuth = (): UseAuthReturn => {
     checkAuth();
   }, []);
 
-  // Set up smart token refresh based on token expiration
+  // Set up token refresh monitoring and handle refresh events
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const setupTokenRefresh = () => {
-      const timeUntilExpiration = authService.getTimeUntilTokenExpires();
-      
-      if (timeUntilExpiration <= 0) {
-        // Token already expired, check auth status
-        checkAuth();
-        return;
-      }
+    // Start proactive refresh for authenticated users
+    authService.scheduleProactiveRefresh();
+    updateRefreshStatus();
 
-      // Set refresh to happen 30 seconds before expiration
-      const refreshTime = Math.max(timeUntilExpiration - 30000, 10000);
-      
-      console.log(`useAuth: Token will be refreshed in ${Math.round(refreshTime / 1000)} seconds`);
-
-      const refreshTimeout = setTimeout(async () => {
-        try {
-          await authService.refreshToken();
-          console.log('useAuth: Token refreshed proactively');
-          setupTokenRefresh(); // Setup next refresh
-        } catch (error) {
-          console.log('useAuth: Proactive token refresh failed');
-          setIsAuthenticated(false);
-          setUser(null);
-        }
-      }, refreshTime);
-
-      return refreshTimeout;
+    // Listen for token refresh failure events
+    const handleRefreshFailure = (event: CustomEvent) => {
+      console.error('Token refresh failed, logging out user:', event.detail.error);
+      setIsAuthenticated(false);
+      setUser(null);
+      setRefreshStatus({ isScheduled: false, timeUntilRefresh: 0 });
     };
 
-    const refreshTimeout = setupTokenRefresh();
+    // Add event listener for refresh failures
+    window.addEventListener('tokenRefreshFailed', handleRefreshFailure as EventListener);
+
+    // Periodically update refresh status (every 30 seconds)
+    const statusInterval = setInterval(updateRefreshStatus, 30000);
 
     return () => {
-      if (refreshTimeout) {
-        clearTimeout(refreshTimeout);
-      }
+      window.removeEventListener('tokenRefreshFailed', handleRefreshFailure as EventListener);
+      clearInterval(statusInterval);
     };
   }, [isAuthenticated]);
 
@@ -121,5 +128,6 @@ export const useAuth = (): UseAuthReturn => {
     login,
     logout,
     checkAuth,
+    refreshStatus,
   };
 };

@@ -1,6 +1,5 @@
 using SP.Application.Dtos.Auth;
 using SP.Domain.Entities;
-using SP.Domain.Options;
 
 namespace SP.Application.Mapping;
 
@@ -34,15 +33,14 @@ public static class AuthExtension
         );
     }
 
-    public static RefreshToken CreateRefreshTokenEntity(string token, string userId)
+    public static RefreshToken CreateRefreshTokenEntity(string token, string userId, int refreshTokenExpirationInDays)
     {
-        var jwtOptions = new JwtOptions();
         return new RefreshToken
         {
             Id = Guid.NewGuid(),
             Token = token,
             UserId = userId,
-            ExpirationDate = DateTime.UtcNow.AddDays(jwtOptions.RefreshTokenExpirationInDays),
+            ExpirationDate = DateTime.UtcNow.AddDays(refreshTokenExpirationInDays),
             IsRevoked = false
         };
     }

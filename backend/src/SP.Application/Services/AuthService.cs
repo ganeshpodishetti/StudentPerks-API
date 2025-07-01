@@ -83,7 +83,7 @@ public class AuthService(
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
         var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
 
-        var refreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(refreshToken, user.Id);
+        var refreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(refreshToken, user.Id, jwtOptions.Value.RefreshTokenExpirationInDays);
 
         await dbContext.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -112,20 +112,35 @@ public class AuthService(
 
         var (existingUser, oldRefreshToken) = validationResult.Value;
 
+        // Mark the old token as revoked and update it
         oldRefreshToken.IsRevoked = true;
         oldRefreshToken.LastModifiedAt = DateTime.UtcNow;
         dbContext.RefreshTokens.Update(oldRefreshToken);
 
+        // Save the revocation first to avoid tracking conflicts
+        await dbContext.SaveChangesAsync(cancellationToken);
+
         var newAccessToken = await jwtHelper.GenerateJwtToken(existingUser);
         var newRefreshToken = refreshTokenHelper.GenerateRefreshToken();
 
-        var newRefreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(newRefreshToken, existingUser.Id);
+        var newRefreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(newRefreshToken, existingUser.Id, jwtOptions.Value.RefreshTokenExpirationInDays);
         await dbContext.RefreshTokens.AddAsync(newRefreshTokenEntity, cancellationToken);
 
-        logger.LogInformation("Cleaning up old revoked refresh tokens for user {UserName}", existingUser.UserName);
-        await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
+        // Save the new token
         await dbContext.SaveChangesAsync(cancellationToken);
+
         logger.LogInformation("New refresh token generated and saved for user {UserName}", existingUser.UserName);
+
+        // Clean up expired and revoked tokens in a separate operation
+        try
+        {
+            logger.LogInformation("Cleaning up old expired and revoked refresh tokens for user {UserName}", existingUser.UserName);
+            await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to cleanup expired tokens for user {UserName}, but refresh was successful", existingUser.UserName);
+        }
 
         var newAccessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
 
