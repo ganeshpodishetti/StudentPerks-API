@@ -35,8 +35,12 @@ export default function AdminUniversitiesTable({ universities, onEditUniversity,
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-md object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
-                      <span className="text-xs text-neutral-500">No image</span>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+                      <img 
+                        src="/no-image.svg" 
+                        alt="No image available" 
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
                 </div>
