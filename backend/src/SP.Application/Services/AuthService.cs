@@ -9,6 +9,7 @@ using SP.Application.ErrorHandler;
 using SP.Application.Helper;
 using SP.Application.Mapping;
 using SP.Domain.Entities;
+using SP.Domain.Enums;
 using SP.Domain.Options;
 using SP.Infrastructure.Context;
 
@@ -28,6 +29,14 @@ public class AuthService(
     public async Task<Result<RegisterResponse>> RegisterAsync(RegisterRequest request,
         CancellationToken cancellationToken)
     {
+        // Check if an admin role already exists
+        var adminExists = await userManager.GetUsersInRoleAsync(nameof(Roles.Admin));
+        if (adminExists.Any())
+        {
+            logger.LogWarning("Registration attempt blocked - admin already exists");
+            return Result<RegisterResponse>.Failure(CustomErrors.RegistrationNotAllowed);
+        }
+
         var existingUser = await userManager.FindByEmailAsync(request.Email);
 
         if (existingUser is not null)
@@ -35,7 +44,17 @@ public class AuthService(
 
         var user = request.ToEntity();
         var userCreated = await userManager.CreateAsync(user, request.Password);
-        if (userCreated.Succeeded) return Result<RegisterResponse>.Success(user.ToDto());
+        if (userCreated.Succeeded)
+        {
+            logger.LogInformation("User {UserName} registered successfully", user.UserName);
+            // Assign the Admin role to the newly created user
+            var roleCreated = await userManager.AddToRoleAsync(user, nameof(Roles.Admin));
+            if (roleCreated.Succeeded) return Result<RegisterResponse>.Success(user.ToDto());
+            var errorsRole = roleCreated.Errors.Select(e => e.Description).ToList();
+            logger.LogError("Failed to assign Admin role to user {UserName}: {Errors}", user.UserName, errorsRole);
+            return Result<RegisterResponse>.Failure(errorsRole);
+        }
+
         var errors = userCreated.Errors.Select(e => e.Description).ToList();
         return Result<RegisterResponse>.Failure(errors);
     }
@@ -55,6 +74,9 @@ public class AuthService(
         var isPasswordValid = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
         if (!isPasswordValid.Succeeded) return Result<LoginResponse>.Failure(CustomErrors.InvalidCredentials);
+
+        logger.LogInformation("Cleaning up expired and revoked refresh tokens for user {UserName}", user.UserName);
+        await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
 
         var accessToken = await jwtHelper.GenerateJwtToken(user);
         var refreshToken = refreshTokenHelper.GenerateRefreshToken();

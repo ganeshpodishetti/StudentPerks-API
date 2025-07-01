@@ -95,15 +95,15 @@ const CategoriesPage: React.FC = () => {
               <p className="text-neutral-500 dark:text-neutral-400">No categories found</p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-4 justify-center mb-8">
+            <div className="flex flex-wrap gap-2 justify-center max-w-6xl mx-auto">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategorySelect(category.name || '')}
-                  className="px-4 py-1 rounded-full bg-neutral-900 dark:bg-neutral-800/90 hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 text-white font-semibold text-lg mb-2 shadow-sm border border-neutral-800/40 min-w-[120px] max-w-full w-auto truncate"
-                  style={{ minHeight: 48 }}
+                  className="px-4 py-1 rounded-full bg-neutral-800 text-white hover:bg-neutral-900 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 font-semibold text-lg mb-2 shadow-sm border border-neutral-900 min-w-[120px] max-w-full w-auto truncate"
+                  style={{ minHeight: 42 }}
                 >
-                  <span className="truncate px-2">{category.name}</span>
+                  <span className="truncate px-1">{category.name}</span>
                 </button>
               ))}
             </div>

@@ -12,7 +12,7 @@ public class EditCategory : IEndpoint
     {
         var route = endpoints.MapGroup("/api/categories")
                              .WithTags("Categories")
-                             .RequireAuthorization();
+                             .RequireAuthorization("AdminOnly");
 
         route.MapPut("/{id:guid}",
             async ([FromRoute] Guid id,

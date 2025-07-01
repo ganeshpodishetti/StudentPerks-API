@@ -12,7 +12,7 @@ public class EditStore : IEndpoint
     {
         var route = endpoints.MapGroup("/api/stores")
                              .WithTags("Stores")
-                             .RequireAuthorization();
+                             .RequireAuthorization("AdminOnly");
 
         route.MapPut("/{id:guid}",
             async (IStore storeService, [FromRoute] Guid id,

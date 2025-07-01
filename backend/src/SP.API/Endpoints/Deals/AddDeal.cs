@@ -11,7 +11,7 @@ public class AddDeal : IEndpoint
     {
         var route = endpoints.MapGroup("/api/deals")
                              .WithTags("Deals")
-                             .RequireAuthorization();
+                             .RequireAuthorization("AdminOnly");
 
         route.MapPost("",
             async (IDeal dealService,

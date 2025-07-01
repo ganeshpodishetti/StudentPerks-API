@@ -11,7 +11,7 @@ public class AddCategory : IEndpoint
     {
         var route = endpoints.MapGroup("/api/categories")
                              .WithTags("Categories")
-                             .RequireAuthorization();
+                             .RequireAuthorization("AdminOnly");
 
         route.MapPost("",
             async (ICategory categoryService,

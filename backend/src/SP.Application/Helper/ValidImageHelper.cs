@@ -6,7 +6,7 @@ public static class ValidImageHelper
 {
     private static readonly string[] AllowedExtensions = { ".png", ".svg" };
     private static readonly string[] AllowedMimeTypes = { "image/png", "image/svg+xml" };
-    
+
     public static bool IsValidImageFile(IFormFile? file)
     {
         if (file == null || file.Length == 0)
@@ -22,9 +22,6 @@ public static class ValidImageHelper
             return false;
 
         // Additional validation for file size (max 5MB)
-        if (file.Length > 5 * 1024 * 1024)
-            return false;
-
-        return true;
+        return file.Length <= 5 * 1024 * 1024;
     }
 }

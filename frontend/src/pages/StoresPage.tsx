@@ -101,7 +101,7 @@ const StoresPage: React.FC = () => {
                   key={store.id}
                   onClick={() => handleStoreSelect(store.name)}
                   className="flex py-2 items-center gap-2 px-5 rounded-full bg-neutral-800 dark:bg-neutral-800/90 hover:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-1 focus:ring-primary/40 text-white font-semibold text-lg mb-2 shadow-sm border border-neutral-800/40 min-w-[120px] max-w-full w-auto"
-                  style={{ minHeight: 48 }}
+                  style={{ minHeight: 42 }}
                 >
                   <span className="truncate px-1">{store.name}</span>
                 </button>

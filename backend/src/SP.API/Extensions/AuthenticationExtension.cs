@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using SP.Domain.Entities;
+using SP.Domain.Enums;
 using SP.Domain.Options;
 using SP.Infrastructure.Context;
 
@@ -63,8 +64,7 @@ public static class AuthenticationExtension
                         OnMessageReceived = context =>
                         {
                             // Support both Authorization header and cookie
-                            var token = context.Request.Headers["Authorization"]
-                                               .FirstOrDefault()?.Split(" ").Last();
+                            var token = context.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last();
 
                             if (string.IsNullOrEmpty(token)) token = context.Request.Cookies["accessToken"];
 
@@ -79,9 +79,7 @@ public static class AuthenticationExtension
 
         services.AddAuthorizationBuilder()
                 .AddPolicy("AdminOnly", policy =>
-                    policy.RequireRole("Admin"))
-                .AddPolicy("UserOnly", policy =>
-                    policy.RequireRole("User"));
+                    policy.RequireRole(nameof(Roles.Admin)));
 
         return services;
     }
