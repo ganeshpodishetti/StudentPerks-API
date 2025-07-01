@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Calendar, Clock, ExternalLink, Image, MapPin, School } from 'lucide-react';
+import { Calendar, Clock, ExternalLink, MapPin, School } from 'lucide-react';
 import React, { memo, useState } from 'react';
 import { Deal } from '../types/Deal';
 import DealDetail from './DealDetail';
@@ -88,9 +88,11 @@ const DealCard: React.FC<DealCardProps> = memo(({ deal, showUniversityInfo = fal
                     onError={handleImageError}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Image className={`${compact ? 'w-6 h-6' : 'w-8 h-8'} text-neutral-400 dark:text-neutral-500`} />
-                  </div>
+                  <img 
+                    src="/no-image.svg" 
+                    alt="No image available" 
+                    className="w-full h-full object-contain opacity-60"
+                  />
                 )}
               </div>
             </div>
