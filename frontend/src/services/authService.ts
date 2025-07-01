@@ -93,7 +93,7 @@ export const authService = {
       );
       tokenManager.scheduleProactiveRefresh();
     } catch (error) {
-      console.warn('AuthService: Failed to schedule proactive refresh:', error);
+      // Silently handle scheduling errors
     }
   },
 
@@ -102,7 +102,7 @@ export const authService = {
     try {
       clearGlobalTokenManager();
     } catch (error) {
-      console.warn('AuthService: Failed to clear proactive refresh:', error);
+      // Silently handle cleanup errors
     }
   },
 
@@ -135,43 +135,26 @@ export const authService = {
 
   async refreshToken(): Promise<string> {
     try {
-      console.log('AuthService: Attempting to refresh access token...');
-      
-      // Check if we have cookies (refresh token should be in HTTP-only cookie)
-      const cookies = document.cookie;
-      console.log('AuthService: Available cookies:', cookies ? 'Present' : 'None');
-      
       const response = await authApi.post('/api/auth/refresh-token');
       const { accessToken } = response.data;
       
       if (accessToken) {
-        console.log('AuthService: Access token refreshed successfully');
         this.setAccessToken(accessToken);
         return accessToken;
       }
       
       throw new Error('No access token received from refresh endpoint');
     } catch (error: any) {
-      console.error('AuthService: Token refresh failed:', error.response?.data || error.message);
-      console.error('AuthService: Full error details:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        headers: error.response?.headers
-      });
-      
       // Clear the invalid token
       this.clearAccessToken();
       
       // If it's a 401 or 403, it means refresh token is invalid/expired
       if (error.response?.status === 401 || error.response?.status === 403) {
-        console.log('AuthService: Refresh token is invalid or expired');
         throw new Error('Refresh token invalid or expired');
       }
       
       // If it's a 400, it's likely a validation error
       if (error.response?.status === 400) {
-        console.log('AuthService: Bad request - refresh token may be expired or revoked');
         throw new Error('Refresh token expired or revoked');
       }
       
@@ -198,25 +181,19 @@ export const authService = {
     const token = this.getAccessToken();
     
     if (!token) {
-      console.log('AuthService: No access token found');
       return false;
     }
     
     // Check if token is expired
     if (this.isTokenExpired()) {
-      console.log('AuthService: Token expired, attempting refresh...');
       try {
         await this.refreshToken();
-        console.log('AuthService: Token refreshed successfully');
         return true;
       } catch (refreshError: any) {
-        console.log('AuthService: Refresh failed during auth check:', refreshError.message);
-        
         // If refresh failed due to invalid/expired refresh token, clear everything
         if (refreshError.message?.includes('invalid') || 
             refreshError.message?.includes('expired') ||
             refreshError.message?.includes('revoked')) {
-          console.log('AuthService: Clearing invalid tokens and user data');
           this.clearAccessToken();
           localStorage.removeItem('user');
         }
@@ -225,7 +202,6 @@ export const authService = {
       }
     }
     
-    console.log('AuthService: Current token is valid');
     return true;
   },
 
@@ -235,7 +211,6 @@ export const authService = {
       const userJson = localStorage.getItem('user');
       return userJson ? JSON.parse(userJson) : null;
     } catch (error) {
-      console.error('Error parsing user data from localStorage:', error);
       return null;
     }
   },
@@ -247,14 +222,12 @@ export const authService = {
 
   async logout() {
     try {
-      console.log('AuthService: Logging out user...');
       await authApi.post('/api/auth/logout');
     } catch (error) {
-      console.error('AuthService: Logout error:', error);
+      // Silently handle logout errors
     } finally {
       this.clearAccessToken();
       localStorage.removeItem('user');
-      console.log('AuthService: User logged out successfully');
     }
   },
 

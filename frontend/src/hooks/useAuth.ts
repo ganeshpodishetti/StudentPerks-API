@@ -37,7 +37,6 @@ export const useAuth = (): UseAuthReturn => {
         setUser(null);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
       setIsAuthenticated(false);
       setUser(null);
     } finally {
@@ -73,7 +72,7 @@ export const useAuth = (): UseAuthReturn => {
       setIsLoading(true);
       await authService.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      // Silently handle logout errors
     } finally {
       setIsAuthenticated(false);
       setUser(null);
@@ -102,8 +101,7 @@ export const useAuth = (): UseAuthReturn => {
     updateRefreshStatus();
 
     // Listen for token refresh failure events
-    const handleRefreshFailure = (event: CustomEvent) => {
-      console.error('Token refresh failed, logging out user:', event.detail.error);
+    const handleRefreshFailure = () => {
       setIsAuthenticated(false);
       setUser(null);
       setRefreshStatus({ isScheduled: false, timeUntilRefresh: 0 });
