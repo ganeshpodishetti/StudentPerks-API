@@ -61,6 +61,9 @@ export const useDealsFilter = ({
   const filteredDeals = useMemo(() => {
     let result = deals;
 
+    // Filter out inactive deals for home page experience
+    result = result.filter(deal => deal.isActive);
+
     // Filter by category
     if (selectedCategory && selectedCategory !== 'All') {
       result = result.filter(deal => 
