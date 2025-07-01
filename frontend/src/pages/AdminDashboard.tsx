@@ -12,7 +12,6 @@ export default function AdminDashboard() {
     isLoading,
     user,
     handleLogout,
-    debugAuth,
     testConnectivity
   } = useAdminDashboard();
 
@@ -27,7 +26,6 @@ export default function AdminDashboard() {
       <AdminHeader 
         user={user}
         onLogout={handleLogout}
-        onDebugAuth={debugAuth}
         onTestConnectivity={testConnectivity}
         title="Dashboard"
       />

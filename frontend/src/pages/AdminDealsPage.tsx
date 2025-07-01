@@ -18,7 +18,6 @@ export default function AdminDealsPage() {
     handleDeleteDeal,
     handleSaveDeal,
     handleLogout,
-    debugAuth,
     testConnectivity,
     closeModal
   } = useAdminDeals();
@@ -35,7 +34,6 @@ export default function AdminDealsPage() {
         user={user}
         onCreateDeal={handleCreateDeal}
         onLogout={handleLogout}
-        onDebugAuth={debugAuth}
         onTestConnectivity={testConnectivity}
         title="Deals Management"
       />

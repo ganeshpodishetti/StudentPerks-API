@@ -53,7 +53,6 @@ export default function AdminUniversitiesPage() {
         user={user}
         onCreateDeal={handleCreateUniversity}
         onLogout={handleLogout}
-        onDebugAuth={() => {}}
         onTestConnectivity={() => {}}
         title="University Management"
         createButtonText="Create University"

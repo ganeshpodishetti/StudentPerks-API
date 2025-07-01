@@ -41,7 +41,6 @@ export default function AdminCategoriesPage() {
         user={user}
         onCreateDeal={handleCreateCategory}
         onLogout={handleLogout}
-        onDebugAuth={() => {}}
         onTestConnectivity={() => {}}
         title="Category Management"
         createButtonText="Create Category"

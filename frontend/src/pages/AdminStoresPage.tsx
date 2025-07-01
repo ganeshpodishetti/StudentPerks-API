@@ -41,7 +41,6 @@ export default function AdminStoresPage() {
         user={user}
         onCreateDeal={handleCreateStore}
         onLogout={handleLogout}
-        onDebugAuth={() => {}}
         onTestConnectivity={() => {}}
         title="Store Management"
         createButtonText="Create Store"
