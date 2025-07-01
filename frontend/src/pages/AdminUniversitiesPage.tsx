@@ -7,6 +7,18 @@ import UniversityFormModal from '@/components/UniversityFormModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminUniversities } from '@/hooks/useAdminUniversities';
 
+// Export hook for university selection in other components
+export const useUniversityOptions = () => {
+  const { universities, isLoading } = useAdminUniversities();
+  
+  const universityOptions = universities?.map(university => ({
+    value: university.id,
+    label: university.name
+  })) || [];
+
+  return { universityOptions, isLoading };
+};
+
 export default function AdminUniversitiesPage() {
   const {
     universities,
