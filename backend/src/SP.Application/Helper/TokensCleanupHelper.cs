@@ -9,12 +9,29 @@ public static class TokensCleanupHelper
         SpDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        //var cutoffDate = DateTime.UtcNow.AddDays(-1);
-        var expiredTokens = await dbContext.RefreshTokens
-                                           .Where(token => token.IsRevoked == false)
-                                           .ToListAsync(cancellationToken);
-
-        dbContext.RefreshTokens.RemoveRange(expiredTokens);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.RefreshTokens
+                       .Where(token => token.IsRevoked == true || token.ExpirationDate <= DateTime.UtcNow)
+                       .ExecuteDeleteAsync(cancellationToken);
     }
+
+
+    // Fallback method for older EF Core versions
+    //     private static async Task CleanupExpiredAndRevokedTokensAsyncLegacy(
+    //         SpDbContext dbContext,
+    //         CancellationToken cancellationToken)
+    //     {
+    //         // Get IDs only to avoid loading full entities
+    //         var expiredOrRevokedTokenIds = await dbContext.RefreshTokens
+    //                                                       .Where(token =>
+    //                                                           token.IsRevoked == true ||
+    //                                                           token.ExpirationDate <= DateTime.UtcNow)
+    //                                                       .Select(t => t.Id)
+    //                                                       .ToListAsync(cancellationToken);
+    //
+    //         if (expiredOrRevokedTokenIds.Count > 0)
+    //             // Use batch delete with FormattableString for PostgreSQL
+    //             await dbContext.Database.ExecuteSqlAsync(
+    //                 $"DELETE FROM sp.\"RefreshTokens\" WHERE \"Id\" = ANY({expiredOrRevokedTokenIds})",
+    //                 cancellationToken);
+    //     }
 }
