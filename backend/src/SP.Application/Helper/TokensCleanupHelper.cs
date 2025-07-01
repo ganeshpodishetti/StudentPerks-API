@@ -14,24 +14,15 @@ public static class TokensCleanupHelper
                        .ExecuteDeleteAsync(cancellationToken);
     }
 
-
-    // Fallback method for older EF Core versions
-    //     private static async Task CleanupExpiredAndRevokedTokensAsyncLegacy(
-    //         SpDbContext dbContext,
-    //         CancellationToken cancellationToken)
-    //     {
-    //         // Get IDs only to avoid loading full entities
-    //         var expiredOrRevokedTokenIds = await dbContext.RefreshTokens
-    //                                                       .Where(token =>
-    //                                                           token.IsRevoked == true ||
-    //                                                           token.ExpirationDate <= DateTime.UtcNow)
-    //                                                       .Select(t => t.Id)
-    //                                                       .ToListAsync(cancellationToken);
-    //
-    //         if (expiredOrRevokedTokenIds.Count > 0)
-    //             // Use batch delete with FormattableString for PostgreSQL
-    //             await dbContext.Database.ExecuteSqlAsync(
-    //                 $"DELETE FROM sp.\"RefreshTokens\" WHERE \"Id\" = ANY({expiredOrRevokedTokenIds})",
-    //                 cancellationToken);
-    //     }
+    public static async Task SetToTokensFalseAsync(
+        SpDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var tokens = await dbContext.RefreshTokens
+                                    .Where(token => token.IsRevoked == false)
+                                    .ToListAsync(cancellationToken);
+        tokens.ForEach(token => token.IsRevoked = true);
+        dbContext.RefreshTokens.UpdateRange(tokens);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }
