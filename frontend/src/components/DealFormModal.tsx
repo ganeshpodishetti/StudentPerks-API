@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { categoryService } from '@/services/categoryService';
 import { storeService } from '@/services/storeService';
+import { universityService, type University } from '@/services/universityService';
 import { CreateDealRequest, Deal, RedeemType } from '@/types/Deal';
 import { useEffect, useState } from 'react';
 
@@ -83,12 +84,14 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
 
   const [categories, setCategories] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       loadCategories();
       loadStores();
+      loadUniversities();
       
       if (deal) {
         setFormData({
@@ -146,6 +149,15 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
       setStores(storesData);
     } catch (error) {
       console.error('Error loading stores:', error);
+    }
+  };
+
+  const loadUniversities = async () => {
+    try {
+      const universitiesData = await universityService.getUniversities();
+      setUniversities(universitiesData);
+    } catch (error) {
+      console.error('Error loading universities:', error);
     }
   };
 
@@ -438,15 +450,18 @@ export default function DealFormModal({ isOpen, onClose, onSave, deal }: DealFor
 
           <div>
             <Label htmlFor="universityName">University (Optional)</Label>
-            <Input
-              id="universityName"
-              name="universityName"
+            <Combobox
+              options={universities.map(uni => ({ value: uni.name, label: uni.name }))}
               value={formData.universityName || ''}
-              onChange={handleInputChange}
-              placeholder="e.g., Harvard University"
+              onValueChange={(value) => handleSelectChange('universityName', value)}
+              placeholder={deal ? "Select university" : "Select or create university"}
+              searchPlaceholder="Search universities..."
+              emptyText={deal ? "No universities found." : "No universities found. Type to create new."}
+              customText="Create university"
+              allowCustom={!deal}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Specify if this deal is exclusive to a particular university
+              {deal ? "Select from existing universities" : "Select existing or type new university name"}
             </p>
           </div>
 
