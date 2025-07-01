@@ -29,7 +29,6 @@ class TokenManagerImpl implements TokenManager {
 
   scheduleProactiveRefresh(): void {
     if (!this.refreshCallback) {
-      console.warn('TokenManager: No refresh callback provided');
       return;
     }
 
@@ -39,7 +38,6 @@ class TokenManagerImpl implements TokenManager {
     const timeUntilExpiration = this.getTimeUntilTokenExpires();
     
     if (timeUntilExpiration <= 0) {
-      console.log('TokenManager: Token already expired, triggering immediate refresh');
       this.executeRefresh();
       return;
     }
@@ -53,8 +51,6 @@ class TokenManagerImpl implements TokenManager {
     // Cap the refresh time to prevent extremely long delays
     const actualRefreshTime = Math.min(refreshTime, this.MAX_REFRESH_INTERVAL_MS);
     
-    console.log(`TokenManager: Scheduling proactive refresh in ${Math.round(actualRefreshTime / 1000)} seconds`);
-    
     this.refreshTimeoutId = setTimeout(() => {
       this.executeRefresh();
     }, actualRefreshTime) as unknown as number;
@@ -66,22 +62,17 @@ class TokenManagerImpl implements TokenManager {
     if (!this.refreshCallback) return;
     
     try {
-      console.log('TokenManager: Executing proactive token refresh...');
       await this.refreshCallback();
-      console.log('TokenManager: Proactive refresh successful, scheduling next refresh');
       
       // Schedule the next refresh
       this.scheduleProactiveRefresh();
     } catch (error: any) {
-      console.error('TokenManager: Proactive refresh failed:', error);
-      
       // Check if it's a token expiration/invalid token error
       const isTokenError = error.message?.includes('invalid') || 
                           error.message?.includes('expired') ||
                           error.message?.includes('revoked');
       
       if (isTokenError) {
-        console.log('TokenManager: Token is invalid/expired, stopping refresh attempts');
         this.clearRefreshTimer();
         
         // Emit a custom event that components can listen to
@@ -90,7 +81,6 @@ class TokenManagerImpl implements TokenManager {
         }));
       } else {
         // For network or other temporary errors, try again in 30 seconds
-        console.log('TokenManager: Temporary error, will retry in 30 seconds');
         this.refreshTimeoutId = setTimeout(() => {
           this.executeRefresh();
         }, 30000) as unknown as number;

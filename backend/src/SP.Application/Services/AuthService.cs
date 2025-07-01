@@ -46,7 +46,6 @@ public class AuthService(
         var userCreated = await userManager.CreateAsync(user, request.Password);
         if (userCreated.Succeeded)
         {
-            logger.LogInformation("User {UserName} registered successfully", user.UserName);
             // Assign the Admin role to the newly created user
             var roleCreated = await userManager.AddToRoleAsync(user, nameof(Roles.Admin));
             if (roleCreated.Succeeded) return Result<RegisterResponse>.Success(user.ToDto());
@@ -75,7 +74,6 @@ public class AuthService(
 
         if (!isPasswordValid.Succeeded) return Result<LoginResponse>.Failure(CustomErrors.InvalidCredentials);
 
-        logger.LogInformation("Cleaning up expired and revoked refresh tokens for user {UserName}", user.UserName);
         await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
 
         var accessToken = await jwtHelper.GenerateJwtToken(user);
@@ -87,7 +85,6 @@ public class AuthService(
 
         await dbContext.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("User {UserName} logged in successfully and refresh token generated.", user.UserName);
 
         var cookieOptions = RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(refreshTokenExpiration);
 
@@ -129,17 +126,14 @@ public class AuthService(
         // Save the new token
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("New refresh token generated and saved for user {UserName}", existingUser.UserName);
-
         // Clean up expired and revoked tokens in a separate operation
         try
         {
-            logger.LogInformation("Cleaning up old expired and revoked refresh tokens for user {UserName}", existingUser.UserName);
             await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Failed to cleanup expired tokens for user {UserName}, but refresh was successful", existingUser.UserName);
+            logger.LogWarning(ex, "Failed to cleanup expired tokens, but refresh was successful");
         }
 
         var newAccessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
@@ -188,8 +182,6 @@ public class AuthService(
             token.LastModifiedAt = DateTime.UtcNow;
             dbContext.RefreshTokens.Update(token);
             await dbContext.SaveChangesAsync(cancellationToken);
-
-            logger.LogInformation("Refresh token revoked for user ID: {UserId}", token.UserId);
         }
 
         httpContextAccessor.HttpContext.Response.Cookies.Delete("refreshToken");

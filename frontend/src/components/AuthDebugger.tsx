@@ -45,10 +45,8 @@ export const AuthDebugger: React.FC<AuthDebuggerProps> = ({ className = '' }) =>
   const testRefresh = async () => {
     try {
       await authService.refreshToken();
-      console.log('Manual refresh successful');
       updateDebugInfo();
     } catch (error: any) {
-      console.error('Manual refresh failed:', error);
       setDebugInfo(prev => prev ? { ...prev, lastError: error.message } : null);
     }
   };

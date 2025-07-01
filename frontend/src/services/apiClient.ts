@@ -57,7 +57,6 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         // If already refreshing, queue this request
-        console.log('API Client: Token refresh in progress, queueing request...');
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then((token) => {
@@ -72,9 +71,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        console.log('API Client: Attempting to refresh token due to 401 error...');
         const newToken = await authService.refreshToken();
-        console.log('API Client: Token refreshed successfully, processing queued requests...');
         
         // Process all queued requests with the new token
         processQueue(null, newToken);
@@ -83,15 +80,12 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
-        console.error('API Client: Token refresh failed:', refreshError);
-        
         // Clear tokens and process queue with error
         authService.clearAccessToken();
         processQueue(refreshError, null);
         
         // Only redirect if we're not already on the login page
         if (!window.location.pathname.includes('/login')) {
-          console.log('API Client: Redirecting to login page...');
           window.location.href = '/login';
         }
         

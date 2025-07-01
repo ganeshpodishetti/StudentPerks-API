@@ -1,12 +1,11 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useErrorHandler } from '@/contexts/ErrorContext';
 import {
-  useCreateDealMutation,
-  useDealsQuery,
-  useDeleteDealMutation,
-  useUpdateDealMutation
+    useCreateDealMutation,
+    useDealsQuery,
+    useDeleteDealMutation,
+    useUpdateDealMutation
 } from '@/hooks/queries/useDealsQuery';
-import { authService } from '@/services/authService';
 import { Deal } from '@/types/Deal';
 import { useState } from 'react';
 
@@ -22,15 +21,9 @@ export const useAdminDeals = () => {
   const updateDealMutation = useUpdateDealMutation();
   const deleteDealMutation = useDeleteDealMutation();
 
-  // Debug function to check authentication state
+  // Debug function to check authentication state (removed for security)
   const debugAuth = () => {
-    console.log('=== Authentication Debug Info ===');
-    console.log('User from context:', user);
-    console.log('Is authenticated:', !!user);
-    console.log('LocalStorage user:', localStorage.getItem('user'));
-    console.log('Access token:', authService.getAccessToken());
-    console.log('All cookies:', document.cookie);
-    console.log('================================');
+    // Debug functionality removed for production security
   };
 
   // Test connectivity function
