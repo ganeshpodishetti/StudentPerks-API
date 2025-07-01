@@ -16,38 +16,30 @@ public class RefreshToken : IEndpoint
                 HttpContext httpContext,
                 CancellationToken cancellationToken) =>
             {
-                try
+                var refreshToken = httpContext?.Request.Cookies["refreshToken"];
+
+                if (string.IsNullOrEmpty(refreshToken))
                 {
-                    var refreshToken = httpContext?.Request.Cookies["refreshToken"];
-
-                    if (string.IsNullOrEmpty(refreshToken))
-                    {
-                        logger.LogWarning("Refresh token is missing or invalid");
-                        return Results.Unauthorized();
-                    }
-
-                    // Check if response has already started
-                    if (httpContext?.Response.HasStarted == true)
-                    {
-                        logger.LogError("Response has already started, cannot process refresh token request");
-                        return Results.Problem("Request cannot be processed", statusCode: 500);
-                    }
-
-                    var result = await authService.RefreshTokenAsync(refreshToken, cancellationToken);
-                    if (!result.IsSuccess)
-                    {
-                        logger.LogWarning("Token refresh failed: {Error}", result.Error);
-                        return Results.BadRequest(new { error = result.Error });
-                    }
-
-                    logger.LogInformation("Token refreshed successfully");
-                    return Results.Ok(result.Value);
+                    logger.LogWarning("Refresh token is missing or invalid");
+                    return Results.Unauthorized();
                 }
-                catch (Exception ex)
+
+                // Check if the response has already started
+                if (httpContext?.Response.HasStarted == true)
                 {
-                    logger.LogError(ex, "Unexpected error in refresh token endpoint");
-                    return Results.Problem("An unexpected error occurred", statusCode: 500);
+                    logger.LogError("Response has already started, cannot process refresh token request");
+                    return Results.Problem("Request cannot be processed", statusCode: 500);
                 }
+
+                var result = await authService.RefreshTokenAsync(refreshToken, cancellationToken);
+                if (!result.IsSuccess)
+                {
+                    logger.LogWarning("Token refresh failed: {Error}", result.Error);
+                    return Results.BadRequest(new { error = result.Error });
+                }
+
+                logger.LogInformation("Token refreshed successfully");
+                return Results.Ok(result.Value);
             });
     }
 }

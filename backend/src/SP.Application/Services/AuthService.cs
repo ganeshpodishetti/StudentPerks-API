@@ -179,7 +179,7 @@ public class AuthService(
         }
 
         // Set the new refresh token in the cookie
-        httpContext.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
+        httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
 
         var response = AuthExtension.ToRefreshTokenDto(newAccessToken.Value!, newAccessTokenExpiration);
         return Result<RefreshTokenResponse>.Success(response);
