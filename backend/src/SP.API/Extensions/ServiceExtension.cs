@@ -16,5 +16,6 @@ public static class ServiceExtension
         services.AddScoped<IRefreshTokenHelper, RefreshTokenHelper>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IUniversity, UniversityService>();
+        services.AddScoped<ISubmitDeal, SubmittedDealService>();
     }
 }
