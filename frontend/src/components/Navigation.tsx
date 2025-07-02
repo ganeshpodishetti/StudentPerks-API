@@ -1,7 +1,9 @@
-import { GraduationCap, Menu, Store, Tag, X } from 'lucide-react';
+import { GraduationCap, Menu, Plus, Store, Tag, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import SubmittedDealFormModal from './SubmittedDealFormModal';
 import ThemeToggle from './ThemeToggle';
+import { useToast } from './ui/use-toast';
 
 interface NavigationProps {
   // Props removed as admin/user functionality is hidden
@@ -21,7 +23,9 @@ const AuthButtonsMobile: React.FC = () => {
 
 const Navigation: React.FC<NavigationProps> = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSubmitDealModalOpen, setIsSubmitDealModalOpen] = useState(false);
   const location = useLocation();
+  const { toast } = useToast();
   
   // Close mobile menu when route changes
   useEffect(() => {
@@ -103,6 +107,13 @@ const Navigation: React.FC<NavigationProps> = () => {
 
           {/* Desktop Theme Toggle and Auth */}
           <div className="hidden md:flex items-center space-x-4">
+            <button
+              onClick={() => setIsSubmitDealModalOpen(true)}
+              className="flex items-center px-3 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
+            >
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              Submit Deal
+            </button>
             <ThemeToggle />
             <AuthButtons />
           </div>
@@ -170,12 +181,36 @@ const Navigation: React.FC<NavigationProps> = () => {
                 Universities
               </Link>
               
+              {/* Submit Deal Button */}
+              <button
+                onClick={() => {
+                  setIsSubmitDealModalOpen(true);
+                  closeMobileMenu();
+                }}
+                className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-white bg-black dark:bg-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Submit Deal
+              </button>
+              
               {/* Mobile Auth Links */}
               <AuthButtonsMobile />
             </div>
           </div>
         )}
       </div>
+      
+      {/* Submit Deal Modal */}
+      <SubmittedDealFormModal
+        isOpen={isSubmitDealModalOpen}
+        onClose={() => setIsSubmitDealModalOpen(false)}
+        onSuccess={() => {
+          toast({
+            title: "Deal Submitted!",
+            description: "Thanks for sharing! We'll review your deal and add it to the platform soon.",
+          });
+        }}
+      />
     </header>
   );
 };
