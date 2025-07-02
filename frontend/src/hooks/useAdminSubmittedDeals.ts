@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useErrorHandler } from '@/contexts/ErrorContext';
 import { submittedDealService } from '@/services/submittedDealService';
 import { SubmittedDeal } from '@/types/SubmittedDeal';
+import { useEffect, useState } from 'react';
 
 export const useAdminSubmittedDeals = () => {
   const [deals, setDeals] = useState<SubmittedDeal[]>([]);
