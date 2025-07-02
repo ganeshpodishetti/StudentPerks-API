@@ -1,4 +1,4 @@
-import { GraduationCap, LayoutDashboard, ShoppingBag, Store, Tag } from 'lucide-react';
+import { GraduationCap, LayoutDashboard, MessagesSquare, ShoppingBag, Store, Tag } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function AdminNavigation() {
@@ -14,6 +14,11 @@ export default function AdminNavigation() {
       path: '/admin/deals',
       label: 'Deals',
       icon: ShoppingBag,
+    },
+    {
+      path: '/admin/submitted-deals',
+      label: 'Submitted Deals',
+      icon: MessagesSquare,
     },
     {
       path: '/admin/stores',

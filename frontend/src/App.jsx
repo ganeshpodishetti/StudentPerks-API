@@ -14,6 +14,7 @@ if (import.meta.env.DEV) {
 // Lazy load admin components
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminDealsPage = lazy(() => import('./pages/AdminDealsPage'));
+const AdminSubmittedDealsPage = lazy(() => import('./pages/AdminSubmittedDealsPage'));
 const AdminStoresPage = lazy(() => import('./pages/AdminStoresPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/AdminCategoriesPage'));
 const AdminUniversitiesPage = lazy(() => import('./pages/AdminUniversitiesPage'));
@@ -77,6 +78,14 @@ const AppContent = () => {
               element={
                 <ProtectedRoute>
                   <AdminDealsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/submitted-deals" 
+              element={
+                <ProtectedRoute>
+                  <AdminSubmittedDealsPage />
                 </ProtectedRoute>
               } 
             />
