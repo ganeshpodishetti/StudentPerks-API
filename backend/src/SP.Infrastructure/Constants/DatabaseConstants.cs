@@ -22,6 +22,7 @@ public static class DatabaseConstants
     public const string UserLoginsTableName = "UserLogins";
     public const string UserTokensTableName = "UserTokens";
     public const string UniversityTableName = "Universities";
+    public const string SubmitDealsTableName = "SubmitDeals";
 
     // public const string UserClaimsIndexName = $"IX_{DefaultSchema}_UserClaims_UserId";
     // public const string RoleClaimsIndexName = $"IX_{DefaultSchema}_RoleClaims_RoleId";

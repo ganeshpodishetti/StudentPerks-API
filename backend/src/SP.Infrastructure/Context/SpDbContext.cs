@@ -14,6 +14,7 @@ public class SpDbContext(DbContextOptions<SpDbContext> options)
     public DbSet<Store> Stores { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<University> Universities { get; set; }
+    public DbSet<SubmitDeal> SubmitDeals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
