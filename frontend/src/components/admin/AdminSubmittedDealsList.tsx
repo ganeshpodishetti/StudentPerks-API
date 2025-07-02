@@ -1,7 +1,7 @@
 import { SubmittedDeal } from '@/types/SubmittedDeal';
 import { useEffect, useState } from 'react';
-import AdminSubmittedDealsTable from './AdminSubmittedDealsTable';
 import AdminSubmittedDealsCards from './AdminSubmittedDealsCards';
+import AdminSubmittedDealsTable from './AdminSubmittedDealsTable';
 
 interface AdminSubmittedDealsListProps {
   deals: SubmittedDeal[];
