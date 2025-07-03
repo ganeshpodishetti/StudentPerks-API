@@ -38,27 +38,55 @@ jobs:
       - name: Build
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
-      - name: Setup appsettings
-        run: echo "App settings configured"
-        env:
-          Jwt__Issuer: ${{ secrets.JWT__ISSUER }}
-          Jwt__Audience: ${{ secrets.JWT__AUDIENCE }}
-          Jwt__Key: ${{ secrets.JWT__KEY }}
-          Jwt__RefreshTokenExpirationInDays: ${{ secrets.JWT__REFRESHTOKENEXPIRATIONINDAYS}}
-          Jwt__AccessTokenExpirationInMinutes: ${{ secrets.JWT__ACCESSTOKENEXPIRATIONINMINUTES }}
-          Identity__Roles: ${{ env.IDENTITY__ROLES }}
-          ImageKit__PublicKey: ${{ secrets.IMAGEKIT__PUBLICKEY }}
-          ImageKit__PrivateKey: ${{ secrets.IMAGEKIT__PRIVATEKEY }}
-          ImageKit__UrlEndpoint: ${{ secrets.IMAGEKIT__URLENDPOINT }}
-          
-    
+      # Create appsettings.json with required configuration for EF migrations
+      - name: Create temporary appsettings for migrations
+        run: |
+          cat > backend/src/SP.API/appsettings.json << 'EOF'
+          {
+            "ConnectionStrings": {
+              "SpDbConnection": "${{ secrets.DB_CONNECTION_STRING }}"
+            },
+            "Jwt": {
+              "Key": "${{ secrets.JWT__KEY }}",
+              "Issuer": "${{ secrets.JWT__ISSUER }}",
+              "Audience": "${{ secrets.JWT__AUDIENCE }}",
+              "AccessTokenExpirationInMinutes": ${{ secrets.JWT__ACCESSTOKENEXPIRATIONINMINUTES }},
+              "RefreshTokenExpirationInDays": ${{ secrets.JWT__REFRESHTOKENEXPIRATIONINDAYS }}
+            },
+            "ImageKit": {
+              "PublicKey": "${{ secrets.IMAGEKIT__PUBLICKEY }}",
+              "PrivateKey": "${{ secrets.IMAGEKIT__PRIVATEKEY }}",
+              "UrlEndpoint": "${{ secrets.IMAGEKIT__URLENDPOINT }}"
+            },
+            "Frontend": {
+              "Url": "https://your-frontend-url.com"
+            },
+            "Identity": {
+              "Roles": ["Admin", "User"]
+            },
+            "Serilog": {
+              "WriteTo": [
+                {
+                  "Name": "Console"
+                }
+              ]
+            },
+            "AllowedHosts": "*"
+          }
+          EOF
+
       # Add EF Core tools
       - name: Install EF Core CLI Tools
         run: dotnet tool install --global dotnet-ef
 
-      # Apply database migrations
+      # Apply database migrations with connection string
       - name: Apply EF Core Migrations
-        run: dotnet ef database update --project backend/src/SP.API/SP.API.csproj
+        run: |
+          dotnet ef database update \
+            --project backend/src/SP.API/SP.API.csproj \
+            --connection "${{ secrets.DB_CONNECTION_STRING }}"
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
 
       - name: Test
         run: dotnet test ${{ env.SOLUTION_FILE }} --configuration Release --no-restore --no-build --verbosity normal
