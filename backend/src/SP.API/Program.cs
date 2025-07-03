@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using FluentValidation;
-using Microsoft.AspNetCore.Diagnostics;
 using Scalar.AspNetCore;
 using Serilog;
 using SP.API.Extensions;
@@ -32,7 +31,6 @@ try
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
-    //builder.Services.AddHostedService<DatabaseInitializer>();
     builder.AddOpenTelemetry();
     builder.Services.AddDbHealthCheck();
     builder.Services.AddSingleton(activitySource);
@@ -75,7 +73,7 @@ try
     }
 
     app.UseStatusCodePages();
-    app.UseHttpsRedirection();
+    app.UseProduction();
     app.UseSerilogRequestLogging(options =>
     {
         options.MessageTemplate =
@@ -92,20 +90,7 @@ try
         app.MapScalarApiReference(options => { options.WithTitle("StudentPerks API"); });
     }
 
-    app.Map("/error", (HttpContext context, ILogger<Program> logger) =>
-    {
-        var exceptionFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-        var exception = exceptionFeature?.Error;
-
-        logger.LogError(exception, "Unhandled exception at {Path}", context.Request.Path);
-
-        return Results.Problem(
-            title: "Internal Server Error",
-            detail: app.Environment.IsDevelopment() ? exception?.ToString() : "An unexpected error occurred",
-            statusCode: 500,
-            instance: context.Request.Path
-        );
-    });
+    app.UseErrorMapping();
     app.UseEndpoints();
 
     app.Run();

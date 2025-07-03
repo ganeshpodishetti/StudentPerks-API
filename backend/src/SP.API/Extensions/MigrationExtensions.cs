@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using SP.Domain.Options;
 using SP.Infrastructure.Context;
 
 namespace SP.API.Extensions;
@@ -21,9 +24,11 @@ public static class MigrationExtensions
                 logger.LogWarning("Cannot connect to database. Attempting to create...");
                 await context.Database.EnsureCreatedAsync();
                 logger.LogInformation("Database created successfully");
+                await SeedRolesAsync(scope.ServiceProvider, logger);
                 return app;
             }
 
+            logger.LogInformation("✅ Database connection established");
             var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
             var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
 
@@ -46,6 +51,7 @@ public static class MigrationExtensions
                 logger.LogInformation("✅ Database is up to date - no pending migrations");
             }
 
+            await SeedRolesAsync(scope.ServiceProvider, logger);
             await context.Database.ExecuteSqlRawAsync("SELECT 1");
             logger.LogInformation("✅Database connection verified");
         }
@@ -62,5 +68,45 @@ public static class MigrationExtensions
         }
 
         return app;
+    }
+
+    private static async Task SeedRolesAsync(IServiceProvider serviceProvider, ILogger logger)
+    {
+        logger.LogInformation("Seeding roles...");
+        var rolesOptions = serviceProvider.GetRequiredService<IOptions<RolesOptions>>();
+        if (rolesOptions.Value?.Roles is null)
+        {
+            logger.LogWarning("⚠️ RolesOptions is not configured or roles are null");
+            return;
+        }
+
+        using var scope = serviceProvider.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var roles = rolesOptions.Value.Roles;
+        if (roles.Length == 0)
+        {
+            logger.LogWarning("⚠️ No roles defined in configuration");
+            return;
+        }
+
+        if (roles.Length == 0)
+            throw new InvalidOperationException("No roles defined in configuration.");
+        await EnsureRolesCreated(roleManager, rolesOptions, logger);
+        logger.LogInformation("Roles seeded successfully.");
+    }
+
+    private static async Task EnsureRolesCreated(RoleManager<IdentityRole> roleManager,
+        IOptions<RolesOptions> rolesOptions, ILogger logger)
+    {
+        var roles = rolesOptions.Value.Roles;
+
+        foreach (var role in roles)
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                var result = await roleManager.CreateAsync(new IdentityRole(role));
+                if (!result.Succeeded)
+                    logger.LogError("Failed to create role '{Role}': {Errors}", role,
+                        string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
     }
 }
