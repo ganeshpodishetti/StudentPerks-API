@@ -16,9 +16,11 @@ public class GetStores : IEndpoint
             {
                 var stores = await storeService.GetAllStoresAsync(cancellationToken);
                 var storeResponses = stores.ToList();
-                if (storeResponses.Count != 0) return Results.Ok(storeResponses);
-                logger.LogWarning("No stores found.");
-                return Results.NoContent();
+
+                // Always return an array, even if empty
+                if (storeResponses.Count == 0) logger.LogInformation("No stores found");
+
+                return Results.Ok(storeResponses);
             });
     }
 }

@@ -23,9 +23,12 @@ public class GetDealsByStore : IEndpoint
                 }
 
                 var dealsByStore = await dealService.GetDealsByStoreAsync(name, cancellationToken);
-                return dealsByStore is not null
-                    ? Results.Ok(dealsByStore)
-                    : Results.NotFound(new { message = "No deals found with this store" });
+
+                // Always return an array, even if empty
+                var getDealsByStoreResponses = dealsByStore?.ToList();
+                if (getDealsByStoreResponses?.Count > 0) return Results.Ok(getDealsByStoreResponses);
+                logger.LogInformation("No deals found for store: {StoreName}", name);
+                return Results.Ok(new List<object>());
             });
     }
 }

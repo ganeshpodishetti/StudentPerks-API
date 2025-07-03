@@ -59,6 +59,12 @@ export const useDealsFilter = ({
   }, [initialStore]);
 
   const filteredDeals = useMemo(() => {
+    // Ensure deals is an array, default to empty array if not
+    if (!Array.isArray(deals)) {
+      console.warn('useDealsFilter: deals is not an array:', deals);
+      return [];
+    }
+
     let result = deals;
 
     // Filter out inactive deals for home page experience

@@ -17,9 +17,12 @@ public class GetUniversities : IEndpoint
             {
                 var universities = await universityService.GetAllUniversitiesAsync(cancellationToken);
                 var universityResponses = universities.ToList();
-                if (universityResponses.Count != 0) return Results.Ok(universityResponses);
-                logger.LogInformation("No universities found.");
-                return Results.NotFound(new { message = "No universities found" });
+
+                // Always return an array, even if empty
+                if (universityResponses.Count == 0)
+                    logger.LogInformation("No universities found");
+
+                return Results.Ok(universityResponses);
             });
     }
 }

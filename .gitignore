@@ -5,6 +5,9 @@ StudentPerks.sln.DotSettings.user
 .idea
 ./bin
 ./obj
+*.user
+secrets.json
+.microsoft/usersecrets/
 
 # Logs
 logs

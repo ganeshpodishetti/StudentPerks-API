@@ -23,9 +23,12 @@ public class GetDealsByCategory : IEndpoint
                 }
 
                 var dealsByCategory = await dealService.GetDealsByCategoryAsync(name, cancellationToken);
-                return dealsByCategory is not null
-                    ? Results.Ok(dealsByCategory)
-                    : Results.NotFound(new { message = "No deals found with this category" });
+
+                // Always return an array, even if empty
+                var getDealsByCategoryResponses = dealsByCategory?.ToList();
+                if (getDealsByCategoryResponses?.Count != 0) return Results.Ok(getDealsByCategoryResponses);
+                logger.LogInformation("No deals found for category: {CategoryName}", name);
+                return Results.Ok(new List<object>());
             });
     }
 }

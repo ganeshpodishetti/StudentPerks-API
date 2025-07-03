@@ -22,10 +22,12 @@ const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
       setLoading(true);
       try {
         const categoriesData = await fetchCategories();
-        setCategories(categoriesData);
+        // Ensure categoriesData is always an array
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
         setLoading(false);
       } catch (err) {
         console.error("Error loading categories:", err);
+        setCategories([]); // Set empty array on error
         setLoading(false);
       }
     };
@@ -74,7 +76,7 @@ const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
             >
               All Categories
             </button>
-            {categories.map((category) => (
+            {Array.isArray(categories) && categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => onCategorySelect(category.name || '')}

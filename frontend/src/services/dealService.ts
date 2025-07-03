@@ -11,8 +11,15 @@ export const dealService = {
         status: response.status,
         dataLength: response.data?.length || 0,
       });
-      return response.data;
-    } catch (error) {
+      
+      // Handle 204 No Content response (empty database)
+      if (response.status === 204 || !response.data) {
+        return [];
+      }
+      
+      // Ensure we always return an array
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error: any) {
       console.error('Error fetching deals:', error);
       throw error;
     }
@@ -22,7 +29,7 @@ export const dealService = {
     try {
       const response = await publicApiClient.get(`/api/deals/${id}`);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching deal:', error);
       throw error;
     }
@@ -31,8 +38,19 @@ export const dealService = {
   async getDealsByCategory(categoryName: string): Promise<Deal[]> {
     try {
       const response = await publicApiClient.get(`/api/deals/category?name=${encodeURIComponent(categoryName)}`);
-      return response.data;
-    } catch (error) {
+      
+      // Handle 404 or empty responses
+      if (response.status === 404 || !response.data) {
+        return [];
+      }
+      
+      // Ensure we always return an array
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error: any) {
+      // If it's a 404 error, return empty array instead of throwing
+      if (error.response?.status === 404) {
+        return [];
+      }
       console.error('Error fetching deals by category:', error);
       throw error;
     }
@@ -41,8 +59,19 @@ export const dealService = {
   async getDealsByStore(storeName: string): Promise<Deal[]> {
     try {
       const response = await publicApiClient.get(`/api/deals/store?name=${encodeURIComponent(storeName)}`);
-      return response.data;
-    } catch (error) {
+      
+      // Handle 404 or empty responses
+      if (response.status === 404 || !response.data) {
+        return [];
+      }
+      
+      // Ensure we always return an array
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error: any) {
+      // If it's a 404 error, return empty array instead of throwing
+      if (error.response?.status === 404) {
+        return [];
+      }
       console.error('Error fetching deals by store:', error);
       throw error;
     }
@@ -53,8 +82,19 @@ export const dealService = {
       console.log('Fetching deals for university:', universityName);
       const response = await publicApiClient.get(`/api/deals/university?name=${encodeURIComponent(universityName)}`);
       console.log('University deals response:', response.data);
-      return response.data;
-    } catch (error) {
+      
+      // Handle 404 or empty responses
+      if (response.status === 404 || !response.data) {
+        return [];
+      }
+      
+      // Ensure we always return an array
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error: any) {
+      // If it's a 404 error, return empty array instead of throwing
+      if (error.response?.status === 404) {
+        return [];
+      }
       console.error('Error fetching deals by university:', error);
       throw error;
     }

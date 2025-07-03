@@ -15,9 +15,17 @@ export const universityService = {
   async getUniversities(): Promise<University[]> {
     try {
       const response = await publicApiClient.get('/api/universities');
-      return response.data;
-    } catch (error) {
+      
+      // Handle 204 No Content response (empty database)
+      if (response.status === 204 || !response.data) {
+        return [];
+      }
+      
+      // Ensure we always return an array
+      return Array.isArray(response.data) ? response.data : [];
+    } catch (error: any) {
       console.error('Error fetching universities:', error);
+      // Return empty array instead of throwing to prevent UI crashes
       return [];
     }
   },
