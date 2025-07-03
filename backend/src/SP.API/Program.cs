@@ -1,9 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using FluentValidation;
-using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 using Serilog;
 using SP.API.Extensions;
@@ -19,7 +17,7 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Application Starting up");
+    Log.Information("Application Starting up...");
     var builder = WebApplication.CreateBuilder(args);
 
     builder.AddCors();
@@ -34,9 +32,9 @@ try
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
-    builder.Services.AddHostedService<DatabaseInitializer>();
+    //builder.Services.AddHostedService<DatabaseInitializer>();
     builder.AddOpenTelemetry();
-    builder.AddHealthCheck();
+    builder.Services.AddDbHealthCheck();
     builder.Services.AddSingleton(activitySource);
 
     // FluentValidation
@@ -52,7 +50,19 @@ try
     builder.Services.AddEndpoints(typeof(Program).Assembly);
 
     var app = builder.Build();
-    Log.Information("Application Started up");
+    Log.Information("Application Started....");
+    try
+    {
+        await app.ApplyMigrationsAsync();
+        Log.Information("✅ Database migrations completed successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Fatal(ex, "❌ Failed to apply database migrations");
+        throw;
+    }
+
+    app.UseDatabaseHealthCheck();
 
     if (app.Environment.IsDevelopment())
     {
@@ -75,18 +85,6 @@ try
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
-
-    app.MapHealthChecks("/healthz", new HealthCheckOptions
-    {
-        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-    });
-
-    if (app.Environment.IsDevelopment())
-        app.MapHealthChecksUI(options =>
-        {
-            options.UIPath = "/health-ui";
-            options.ApiPath = "/health-api";
-        });
 
     if (app.Environment.IsDevelopment())
     {
