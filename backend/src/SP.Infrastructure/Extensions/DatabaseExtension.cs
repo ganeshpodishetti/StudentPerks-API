@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SP.Domain.Options;
 using SP.Infrastructure.Context;
 
 namespace SP.Infrastructure.Extensions;
@@ -12,9 +13,9 @@ public static class DatabaseExtension
     {
         services.AddDbContextPool<SpDbContext>((provider, options) =>
         {
-            //var connString = provider.GetRequiredService<IOptions<ConnStringOptions>>().Value.SpDbConnection;
-            var configuration = provider.GetRequiredService<IConfiguration>();
-            var connString = configuration.GetConnectionString("SpDbConnection");
+            var connString = provider.GetRequiredService<IOptions<ConnStringOptions>>().Value.StudentPerksDb;
+            // var configuration = provider.GetRequiredService<IConfiguration>();
+            // var connString = configuration.GetConnectionString("SpDbConnection");
 
             if (string.IsNullOrEmpty(connString))
                 throw new InvalidOperationException(

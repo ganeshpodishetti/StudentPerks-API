@@ -13,7 +13,7 @@ public static class HealthCheckExtension
     {
         var serviceProvider = services.BuildServiceProvider();
         var connStringOptions = serviceProvider.GetRequiredService<IOptions<ConnStringOptions>>().Value;
-        var connString = connStringOptions.SpDbConnection;
+        var connString = connStringOptions.StudentPerksDb;
 
         if (string.IsNullOrEmpty(connString))
             throw new InvalidOperationException(" Connection string 'SpDbConnection' is not configured");
