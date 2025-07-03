@@ -57,7 +57,8 @@ try
     catch (Exception ex)
     {
         Log.Fatal(ex, "❌ Failed to apply database migrations");
-        throw;
+        if (!app.Environment.IsDevelopment()) throw;
+        Log.Warning("⚠️ Continuing without database migrations in non-production environment");
     }
 
     app.UseDatabaseHealthCheck();
