@@ -49,17 +49,17 @@ try
 
     var app = builder.Build();
     Log.Information("Application Started....");
-    try
-    {
-        await app.ApplyMigrationsAsync();
-        Log.Information("✅ Database migrations completed successfully");
-    }
-    catch (Exception ex)
-    {
-        Log.Fatal(ex, "❌ Failed to apply database migrations");
-        if (!app.Environment.IsDevelopment()) throw;
-        Log.Warning("⚠️ Continuing without database migrations in non-production environment");
-    }
+    // try
+    // {
+    //     await app.ApplyMigrationsAsync();
+    //     Log.Information("✅ Database migrations completed successfully");
+    // }
+    // catch (Exception ex)
+    // {
+    //     Log.Fatal(ex, "❌ Failed to apply database migrations");
+    //     if (!app.Environment.IsDevelopment()) throw;
+    //     Log.Warning("⚠️ Continuing without database migrations in non-production environment");
+    // }
 
     app.UseDatabaseHealthCheck();
 
