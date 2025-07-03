@@ -8,12 +8,6 @@ on:
     paths:
       - 'backend/**'
 
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-
 permissions:
   contents: read
   actions: write
