@@ -39,6 +39,7 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
       - name: Setup appsettings
+        run: echo "App settings configured"
         env:
           Jwt__Issuer: ${{ secrets.JWT__ISSUER }}
           Jwt__Audience: ${{ secrets.JWT__AUDIENCE }}
