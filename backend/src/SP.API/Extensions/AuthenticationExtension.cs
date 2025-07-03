@@ -18,6 +18,15 @@ public static class AuthenticationExtension
         if (jwtConfig is null || string.IsNullOrEmpty(jwtConfig.Key))
             throw new InvalidOperationException("JWT configuration is not set properly.");
 
+        // Add validation for numeric values
+        if (jwtConfig.AccessTokenExpirationInMinutes <= 0)
+            throw new InvalidOperationException("JWT AccessTokenExpirationInMinutes must be a positive number.");
+
+        if (jwtConfig.RefreshTokenExpirationInDays <= 0)
+            throw new InvalidOperationException("JWT RefreshTokenExpirationInDays must be a positive number.");
+        if (jwtConfig is null || string.IsNullOrEmpty(jwtConfig.Key))
+            throw new InvalidOperationException("JWT configuration is not set properly.");
+
         services.AddIdentity<User, IdentityRole>(options =>
                 {
                     // Password settings
