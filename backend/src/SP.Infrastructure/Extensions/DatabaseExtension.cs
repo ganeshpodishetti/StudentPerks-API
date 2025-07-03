@@ -16,7 +16,8 @@ public static class DatabaseExtension
             var connString = provider.GetRequiredService<IOptions<ConnStringOptions>>().Value.SpDbConnection;
 
             if (string.IsNullOrEmpty(connString))
-                throw new Exception("Connection string is not set");
+                throw new InvalidOperationException(
+                    "Database connection string 'SpDbConnection' is not configured properly");
 
             options.UseNpgsql(connString, npgsqlOptions =>
             {
