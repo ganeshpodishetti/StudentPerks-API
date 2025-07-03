@@ -29,8 +29,8 @@ public static class MigrationExtensions
             }
 
             logger.LogInformation("✅ Database connection established");
-            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
             var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
 
             logger.LogInformation("Applied migrations: {AppliedCount}", appliedMigrations.Count());
 

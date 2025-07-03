@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SP.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDbCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,8 +21,10 @@ namespace SP.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
-                    Name = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true),
+                    ImageKitFileId = table.Column<string>(type: "text", nullable: true),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -52,15 +54,54 @@ namespace SP.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
-                    Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    Name = table.Column<string>(type: "character varying(25)", maxLength: 25, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Website = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    Name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Stores", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubmitDeals",
+                schema: "sp",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Url = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    MarkedAsRead = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    Name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubmitDeals", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Universities",
+                schema: "sp",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    Country = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    State = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true),
+                    ImageKitFileId = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    Name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Universities", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -122,18 +163,22 @@ namespace SP.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    DiscountType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    DiscountValue = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
-                    Promo = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    Url = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    Discount = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    Promo = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
+                    Url = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true),
+                    ImageKitFileId = table.Column<string>(type: "text", nullable: true),
                     RedeemType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    StartDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    EndDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    HowToRedeem = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsUniversitySpecific = table.Column<bool>(type: "boolean", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     StoreId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    UniversityId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Name = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
@@ -154,6 +199,13 @@ namespace SP.Infrastructure.Migrations
                         principalTable: "Stores",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Deals_Universities_UniversityId",
+                        column: x => x.UniversityId,
+                        principalSchema: "sp",
+                        principalTable: "Universities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -162,12 +214,12 @@ namespace SP.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Token = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Token = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsRevoked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    UserId = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -283,16 +335,22 @@ namespace SP.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Deals_StoreId",
+                name: "IX_Deals_UniversityId",
                 schema: "sp",
                 table: "Deals",
-                column: "StoreId");
+                column: "UniversityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_sp_Deals_CategoryId",
                 schema: "sp",
                 table: "Deals",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sp_Deals_StoreId",
+                schema: "sp",
+                table: "Deals",
+                column: "StoreId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshTokens_UserId",
@@ -319,6 +377,19 @@ namespace SP.Infrastructure.Migrations
                 table: "Stores",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sp_University_Code",
+                schema: "sp",
+                table: "Universities",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_sp_University_Name",
+                schema: "sp",
+                table: "Universities",
+                column: "Name");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
@@ -368,6 +439,10 @@ namespace SP.Infrastructure.Migrations
                 schema: "sp");
 
             migrationBuilder.DropTable(
+                name: "SubmitDeals",
+                schema: "sp");
+
+            migrationBuilder.DropTable(
                 name: "UserClaims",
                 schema: "sp");
 
@@ -389,6 +464,10 @@ namespace SP.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Stores",
+                schema: "sp");
+
+            migrationBuilder.DropTable(
+                name: "Universities",
                 schema: "sp");
 
             migrationBuilder.DropTable(
