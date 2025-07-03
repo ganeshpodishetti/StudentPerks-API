@@ -5,6 +5,7 @@ StudentPerks.sln.DotSettings.user
 .idea
 ./bin
 ./obj
+*.user
 
 # Logs
 logs
