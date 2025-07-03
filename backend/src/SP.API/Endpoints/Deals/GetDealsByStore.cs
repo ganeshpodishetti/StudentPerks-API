@@ -26,7 +26,7 @@ public class GetDealsByStore : IEndpoint
 
                 // Always return an array, even if empty
                 var getDealsByStoreResponses = dealsByStore?.ToList();
-                if (getDealsByStoreResponses?.Count == 0) return Results.Ok(getDealsByStoreResponses);
+                if (getDealsByStoreResponses?.Count > 0) return Results.Ok(getDealsByStoreResponses);
                 logger.LogInformation("No deals found for store: {StoreName}", name);
                 return Results.Ok(new List<object>());
             });
