@@ -16,9 +16,10 @@ public class GetCategories : IEndpoint
             {
                 var categories = await categoryService.GetAllCategoriesAsync(cancellationToken);
                 var categoryResponses = categories.ToList();
-                if (categoryResponses.Count != 0) return Results.Ok(categoryResponses);
-                logger.LogWarning("No categories found.");
-                return Results.NoContent();
+
+                if (categoryResponses.Count == 0) logger.LogInformation("No categories found");
+
+                return Results.Ok(categoryResponses);
             });
     }
 }

@@ -24,9 +24,12 @@ public class GetDealsByUniversity : IEndpoint
                 }
 
                 var dealsByUniversity = await dealService.GetDealsByUniversityAsync(name, cancellationToken);
-                return dealsByUniversity is not null
-                    ? Results.Ok(dealsByUniversity)
-                    : Results.NotFound(new { message = "No deals found with this university" });
+
+                // Always return an array, even if empty
+                var getDealsByUniversityResponses = dealsByUniversity?.ToList();
+                if (getDealsByUniversityResponses?.Count != 0) return Results.Ok(getDealsByUniversityResponses);
+                logger.LogInformation("No deals found for university: {UniversityName}", name);
+                return Results.Ok(new List<object>());
             });
     }
 }
