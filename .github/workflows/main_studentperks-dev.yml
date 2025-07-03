@@ -38,6 +38,14 @@ jobs:
       - name: Build
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
+      # Add EF Core tools
+      - name: Install EF Core CLI Tools
+        run: dotnet tool install --global dotnet-ef
+
+      # Apply database migrations
+      - name: Apply EF Core Migrations
+        run: dotnet ef database update --project backend/src/SP.API/SP.API.csproj
+
       - name: Test
         run: dotnet test ${{ env.SOLUTION_FILE }} --configuration Release --no-restore --no-build --verbosity normal
 
@@ -47,7 +55,7 @@ jobs:
       - name: Publish Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: movie-shop-artifact
+          name: studentperks-dev-artifact
           path: ${{ env.PUBLISH_DIR }}
 
   deploy:
@@ -59,7 +67,7 @@ jobs:
       - name: Download Artifacts from build job
         uses: actions/download-artifact@v4
         with:
-          name: movie-shop-artifact
+          name: studentperks-dev-artifact
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
       - name: Deploy
