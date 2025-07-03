@@ -7,7 +7,7 @@ public static class OptionsExtension
     public static void AddOptions(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<ConnStringOptions>(
-            builder.Configuration.GetSection(ConnStringOptions.ConnectionStrings));
+            builder.Configuration.GetSection(ConnStringOptions.SpDbConnection));
 
         builder.Services.Configure<JwtOptions>(
             builder.Configuration.GetSection(JwtOptions.Jwt));
