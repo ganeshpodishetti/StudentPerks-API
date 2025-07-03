@@ -46,6 +46,19 @@ jobs:
       - name: Build
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
+      - name: Setup appsettings
+        env:
+          Jwt__Issuer: ${{ secrets.JWT__ISSUER }}
+          Jwt__Audience: ${{ secrets.JWT__AUDIENCE }}
+          Jwt__Key: ${{ secrets.JWT__KEY }}
+          Jwt__RefreshTokenExpirationInDays: ${{ secrets.JWT__REFRESHTOKENEXPIRATIONINDAYS}}
+          Jwt__AccessTokenExpirationInMinutes: ${{ secrets.JWT__ACCESSTOKENEXPIRATIONINMINUTES }}
+          Identity__Roles: ${{ env.IDENTITY__ROLES }}
+          ImageKit__PublicKey: ${{ secrets.IMAGEKIT__PUBLICKEY }}
+          ImageKit__PrivateKey: ${{ secrets.IMAGEKIT__PRIVATEKEY }}
+          ImageKit__UrlEndpoint: ${{ secrets.IMAGEKIT__URLENDPOINT }}
+          
+    
       # Add EF Core tools
       - name: Install EF Core CLI Tools
         run: dotnet tool install --global dotnet-ef
