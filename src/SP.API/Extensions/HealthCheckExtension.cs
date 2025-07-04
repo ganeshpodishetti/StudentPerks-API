@@ -29,7 +29,9 @@ public static class HealthCheckExtension
 
         services.AddHealthChecksUI(settings =>
                 {
+                    // In development, use the port from launchSettings.json
                     settings.AddHealthCheckEndpoint("StudentPerks API", "/healthz");
+
                     settings.SetEvaluationTimeInSeconds(3600); // More frequent checks
                     settings.SetMinimumSecondsBetweenFailureNotifications(60);
                     settings.MaximumHistoryEntriesPerEndpoint(10);
