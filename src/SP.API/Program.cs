@@ -28,11 +28,14 @@ try
         options.SerializerOptions.Converters.Add(new DateTimeConverter.UtcNullableDateTimeConverter());
     });
 
-    builder.WebHost.ConfigureKestrel(options =>
+    if (!builder.Environment.IsDevelopment())
     {
-        var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-        options.ListenAnyIP(int.Parse(port));
-    });
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            options.ListenAnyIP(int.Parse(port));
+        });
+    }
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddAuthentication(builder.Configuration);
@@ -72,7 +75,6 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
-        app.UseHttpsRedirection();
     }
     else
     {
