@@ -20,11 +20,18 @@ public static class ProductionExtension
             });
 
             app.UseHsts();
-            app.UseHttpsRedirection();
         }
         else
         {
             app.UseDeveloperExceptionPage();
+        }
+
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
         }
 
         return app;
