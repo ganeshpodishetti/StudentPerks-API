@@ -105,9 +105,9 @@ public class DealService(
             throw new InvalidOperationException("Both category and store must be provided.");
         }
 
-        if (request.UniversityName is not null && existingUniversity is null)
+        if (request.IsUniversitySpecific is true && existingUniversity is null)
         {
-            logger.LogWarning("University {UniversityName} not found for deal creation", request.UniversityName);
+            logger.LogInformation("University must be provided if specified.");
             throw new InvalidOperationException("University must be provided if specified.");
         }
 
