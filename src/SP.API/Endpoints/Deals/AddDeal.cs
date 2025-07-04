@@ -35,7 +35,8 @@ public class AddDeal : IEndpoint
                     string.IsNullOrEmpty(form["endDate"]) ? null : DateTime.Parse(form["endDate"].ToString()),
                     form["categoryName"].ToString(),
                     form["storeName"].ToString(),
-                    form["universityName"].ToString()
+                    form["universityName"].ToString(),
+                    bool.TryParse(form["isUniversitySpecific"], out var isUniversitySpecific) && isUniversitySpecific
                 );
                 var validationResult = await validator.ValidateAsync(createRequest, cancellationToken);
                 if (!validationResult.IsValid)

@@ -16,7 +16,8 @@ public record CreateDealRequest(
     DateTime? EndDate,
     string CategoryName,
     string StoreName,
-    string? UniversityName);
+    string? UniversityName,
+    bool? IsUniversitySpecific);
 
 public record UpdateDealRequest(
     string Title,
