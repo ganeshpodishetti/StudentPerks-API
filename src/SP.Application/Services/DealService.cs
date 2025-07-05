@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Deal;
 using SP.Application.Mapping;
+using SP.Domain.Entities;
 using SP.Infrastructure.Context;
 
 namespace SP.Application.Services;
@@ -99,16 +100,31 @@ public class DealService(
             ? null
             : await spDbContext.Universities.FirstOrDefaultAsync(u => u.Name == request.UniversityName, ct);
 
-        if (existingCategory is null && existingStore is null)
+        // Create category if it doesn't exist
+        if (existingCategory is null)
         {
-            logger.LogError("Both category and store are missing for the new deal creation");
-            throw new InvalidOperationException("Both category and store must be provided.");
+            logger.LogInformation("Creating new category: {CategoryName}", request.CategoryName);
+            existingCategory = new Category { Name = request.CategoryName };
+            await spDbContext.Categories.AddAsync(existingCategory, ct);
+            await spDbContext.SaveChangesAsync(ct);
+        }
+
+        // Create store if it doesn't exist
+        if (existingStore is null)
+        {
+            logger.LogInformation("Creating new store: {StoreName}", request.StoreName);
+            existingStore = new Store { Name = request.StoreName };
+            await spDbContext.Stores.AddAsync(existingStore, ct);
+            await spDbContext.SaveChangesAsync(ct);
         }
 
         if (request.IsUniversitySpecific is true && existingUniversity is null)
         {
-            logger.LogInformation("University must be provided if specified.");
-            throw new InvalidOperationException("University must be provided if specified.");
+            if (string.IsNullOrEmpty(request.UniversityName))
+            {
+                logger.LogError("University name must be provided when IsUniversitySpecific is true");
+                throw new InvalidOperationException("University name must be provided when IsUniversitySpecific is true.");
+            }
         }
 
         var deal = await request.ToEntity(existingCategory!.Id, existingStore!.Id, existingUniversity?.Id, fileService);
