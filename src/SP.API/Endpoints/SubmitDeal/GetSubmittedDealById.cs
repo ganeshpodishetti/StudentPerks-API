@@ -15,9 +15,7 @@ public class GetSubmittedDealById : IEndpoint
             async (Guid id, ISubmitDeal service) =>
             {
                 var result = await service.GetDealByIdAsync(id);
-                return result != null
-                    ? Results.Ok(result)
-                    : Results.NoContent();
+                return Results.Ok(result);
             });
     }
 }

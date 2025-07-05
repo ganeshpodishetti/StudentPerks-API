@@ -15,7 +15,7 @@ public class ValidateRefreshToken : IEndpoint
                 HttpContext httpContext,
                 CancellationToken cancellationToken) =>
             {
-                var refreshToken = httpContext?.Request.Cookies["refreshToken"];
+                var refreshToken = httpContext.Request.Cookies["refreshToken"];
                 if (string.IsNullOrEmpty(refreshToken))
                     return Results.BadRequest("Refresh token is missing or invalid");
                 var isValid = await authService.ValidateRefreshTokenAsync(refreshToken, cancellationToken);

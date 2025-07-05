@@ -1,5 +1,6 @@
 using SP.API.Contracts;
 using SP.Application.Contracts;
+using SP.Application.Helper;
 
 namespace SP.API.Endpoints.Auth;
 
@@ -24,18 +25,26 @@ public class RefreshToken : IEndpoint
                     return Results.Unauthorized();
                 }
 
-                // Check if the response has already started
-                if (httpContext?.Response.HasStarted == true)
-                {
-                    logger.LogError("Response has already started, cannot process refresh token request");
-                    return Results.Problem("Request cannot be processed", statusCode: 500);
-                }
-
                 var result = await authService.RefreshTokenAsync(refreshToken, cancellationToken);
                 if (!result.IsSuccess)
                 {
                     logger.LogWarning("Token refresh failed: {Error}", result.Error);
                     return Results.BadRequest(new { error = result.Error });
+                }
+
+                if (result.AdditionalData is not null)
+                {
+                    var tokenInfo = result.AdditionalData;
+                    var tokenType = tokenInfo.GetType();
+
+                    var refreshTokenProperty = tokenType.GetProperty("RefreshToken");
+                    var expirationDateProperty = tokenType.GetProperty("ExpirationDate");
+
+                    var newRefreshToken = (string)refreshTokenProperty?.GetValue(tokenInfo)!;
+                    var newExpirationDate = (DateTime)expirationDateProperty?.GetValue(tokenInfo)!;
+
+                    var cookieOptions = RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(newExpirationDate);
+                    httpContext!.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
                 }
 
                 logger.LogInformation("Token refreshed successfully");

@@ -15,10 +15,7 @@ public class GetSubmittedDeals : IEndpoint
             async (ISubmitDeal service) =>
             {
                 var result = await service.GetAllDealsAsync();
-                var submittedDealResponses = result.ToList();
-                return submittedDealResponses.Count != 0
-                    ? Results.Ok(submittedDealResponses)
-                    : Results.NoContent();
+                return Results.Ok(result);
             });
     }
 }

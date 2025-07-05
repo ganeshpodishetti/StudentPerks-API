@@ -21,7 +21,6 @@ public class AuthService(
     IJwtHelper jwtHelper,
     IRefreshTokenHelper refreshTokenHelper,
     IOptions<JwtOptions> jwtOptions,
-    IHttpContextAccessor httpContextAccessor,
     SpDbContext dbContext,
     ILogger<AuthService> logger)
     : IAuth
@@ -82,36 +81,17 @@ public class AuthService(
         var accessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
 
         var refreshTokenEntity =
-            AuthExtension.CreateRefreshTokenEntity(refreshToken, user.Id,
-                jwtOptions.Value.RefreshTokenExpirationInDays);
+            AuthExtension.CreateRefreshTokenEntity(refreshToken, user.Id, refreshTokenExpiration);
 
         await dbContext.RefreshTokens.AddAsync(refreshTokenEntity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var cookieOptions = RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(refreshTokenExpiration);
-
-        // For development, you might want to conditionally set Secure to false
-        //if (httpContextAccessor.HttpContext?.Request.IsHttps == false) cookieOptions.Secure = false;
-
-        // Check if we can still modify the response headers
-        var httpContext = httpContextAccessor.HttpContext;
-        if (httpContext?.Response.HasStarted == true)
-        {
-            logger.LogError("Cannot set refresh token cookie - response has already started");
-            return Result<LoginResponse>.Failure("Unable to set authentication cookie");
-        }
-
-        if (httpContext == null)
-        {
-            logger.LogError("HttpContext is null, cannot set refresh token cookie");
-            return Result<LoginResponse>.Failure("Unable to access HTTP context");
-        }
-
-        // Set the refresh token as an HTTP-only cookie
-        httpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
-
         var response = user.ToLoginDto(accessToken.Value!, accessTokenExpiration);
-        return Result<LoginResponse>.Success(response);
+        return Result<LoginResponse>.Success(response, new
+        {
+            RefreshToken = refreshToken,
+            ExpirationDate = refreshTokenExpiration
+        });
     }
 
     public async Task<Result<RefreshTokenResponse>> RefreshTokenAsync(string refreshToken,
@@ -129,8 +109,6 @@ public class AuthService(
         oldRefreshToken.IsRevoked = true;
         oldRefreshToken.LastModifiedAt = DateTime.UtcNow;
         dbContext.RefreshTokens.Update(oldRefreshToken);
-
-        // Save the revocation first to avoid tracking conflicts
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var newAccessToken = await jwtHelper.GenerateJwtToken(existingUser);
@@ -141,12 +119,10 @@ public class AuthService(
         }
 
         var newRefreshToken = refreshTokenHelper.GenerateRefreshToken();
+        var newRefreshTokenExpiration = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationInDays);
 
-        var newRefreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(newRefreshToken, existingUser.Id,
-            jwtOptions.Value.RefreshTokenExpirationInDays);
+        var newRefreshTokenEntity = AuthExtension.CreateRefreshTokenEntity(newRefreshToken, existingUser.Id, newRefreshTokenExpiration);
         await dbContext.RefreshTokens.AddAsync(newRefreshTokenEntity, cancellationToken);
-
-        // Save the new token
         await dbContext.SaveChangesAsync(cancellationToken);
 
         // Clean up expired and revoked tokens in a separate operation
@@ -161,28 +137,11 @@ public class AuthService(
 
         var newAccessTokenExpiration = DateTime.UtcNow.AddMinutes(jwtOptions.Value.AccessTokenExpirationInMinutes);
 
-        var cookieOptions =
-            RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(newRefreshTokenEntity.ExpirationDate);
-
-        // Check if we can still modify the response headers
-        var httpContext = httpContextAccessor.HttpContext;
-        if (httpContext?.Response.HasStarted == true)
-        {
-            logger.LogError("Cannot set refresh token cookie - response has already started");
-            return Result<RefreshTokenResponse>.Failure("Unable to set authentication cookie");
-        }
-
-        if (httpContext == null)
-        {
-            logger.LogError("HttpContext is null, cannot set refresh token cookie");
-            return Result<RefreshTokenResponse>.Failure("Unable to access HTTP context");
-        }
-
-        // Set the new refresh token in the cookie
-        httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken, cookieOptions);
-
         var response = AuthExtension.ToRefreshTokenDto(newAccessToken.Value!, newAccessTokenExpiration);
-        return Result<RefreshTokenResponse>.Success(response);
+        return Result<RefreshTokenResponse>.Success(response, new {
+            RefreshToken = newRefreshToken,
+            ExpirationDate = newRefreshTokenExpiration
+        });
     }
 
     public async Task<Result<CurrentUserResponse?>> GetCurrentUserAsync(string refreshToken,
@@ -207,29 +166,31 @@ public class AuthService(
 
     public async Task<Result<bool>> RevokeRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        // If there's a refresh token, revoke it in the database
-        if (!string.IsNullOrEmpty(refreshToken))
+        if (string.IsNullOrEmpty(refreshToken))
         {
-            var token = await dbContext.RefreshTokens
-                                       .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
-            if (token is null) return Result<bool>.Failure(CustomErrors.InvalidToken);
-
-            // Mark the token as revoked
-            token.IsRevoked = true;
-            token.LastModifiedAt = DateTime.UtcNow;
-            dbContext.RefreshTokens.Update(token);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            return Result<bool>.Failure(CustomErrors.InvalidToken);
         }
 
-        // Remove the refresh token cookie
-        var httpContext = httpContextAccessor.HttpContext;
-        if (httpContext?.Response.HasStarted == true)
-            logger.LogWarning("Cannot delete refresh token cookie - response has already started");
-        else
-            httpContext?.Response.Cookies.Delete("refreshToken");
+        var token = await dbContext.RefreshTokens
+                                   .FirstOrDefaultAsync(rt => rt.Token == refreshToken, cancellationToken);
+        if (token is null) return Result<bool>.Failure(CustomErrors.InvalidToken);
+
+        // Mark the token as revoked
+        token.IsRevoked = true;
+        token.LastModifiedAt = DateTime.UtcNow;
+        dbContext.RefreshTokens.Update(token);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         // Clean up old tokens
-        await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
+        try
+        {
+            await TokensCleanupHelper.CleanupExpiredAndRevokedTokensAsync(dbContext, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to clean up expired tokens, but token revocation was successful");
+        }
+        logger.LogInformation("Refresh token {Token} revoked successfully", refreshToken);
         return Result<bool>.Success(true);
     }
 }

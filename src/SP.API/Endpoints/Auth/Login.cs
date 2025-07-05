@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SP.API.Contracts;
 using SP.Application.Contracts;
 using SP.Application.Dtos.Auth;
+using SP.Application.Helper;
 
 namespace SP.API.Endpoints.Auth;
 
@@ -17,6 +18,7 @@ public class Login : IEndpoint
                 [FromBody] LoginRequest request,
                 IValidator<LoginRequest> validator,
                 ILogger<Login> logger,
+                HttpContext httpContext,
                 CancellationToken cancellationToken) =>
             {
                 var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -28,9 +30,29 @@ public class Login : IEndpoint
                 }
 
                 var result = await authService.LoginAsync(request, cancellationToken);
-                if (result.IsSuccess) return Results.Ok(result.Value);
-                logger.LogWarning("Login failed for user: {Email}", request.Email);
-                return Results.BadRequest(new { errors = result.Errors });
+                if (!result.IsSuccess)
+                {
+                    logger.LogWarning("Login failed: {Error}", result.Error);
+                    return Results.BadRequest(new { error = result.Error });
+                }
+
+                if (result.AdditionalData is not null)
+                {
+                    var tokenInfo = result.AdditionalData;
+                    var tokenType = tokenInfo.GetType();
+
+                    var refreshTokenProperty = tokenType.GetProperty("RefreshToken");
+                    var expirationDateProperty = tokenType.GetProperty("ExpirationDate");
+
+                    var refreshToken = (string)refreshTokenProperty?.GetValue(tokenInfo)!;
+                    var expirationDate = (DateTime)expirationDateProperty?.GetValue(tokenInfo)!;
+
+                    var cookieOptions = RefreshTokenCookieHelper.CreateRefreshTokenCookieOptions(expirationDate);
+                    httpContext.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+                }
+
+                logger.LogInformation("User logged in successfully");
+                return Results.Ok(result.Value);
             });
     }
 }

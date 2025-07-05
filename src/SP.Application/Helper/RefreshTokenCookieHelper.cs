@@ -9,9 +9,9 @@ public static class RefreshTokenCookieHelper
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = true, // Keep true for production
+            Secure = true,
             Expires = expiration,
-            SameSite = SameSiteMode.Strict, // Changed from Strict to None for cross-origin
+            SameSite = SameSiteMode.Strict,
             Path = "/"
         };
     }
