@@ -33,14 +33,14 @@ public static class AuthExtension
         );
     }
 
-    public static RefreshToken CreateRefreshTokenEntity(string token, string userId, int refreshTokenExpirationInDays)
+    public static RefreshToken CreateRefreshTokenEntity(string token, string userId, DateTime refreshTokenExpirationInDays)
     {
         return new RefreshToken
         {
             Id = Guid.NewGuid(),
             Token = token,
             UserId = userId,
-            ExpirationDate = DateTime.UtcNow.AddDays(refreshTokenExpirationInDays),
+            ExpirationDate = refreshTokenExpirationInDays,
             IsRevoked = false
         };
     }

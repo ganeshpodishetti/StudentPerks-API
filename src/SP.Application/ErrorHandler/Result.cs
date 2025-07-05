@@ -2,22 +2,29 @@ namespace SP.Application.ErrorHandler;
 
 public class Result<T>
 {
-    private Result(bool isSuccess, T? value, string? error, List<string>? errors = null)
+    private Result(bool isSuccess, T? value, string? error, List<string>? errors = null, object? additionalData = null)
     {
         IsSuccess = isSuccess;
         Value = value;
         Error = error;
-        Errors = errors ?? new List<string>();
+        Errors = errors ?? [];
+        AdditionalData = additionalData;
     }
 
     public bool IsSuccess { get; private set; }
     public T? Value { get; private set; }
     public string? Error { get; private set; }
-    public List<string> Errors { get; private set; } = new();
+    public List<string> Errors { get; private set; }
+    public object? AdditionalData { get; private set; }
 
     public static Result<T> Success(T value)
     {
         return new Result<T>(true, value, null);
+    }
+
+    public static Result<T> Success(T value, object? additionalData)
+    {
+        return new Result<T> (true,  value, null, null, additionalData);
     }
 
     public static Result<T> Failure(string error)
@@ -43,7 +50,7 @@ public class Result
 
     public bool IsSuccess { get; private set; }
     public string? Error { get; private set; }
-    public List<string> Errors { get; private set; } = new();
+    public List<string> Errors { get; private set; }
 
     public static Result Success()
     {
